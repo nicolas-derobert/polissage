@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Maîtrise des Abrasifs : Le Quiz</title>
+    <!-- Bibliothèques externes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a202c;
+            --accent: #3182ce;
+            --accent-text: #2b6cb0;
+            --accent-light: #ebf8ff;
+            --bg-color: #e2e8f0;
+            --panel-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-color: #2d3748;
+            --danger: #e53e3e;
+            --success: #38a169;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            /* Empêche le rebond élastique de la page sur iOS/Android */
+            overflow: hidden; 
+        }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overscroll-behavior-y: none;
+        }
+        
+        .game-container-outer {
+            height: 100%;
+            width: 100%;
+            max-width: 448px;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Support de l'unité hauteur dynamique (dvh) pour s'adapter à la barre d'adresse mobile */
+        @supports (height: 100dvh) {
+            html, body, .game-container-outer {
+                height: 100dvh;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .game-container-outer {
+                height: 90vh;
+                max-height: 850px;
+                border-radius: 1.5rem;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+        }
+        
+        .btn-main {
+            background-color: var(--accent);
+            color: white;
+            transition: all 0.2s;
+            display: inline-block;
+            padding: 1.25rem 2rem;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1.25rem;
+            box-shadow: 0 6px 20px rgba(49, 130, 206, 0.3);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .btn-main:active { transform: translateY(2px); scale: 0.98; box-shadow: 0 2px 10px rgba(49, 130, 206, 0.2); }
+
+        .btn-choice {
+            background-color: white;
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            transition: all 0.15s ease-in-out;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: left;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            line-height: 1.3;
+        }
+        .btn-choice:hover {
+            border-color: var(--accent);
+            background-color: var(--accent-light);
+        }
+        .btn-choice:active {
+            transform: scale(0.98);
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid var(--accent-light);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .category-tag {
+            background: var(--accent-light);
+            color: var(--accent-text);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(49, 130, 206, 0.2);
+        }
+
+        #flash {
+            position: absolute;
+            inset: 0;
+            background: white;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s;
+            border-radius: inherit;
+        }
+
+        .choice-letter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--bg-color);
+            color: var(--primary);
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        
+        .btn-choice:hover .choice-letter {
+            background: var(--accent);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container-outer" id="capture-area">
+        <div id="flash"></div>
+        
+        <!-- En-tête -->
+        <div class="flex items-center justify-between gap-4 p-3 bg-white border-b border-gray-200 z-20 relative shadow-sm">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="p-2 text-gray-500 hover:text-accent transition-colors" title="Retour à l'accueil">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </a>
+                <h1 class="text-[11px] font-black text-primary uppercase tracking-tight flex items-center gap-2 ml-2">
+                    <span class="w-2 h-2 bg-accent rounded-full"></span>
+                    Théorie Polissage <span class="text-accent text-[9px] hidden sm:inline">• Abrasifs</span>
+                </h1>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Bouton de capture -->
+                <button id="btn-screenshot" class="p-2 text-accent bg-accent-light rounded-lg hover:bg-blue-100 transition-colors" title="Prendre une capture">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </button>
+
+                <!-- Score en direct -->
+                <div id="game-stats" class="hidden mr-2">
+                    <div class="bg-white text-gray-900 px-3 py-1 rounded-full text-[10px] font-bold border border-gray-300 shadow-inner">
+                        <span id="current-score" class="text-accent-text">0</span> / <span id="total-questions">20</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Écran d'accueil -->
+        <div id="screen-welcome" class="flex-1 flex flex-col items-center justify-center p-8 text-center overflow-y-auto bg-gray-50">
+            <div class="relative mb-8">
+                <div class="w-28 h-28 bg-white rounded-3xl flex items-center justify-center shadow-xl transform rotate-3 border-4 border-accent">
+                    <span class="text-5xl">⚙️</span>
+                </div>
+                <div class="absolute -bottom-3 -right-3 w-12 h-12 bg-accent rounded-2xl flex items-center justify-center border-4 border-white shadow-lg transform -rotate-6">
+                    <span class="text-white font-black text-xl">?</span>
+                </div>
+            </div>
+
+            <h2 class="section-title text-xl">Abrasifs & Supports</h2>
+            <p class="text-gray-600 mb-8 text-sm leading-relaxed max-w-[280px]">
+                Testez vos connaissances théoriques sur les abrasifs, leurs supports, et les techniques de polissage.<br>
+                <b class="text-gray-800 mt-3 block">20 questions • À votre rythme • QCM</b>
+            </p>
+            <button id="btn-start" class="btn-main w-full shadow-lg">
+                Démarrer le Test
+            </button>
+        </div>
+
+        <!-- Écran de jeu -->
+        <div id="screen-game" class="hidden flex-1 flex flex-col overflow-hidden bg-white relative">
+            
+            <div class="flex-1 flex flex-col p-6 overflow-y-auto">
+                <div class="text-center mb-6 mt-2">
+                    <div id="scenario-category" class="category-tag">...</div>
+                    <h2 id="scenario-title" class="text-xl font-black text-gray-800 mb-3 leading-tight tracking-tight">...</h2>
+                    <p id="scenario-desc" class="text-gray-600 text-sm font-medium leading-relaxed">...</p>
+                </div>
+
+                <!-- Grille des choix (QCM) -->
+                <div class="flex-col space-y-3 mt-auto mb-4" id="choices-container">
+                    <button class="btn-choice w-full" onclick="handleChoice(0)">
+                        <span class="choice-letter">A</span>
+                        <span id="choice-0-text" class="flex-1">...</span>
+                    </button>
+                    <button class="btn-choice w-full" onclick="handleChoice(1)">
+                        <span class="choice-letter">B</span>
+                        <span id="choice-1-text" class="flex-1">...</span>
+                    </button>
+                    <button class="btn-choice w-full" onclick="handleChoice(2)">
+                        <span class="choice-letter">C</span>
+                        <span id="choice-2-text" class="flex-1">...</span>
+                    </button>
+                    <button class="btn-choice w-full" onclick="handleChoice(3)">
+                        <span class="choice-letter">D</span>
+                        <span id="choice-3-text" class="flex-1">...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Écran de Feedback -->
+        <div id="screen-feedback" class="hidden flex-1 flex flex-col p-6 bg-gray-50 overflow-y-auto">
+            <div class="flex-1 flex flex-col items-center justify-center py-4">
+                <div id="feedback-icon" class="text-6xl mb-3 transform scale-110">✅</div>
+                <h2 id="feedback-title" class="text-2xl font-black mb-2 tracking-tight">...</h2>
+                
+                <!-- Zone si mauvaise réponse -->
+                <div id="correction-box" class="hidden w-full bg-red-50 p-4 rounded-xl border border-red-200 mb-4">
+                    <p class="text-xs text-red-600 font-bold uppercase mb-1">La bonne réponse était :</p>
+                    <p id="feedback-correct-answer" class="text-sm font-semibold text-gray-800"></p>
+                </div>
+
+                <p id="feedback-text" class="text-gray-700 mb-6 font-medium text-base text-center leading-relaxed"></p>
+                
+                <div class="w-full bg-white p-5 rounded-xl shadow-sm text-left border-l-4 border-accent relative">
+                    <div class="absolute -top-3 -left-3 bg-accent text-white p-1.5 rounded-lg shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0-3.332-.477-4.5-1.253"></path></svg>
+                    </div>
+                    <p class="font-bold text-accent-text mb-1 tracking-tight text-[10px] uppercase ml-3">Référence du Cours :</p>
+                    <p id="feedback-ref" class="text-sm text-gray-600 leading-snug ml-3 font-semibold"></p>
+                </div>
+            </div>
+            
+            <div class="pb-2">
+                <button id="btn-next" class="btn-main w-full shadow-lg">
+                    QUESTION SUIVANTE
+                </button>
+            </div>
+        </div>
+
+        <!-- Écran de Résultat -->
+        <div id="screen-result" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center bg-gray-50 overflow-y-auto">
+            <h2 class="section-title mb-6">Bilan Théorique</h2>
+            <div class="bg-white border-4 border-accent rounded-3xl p-6 mb-6 w-full shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-accent opacity-50"></div>
+                <div class="text-7xl font-black text-primary mb-2" id="final-score">0</div>
+                <div class="text-sm font-bold text-accent-text uppercase tracking-widest">Points sur <span id="final-total">20</span></div>
+            </div>
+            <p class="text-gray-700 font-medium mb-8 text-sm px-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm leading-relaxed" id="final-comment">...</p>
+            <button onclick="location.reload()" class="btn-main w-full shadow-lg">
+                REPASSER LE TEST
+            </button>
+        </div>
+        
+        <footer class="text-center p-3 bg-white border-t border-gray-200 text-[10px] text-gray-400 uppercase tracking-widest z-20">
+            Théorie du Polissage • Abrasifs & Supports
+        </footer>
+    </div>
+
+    <script>
+        // Variables de jeu
+        let score = 0;
+        let currentScenarioIndex = 0;
+        let currentChoices = []; 
+
+        // Données du Quiz extraites du document (20 Questions)
+        const scenarios = [
+            { 
+                category: "1. Introduction", 
+                title: "Critères de Choix", 
+                desc: "Selon l'introduction du cours, de quels paramètres dépend le choix d'un abrasif ?", 
+                ref: "Section 1 : Introduction", 
+                choices: [
+                    { text: "De la matière, forme, état de surface demandé et du support", correct: true, comment: "C'est exact. La matière, la forme, la quantité de matière et le support sont essentiels au choix." },
+                    { text: "Uniquement de la matière de la pièce et du type de machine", correct: false, comment: "C'est incomplet. De nombreux autres paramètres techniques entrent en jeu." },
+                    { text: "Principalement du prix de l'abrasif et des préférences", correct: false, comment: "Faux. Le choix est purement technique pour garantir la conformité de la pièce." },
+                    { text: "Exclusivement de la vitesse de rotation de la machine", correct: false, comment: "Faux. La vitesse n'est même pas le premier critère listé dans les paramètres." }
+                ] 
+            },
+            { 
+                category: "2. Erreurs", 
+                title: "Choix de grain", 
+                desc: "Que se passe-t-il si l'on choisit un grain abrasif trop gros pour l'opération prévue ?", 
+                ref: "Section 9 : Erreurs fréquentes à éviter", 
+                choices: [
+                    { text: "Il crée des rayures trop profondes, difficiles à reprendre", correct: true, comment: "Correct. C'est l'erreur classique qui prolonge le temps de correction à l'étape suivante." },
+                    { text: "Il améliore considérablement l'état de surface final", correct: false, comment: "Faux, les gros grains servent à enlever de la matière, pas à finir la surface." },
+                    { text: "Il encrasse plus rapidement la bande abrasive", correct: false, comment: "L'encrassement est lié à la pâte ou au liant, pas à la grosse taille du grain." },
+                    { text: "Il déforme systématiquement la pièce travaillée", correct: false, comment: "La déformation vient plutôt d'un mauvais support ou d'une pression inadaptée." }
+                ] 
+            },
+            { 
+                category: "3. Le Grain", 
+                title: "Capacité de Coupe", 
+                desc: "Quel critère du grain définit spécifiquement sa capacité à couper efficacement la matière ?", 
+                ref: "Section 3 : Tableau des critères du grain", 
+                choices: [
+                    { text: "La dureté", correct: false, comment: "Non, la dureté définit la capacité à attaquer une matière plus ou moins dure." },
+                    { text: "La ténacité", correct: false, comment: "Non, la ténacité est la résistance du grain à la rupture." },
+                    { text: "L'angularité", correct: true, comment: "Correct ! L'angularité est directement liée à la capacité de coupe du grain." },
+                    { text: "La régularité", correct: false, comment: "Non, la régularité influence la stabilité du résultat sur la surface." }
+                ] 
+            },
+            { 
+                category: "3. Le Grain", 
+                title: "Auto-affûtage", 
+                desc: "Comment le document définit-il le phénomène d'« auto-affûtage » ?", 
+                ref: "Section 3 : Le grain abrasif", 
+                choices: [
+                    { text: "Les grains s'usent doucement sans se casser", correct: false, comment: "C'est l'inverse. L'usure progressive s'oppose à l'auto-affûtage." },
+                    { text: "Les grains se cassent et créent de nouvelles arêtes", correct: true, comment: "Exactement. En se fracturant pendant le travail, le grain renouvelle son pouvoir de coupe." },
+                    { text: "La machine aiguise automatiquement la bande", correct: false, comment: "Faux. C'est une propriété intrinsèque du grain lui-même." },
+                    { text: "Le grain se détache complètement du liant", correct: false, comment: "Faux. S'il se détache, il ne coupe plus. Il doit se casser, pas s'arracher." }
+                ] 
+            },
+            { 
+                category: "3. Le Grain", 
+                title: "Ténacité", 
+                desc: "Parmi les 4 critères du grain, comment définit-on sa « ténacité » ?", 
+                ref: "Section 3 : Tableau des critères du grain", 
+                choices: [
+                    { text: "Sa capacité à attaquer des matières très dures", correct: false, comment: "Ceci correspond à la définition de la « Dureté »." },
+                    { text: "La résistance du grain à la rupture", correct: true, comment: "C'est exact. Un grain tenace résiste bien avant de se fracturer sous l'effort." },
+                    { text: "La stabilité de sa forme dans le temps", correct: false, comment: "Ceci s'apparente plutôt au critère de « Régularité »." },
+                    { text: "Sa propension à générer moins de chaleur", correct: false, comment: "La ténacité n'est pas directement liée au dégagement de chaleur thermique." }
+                ] 
+            },
+            { 
+                category: "4. Granulométrie", 
+                title: "Le Chiffre", 
+                desc: "À quoi correspond physiquement le numéro de granulométrie d'un abrasif (ex: P 60) ?", 
+                ref: "Section 4 : La granulométrie", 
+                choices: [
+                    { text: "Au nombre de mailles par pouce linéaire d'un tamis", correct: true, comment: "Correct. C'est la base de la classification historique (25,4 mm)." },
+                    { text: "Au diamètre moyen du grain exprimé en millimètres", correct: false, comment: "Non, un grain 60 ne fait pas 60mm ni 0.60mm." },
+                    { text: "Au pourcentage d'abrasif déposé sur le support", correct: false, comment: "Faux, le chiffre indique une taille, pas une quantité de dépôt." },
+                    { text: "Au poids des grains en grammes par mètre carré", correct: false, comment: "Faux. La granulométrie concerne la taille du minéral, pas sa masse au m²." }
+                ] 
+            },
+            { 
+                category: "4. Granulométrie", 
+                title: "Normes FEPA", 
+                desc: "Quelle norme internationale détermine la granulométrie pour les abrasifs appliqués ?", 
+                ref: "Section 4 : La granulométrie", 
+                choices: [
+                    { text: "La norme FEPA F", correct: false, comment: "Non, la norme FEPA F s'applique aux abrasifs agglomérés." },
+                    { text: "La norme ISO 9001", correct: false, comment: "Faux, c'est une norme de gestion de la qualité." },
+                    { text: "La norme FEPA P", correct: true, comment: "Correct ! La FEPA P (comme Papier) concerne les grains appliqués sur support." },
+                    { text: "Le système métrique en mm", correct: false, comment: "Le classement se fait par mailles (norme FEPA), même si une correspondance en mm existe." }
+                ] 
+            },
+            { 
+                category: "4. Granulométrie", 
+                title: "Micro-finition", 
+                desc: "Quelle taille de grain est préconisée pour effectuer la micro-finition ou préparer le poli miroir ?", 
+                ref: "Section 4 : Progression des grains", 
+                choices: [
+                    { text: "Un grain gros", correct: false, comment: "Un gros grain laisse des rayures profondes incompatibles avec une finition." },
+                    { text: "Un grain moyen", correct: false, comment: "Le grain moyen sert à régulariser une surface intermédiaire." },
+                    { text: "Un grain très fin", correct: true, comment: "C'est exact. Les grains très fins effacent les ultimes défauts avant l'avivage/polissage final." },
+                    { text: "Un grain très dur peu importe la taille", correct: false, comment: "La taille du grain est critique pour le fini visuel, pas seulement sa dureté." }
+                ] 
+            },
+            { 
+                category: "5. Structure", 
+                title: "Rôle du Liant", 
+                desc: "Quel est le rôle précis du liant dans un abrasif appliqué ?", 
+                ref: "Section 5 : Abrasif, support et liant", 
+                choices: [
+                    { text: "Il coupe ou raye la matière", correct: false, comment: "Faux, c'est le rôle exclusif du grain abrasif." },
+                    { text: "Il donne la souplesse ou la rigidité", correct: false, comment: "Faux, c'est le rôle du support (papier, toile, etc.)." },
+                    { text: "Il fixe les grains sur le support", correct: true, comment: "Correct. Le liant sert de colle entre le grain et le support." },
+                    { text: "Il lubrifie la pièce pendant le frottement", correct: false, comment: "Faux, la lubrification est apportée par des pâtes ou agents externes." }
+                ] 
+            },
+            { 
+                category: "5. Structure", 
+                title: "Dosage du liant", 
+                desc: "Que risque-t-il de se passer si le liant d'une bande abrasive est beaucoup trop fort (trop dur) ?", 
+                ref: "Section 5 : Abrasif, support et liant", 
+                choices: [
+                    { text: "Les grains s'usent sans se renouveler", correct: true, comment: "Correct. Si le liant retient trop le grain, ce dernier s'émousse sans s'arracher pour laisser place à un grain neuf." },
+                    { text: "Les grains se détachent instantanément", correct: false, comment: "Cela se produit si le liant est trop faible, pas s'il est trop fort." },
+                    { text: "La bande abrasive se déchire", correct: false, comment: "La déchirure dépend de la résistance du support ou du taux d'humidité." },
+                    { text: "La bande raye plus profondément la pièce", correct: false, comment: "Un grain usé retenu par un liant fort aura tendance à polir ou chauffer, mais pas à rayer plus fort." }
+                ] 
+            },
+            { 
+                category: "6. Supports", 
+                title: "Toile vs Papier", 
+                desc: "Pourquoi privilégier la toile ou la combinaison papier-toile pour certaines bandes abrasives ?", 
+                ref: "Section 6 : Tableau des supports abrasifs", 
+                choices: [
+                    { text: "Car elles sont incompressibles pour la micro-finition", correct: false, comment: "C'est la définition du film polyester, pas de la toile." },
+                    { text: "Pour leur grande résistance aux efforts et à la déchirure", correct: true, comment: "C'est exact. La toile encaisse les fortes tensions, notamment sur les bandes larges." },
+                    { text: "Parce qu'elles empêchent l'encrassement des grains", correct: false, comment: "L'encrassement dépend du liant, du matériau usiné et de la pâte, pas du tissu." },
+                    { text: "Pour créer un effet d'arrondi sur toutes les arêtes", correct: false, comment: "L'arrondi est lié à la grande souplesse, or les toiles fortes sont souvent rigides." }
+                ] 
+            },
+            { 
+                category: "6. Les Supports", 
+                title: "Inconvénient de la souplesse", 
+                desc: "Quel est le risque principal associé à l'utilisation d'un support très souple ?", 
+                ref: "Section 6 : Choisir le bon support", 
+                choices: [
+                    { text: "Il a tendance à arrondir les arêtes de la pièce", correct: true, comment: "C'est le défaut typique. La matière molle enveloppe les angles vifs de la pièce." },
+                    { text: "Il conserve trop bien la planéité et marque les plats", correct: false, comment: "C'est le problème inverse, typique d'un support rigide." },
+                    { text: "Il ne permet pas de suivre les formes courbes", correct: false, comment: "Un support souple est justement fait pour épouser les formes complexes." },
+                    { text: "Il casse net lors du passage sur la pièce", correct: false, comment: "La casse est typique d'un support rigide et sec, pas d'un support souple." }
+                ] 
+            },
+            { 
+                category: "6. Les Supports", 
+                title: "Film Polyester", 
+                desc: "Quel type de support est « très régulier, précis et incompressible, adapté à la micro finition » ?", 
+                ref: "Section 6 : Tableau des supports abrasifs", 
+                choices: [
+                    { text: "Le papier", correct: false, comment: "Le papier est courant et souple, mais n'est pas incompressible." },
+                    { text: "La toile", correct: false, comment: "La toile est résistante aux efforts importants, pas spécifiquement conçue pour la micro-finition." },
+                    { text: "Le film polyester", correct: true, comment: "Exact. Sa planéité parfaite et son incompressibilité le rendent idéal pour la micro-finition." },
+                    { text: "La fibre", correct: false, comment: "La fibre est très épaisse et tenace, réservée aux gros travaux." }
+                ] 
+            },
+            { 
+                category: "7. Pâtes à polir", 
+                title: "Classification", 
+                desc: "Comment les pâtes à polir sont-elles principalement classées dans le cours ?", 
+                ref: "Section 7 : Les pâtes à polir", 
+                choices: [
+                    { text: "Selon la taille de leur grain (de 8 à 1200)", correct: false, comment: "C'est la classification de la norme FEPA pour les grains, pas pour les pâtes." },
+                    { text: "Selon leur teneur en matière grasse", correct: true, comment: "Correct. Elles sont classées en grasses (>35%), mi-sèches, sèches et très sèches." },
+                    { text: "Selon leur couleur", correct: false, comment: "Bien qu'elles aient des couleurs en pratique, la théorie les classe par texture/graisse." },
+                    { text: "Selon le métal cible exclusivement", correct: false, comment: "Faux, la classification principale expliquée est liée au pourcentage de graisse." }
+                ] 
+            },
+            { 
+                category: "7. Pâtes à polir", 
+                title: "Le Dosage", 
+                desc: "Quel est l'effet d'un excès important de pâte à polir sur votre support ?", 
+                ref: "Section 7 : Dosage de la pâte", 
+                choices: [
+                    { text: "Il accélère considérablement l'enlèvement de matière", correct: false, comment: "Faux. Trop de graisse empêche les minéraux de couper." },
+                    { text: "Il encrasse le support et noie les grains abrasifs", correct: true, comment: "C'est exact. La bande ou le feutre se bouche, ce qui annule complètement l'action coupante." },
+                    { text: "Il augmente drastiquement la durée de vie de l'abrasif", correct: false, comment: "Bien que cela lubrifie, un abrasif encrassé est un abrasif inefficace qui doit être changé." },
+                    { text: "Il provoque la déchirure immédiate du tissu", correct: false, comment: "L'excès de graisse ne déchire pas, il sature simplement la structure." }
+                ] 
+            },
+            { 
+                category: "8. Stockage", 
+                title: "Conditions idéales", 
+                desc: "Quelles sont les conditions idéales de stockage pour préserver les bandes abrasives ?", 
+                ref: "Section 8 : Conditions de stockage", 
+                choices: [
+                    { text: "Température ambiante et humidité > 80 %", correct: false, comment: "Trop d'humidité ramollit le support et relève les bords." },
+                    { text: "En chambre froide sans humidité", correct: false, comment: "Un air trop froid ou trop sec rend le support cassant." },
+                    { text: "Température 16-20°C et humidité 50-60 %", correct: true, comment: "C'est exact. Ce climat tempéré préserve la souplesse et le liant." },
+                    { text: "Stockage au contact direct d'huiles", correct: false, comment: "Interdit. Elles ne doivent jamais être exposées aux huiles ou salissures." }
+                ] 
+            },
+            { 
+                category: "8. Stockage", 
+                title: "Air trop sec", 
+                desc: "Quelle est la conséquence directe d'une humidité de l'air trop faible lors du stockage ?", 
+                ref: "Section 8 : Conditions de stockage", 
+                choices: [
+                    { text: "Le ramollissement du support", correct: false, comment: "Le ramollissement survient quand l'humidité est trop ÉLEVÉE." },
+                    { text: "Réduction de la flexibilité et de la ténacité", correct: true, comment: "Correct. Un air trop sec fragilise tous les types de supports (risque de déchirure)." },
+                    { text: "L'arrachage prématuré des grains", correct: false, comment: "Ce phénomène arrive généralement avec une humidité excessive." },
+                    { text: "Le grain perd sa dureté", correct: false, comment: "Faux. L'humidité affecte le support et le liant, pas le minéral du grain." }
+                ] 
+            },
+            { 
+                category: "8. Stockage", 
+                title: "Air très humide", 
+                desc: "Que se passe-t-il si les bandes sont stockées dans un endroit extrêmement humide ?", 
+                ref: "Section 8 : Conditions de stockage", 
+                choices: [
+                    { text: "La bande devient très cassante et dure", correct: false, comment: "Cela arrive lorsque l'air est excessivement sec." },
+                    { text: "Le support se ramollit et les bords se relèvent", correct: true, comment: "Exact. Cela entraîne la formation de plis et la pénétration des bords dans la pièce." },
+                    { text: "Le grain gagne en capacité d'auto-affûtage", correct: false, comment: "L'humidité affecte le support de la bande, elle n'améliore jamais les capacités du grain." },
+                    { text: "Le liant durcit et bloque complètement les grains", correct: false, comment: "C'est l'inverse : l'humidité ramollit l'ensemble de la structure et les grains peuvent s'arracher." }
+                ] 
+            },
+            { 
+                category: "9. Erreurs", 
+                title: "Saut de grain", 
+                desc: "Pourquoi faut-il éviter de passer directement d'un grain grossier à un très fin ?", 
+                ref: "Section 4 & 9 : Progression des grains", 
+                choices: [
+                    { text: "Le support risquerait de se déchirer", correct: false, comment: "La déchirure est due à un effort mécanique, pas à l'ordre des grains." },
+                    { text: "La pâte n'adhérerait plus", correct: false, comment: "L'adhérence dépend de la graisse, pas des rayures précédentes." },
+                    { text: "Les rayures profondes resteraient visibles", correct: true, comment: "Exact. Le grain fin n'enlève pas assez de matière pour effacer les gros sillons initiaux." },
+                    { text: "L'auto-affûtage ne se produirait pas", correct: false, comment: "Faux, l'auto-affûtage dépend de la pression et du type de grain." }
+                ] 
+            },
+            { 
+                category: "9. Erreurs", 
+                title: "Graisse inadaptée", 
+                desc: "Selon le tableau des erreurs fréquentes, que provoque l'utilisation d'une graisse mal maîtrisée ?", 
+                ref: "Section 9 : Erreurs fréquentes à éviter", 
+                choices: [
+                    { text: "Le ramollissement total et la destruction du liant", correct: false, comment: "La destruction structurelle du liant vient généralement d'un solvant ou de l'eau, pas d'une mauvaise pâte." },
+                    { text: "Un chargement en poussières et une mauvaise influence sur la surface", correct: true, comment: "C'est la conséquence listée dans le manuel. Trop gras = accumulation de poussières/déchets." },
+                    { text: "Une perte complète de flexibilité de la bande abrasive", correct: false, comment: "La perte de flexibilité est un symptôme lié à un stockage dans un air trop sec." },
+                    { text: "Le relèvement des bords lors de la rotation de la roue", correct: false, comment: "Ce phénomène (le tuilage) est causé par une hygrométrie (humidité) trop élevée dans l'air." }
+                ] 
+            }
+        ];
+
+        // Moteur UI
+        function switchScreen(id) {
+            ['screen-welcome', 'screen-game', 'screen-feedback', 'screen-result'].forEach(s => {
+                document.getElementById(s).classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'screen-game') {
+                document.getElementById('game-stats').classList.remove('hidden');
+            }
+        }
+
+        // Démarrage d'une question
+        function startScenario() {
+            if (currentScenarioIndex >= scenarios.length) { 
+                endGame(); 
+                return; 
+            }
+            
+            const scenario = scenarios[currentScenarioIndex];
+            
+            // Mélanger les réponses
+            currentChoices = [...scenario.choices].sort(() => Math.random() - 0.5);
+
+            document.getElementById('scenario-category').innerText = scenario.category;
+            document.getElementById('scenario-title').innerText = scenario.title;
+            document.getElementById('scenario-desc').innerText = scenario.desc;
+            
+            // Assigner les textes aux 4 boutons
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`choice-${i}-text`).innerText = currentChoices[i].text;
+            }
+
+            switchScreen('screen-game');
+        }
+
+        // Clic sur une réponse
+        function handleChoice(choiceIndex) {
+            const scenario = scenarios[currentScenarioIndex];
+            const chosen = currentChoices[choiceIndex];
+            
+            let isCorrect = chosen.correct;
+            let comment = chosen.comment;
+            
+            // Trouver la bonne réponse pour l'afficher en cas d'erreur
+            const correctAnswerText = currentChoices.find(c => c.correct).text;
+
+            if (isCorrect) score++;
+            document.getElementById('current-score').innerText = score;
+            
+            showFeedback(isCorrect, comment, scenario.ref, correctAnswerText);
+        }
+
+        function showFeedback(isCorrect, comment, ref, correctAnswerText = "") {
+            document.getElementById('feedback-icon').innerText = isCorrect ? "✅" : "❌";
+            document.getElementById('feedback-title').innerText = isCorrect ? "Excellente analyse !" : "Erreur théorique";
+            document.getElementById('feedback-title').className = `text-3xl font-black mb-2 tracking-tight ${isCorrect ? 'text-green-600' : 'text-red-600'}`;
+            
+            document.getElementById('feedback-text').innerText = comment;
+            document.getElementById('feedback-ref').innerText = ref;
+
+            const correctionBox = document.getElementById('correction-box');
+            if (!isCorrect && correctAnswerText) {
+                document.getElementById('feedback-correct-answer').innerText = correctAnswerText;
+                correctionBox.classList.remove('hidden');
+            } else {
+                correctionBox.classList.add('hidden');
+            }
+
+            switchScreen('screen-feedback');
+        }
+
+        function endGame() {
+            document.getElementById('final-score').innerText = score;
+            const comments = [
+                "Vous devez impérativement relire le support de cours. Les bases ne sont pas acquises.", 
+                "Quelques notions sont là, mais la théorie des abrasifs nécessite plus de rigueur.", 
+                "Bon travail ! Vous maîtrisez la majorité des concepts de préparation de surface.", 
+                "Expertise totale ! Vos connaissances théoriques sur le polissage sont parfaites."
+            ];
+            
+            let idx = 0;
+            // Adaptation des paliers de commentaires pour 20 questions
+            if (score === scenarios.length) idx = 3;
+            else if (score >= scenarios.length * 0.7) idx = 2; // >= 14
+            else if (score >= scenarios.length * 0.4) idx = 1; // >= 8
+            
+            document.getElementById('final-comment').innerText = comments[idx];
+            switchScreen('screen-result');
+        }
+
+        // Capture d'écran 
+        document.getElementById('btn-screenshot').onclick = function() {
+            const flash = document.getElementById('flash');
+            flash.style.opacity = '1';
+            setTimeout(() => flash.style.opacity = '0', 100);
+
+            html2canvas(document.getElementById('capture-area'), {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Quiz_Abrasifs_Resultat_${Date.now()}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        };
+
+        // Events de navigation
+        document.getElementById('btn-start').onclick = startScenario;
+        document.getElementById('btn-next').onclick = () => { 
+            currentScenarioIndex++; 
+            startScenario(); 
+        };
+
+        // Remplir le total de questions dans l'UI au chargement
+        document.getElementById('total-questions').innerText = scenarios.length;
+        document.getElementById('final-total').innerText = scenarios.length;
+
+    </script>
+</body>
+</html>

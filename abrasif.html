@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Poli-Sécure : Brillez par vos Réflexes !</title>
+    <!-- Bibliothèques externes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #cfa346;
+            --accent-text: #856404;
+            --accent-light: #f4e8cb;
+            --bg-color: #f8f9fa;
+            --panel-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #2d3436;
+            --danger: #e74c3c;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            /* overflow: hidden; */ /* Removing for better desktop experience */
+            touch-action: none; /* Kept for swipe gestures */
+            min-height: 100vh; /* Use min-height for flexibility */
+            width: 100%; /* Use 100% instead of 100vw to avoid layout shifts */
+            margin: 0;
+            display: flex; /* Ensure body is a flex container for centering */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+        }
+        
+        .game-container-outer {
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+        }
+
+        @media (min-width: 768px) {
+            .game-container-outer {
+                max-height: 90vh;
+                border-radius: 1rem;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        .card-container { 
+            perspective: 1000px; 
+            flex: 1;
+            position: relative; 
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .game-card {
+            transition: transform 0.1s ease-out, opacity 0.3s ease;
+            user-select: none;
+            touch-action: none;
+            cursor: grab;
+            position: absolute;
+            inset: 1rem;
+            backface-visibility: hidden;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--panel-bg);
+            border: 2px solid var(--accent);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        }
+
+        .swipe-indicator {
+            position: absolute;
+            top: 2rem;
+            padding: 0.5rem 1rem;
+            border: 4px solid var(--accent);
+            border-radius: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.25rem;
+            opacity: 0;
+            z-index: 20;
+            pointer-events: none;
+                        color: var(--accent-text);
+                        background: rgba(255, 255, 255, 0.9);
+                    }
+            
+                    .indicator-left { right: 2rem; transform: rotate(15deg); }
+                    .indicator-right { left: 2rem; transform: rotate(-15deg); }
+            
+                    .timer-bar { transition: width 0.1s linear; background-color: var(--accent); }
+                    
+                    .btn-gold {
+                        background-color: var(--accent);
+                        color: var(--primary);
+                        transition: all 0.2s;
+                        display: inline-block;
+                        padding: 1.25rem 2rem;
+                        border-radius: 12px;
+                        font-weight: 800;
+                        font-size: 1.25rem;
+                        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+                        border: none;
+                        cursor: pointer;
+                        text-transform: uppercase;
+                    }
+                    .btn-gold:active { transform: translateY(1px); scale: 0.98; }
+            
+                    .section-title {
+                        color: var(--primary);
+                        font-size: 1.2rem;
+                        font-weight: bold;
+                        margin-bottom: 1rem;
+                        border-bottom: 2px solid var(--accent-light);
+                        padding-bottom: 0.5rem;
+                        display: inline-block;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                    }
+            
+                    .category-tag {
+                        background: var(--accent-light);
+                        color: var(--primary);
+                        padding: 4px 12px;
+                        border-radius: 20px;
+                        font-size: 0.65rem;
+                        font-weight: 800;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        margin-bottom: 1rem;
+                        border: 1px solid var(--accent);
+                    }
+
+        /* Flash effect for screenshot */
+        #flash {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s;
+        }
+
+        @media (max-height: 600px) {
+            #scenario-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+            #scenario-title { font-size: 1.3rem !important; }
+            #scenario-desc { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="flash"></div>
+
+    <div class="game-container-outer w-full max-w-md shadow-2xl overflow-hidden relative" id="capture-area">
+        
+        <!-- Header bar -->
+        <div class="flex items-center justify-between gap-4 p-3 bg-white border-b z-20 relative">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="p-2 text-gray-500 hover:text-accent transition-colors" title="Retour à l'accueil">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </a>
+                <h1 class="text-[11px] font-black text-primary uppercase tracking-tight flex items-center gap-2">
+                    <span class="w-2 h-2 bg-accent rounded-full"></span>
+                    Poli-Sécure <span class="text-accent text-[9px]">• Sensibilisation à la sécurité</span>
+                </h1>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Bouton de capture directe -->
+                <button id="btn-screenshot" class="p-2 text-accent bg-accent-light/30 rounded-lg hover:bg-accent-light transition-colors" title="Prendre une capture">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </button>
+
+                <div id="game-stats" class="hidden">
+                    <div class="bg-white text-gray-900 px-3 py-1 rounded-full text-[10px] font-bold border border-gray-300">
+                        <span id="current-score" class="">0</span> / <span id="total-questions">30</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Screen -->
+        <div id="screen-welcome" class="flex-1 flex flex-col items-center justify-center p-8 text-center overflow-y-auto">
+            <div class="relative mb-8">
+                <div class="w-28 h-28 bg-primary rounded-3xl flex items-center justify-center shadow-xl transform rotate-3 border-4 border-accent">
+                    <svg class="w-16 h-16 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-12 h-12 bg-accent rounded-2xl flex items-center justify-center border-4 border-white shadow-lg transform -rotate-6">
+                    <span class="text-white font-black text-xl">!</span>
+                </div>
+            </div>
+
+            <h2 class="section-title">Poli-Sécure : Brillez par vos Réflexes !</h2>
+            <p class="text-gray-600 mb-8 text-sm leading-relaxed max-w-[280px]">
+                Apprenez à maîtriser la sécurité dans l'atelier. Glissez la carte pour choisir.<br>
+                <b>30 situations • 10s • 1 point par succès</b>
+            </p>
+            <button id="btn-start" class="btn-gold w-full animate-pulse">
+                Commencez
+            </button>
+            <div class="mt-8 w-full">
+                <h3 class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-4"></h3>
+                <div id="leaderboard-list" class="text-left space-y-2 text-xs"></div>
+            </div>
+        </div>
+
+        <!-- Gameplay Screen -->
+        <div id="screen-game" class="hidden flex-1 flex flex-col overflow-hidden">
+            <div class="w-full h-8 bg-gray-100 relative flex items-center justify-center">
+                <div id="timer-bar" class="absolute left-0 top-0 h-full timer-bar" style="width: 100%;"></div>
+                <div class="z-10 font-black text-gray-900 text-xs" id="timer-text">10s</div>
+            </div>
+
+            <div class="card-container" id="swipe-area">
+                <div id="ind-left" class="swipe-indicator indicator-left">...</div>
+                <div id="ind-right" class="swipe-indicator indicator-right">...</div>
+
+                <div id="active-card" class="game-card">
+                    <div id="scenario-category" class="category-tag">...</div>
+                    <div id="scenario-icon" class="text-5xl mb-6">⚠️</div>
+                    <h2 id="scenario-title" class="text-2xl font-black text-gray-800 mb-4 leading-tight px-4 text-center tracking-tight">...</h2>
+                    <p id="scenario-desc" class="text-gray-500 text-sm text-center px-8 leading-relaxed">...</p>
+                </div>
+            </div>
+
+            <div class="p-4 bg-gray-50 border-t">
+                <div class="flex justify-between gap-2">
+                    <div id="label-left" class="flex-1 text-[10px] font-bold text-gray-500 bg-white p-2.5 rounded-lg text-center border border-gray-200 uppercase truncate">...</div>
+                    <div id="label-right" class="flex-1 text-[10px] font-bold text-gray-500 bg-white p-2.5 rounded-lg text-center border border-gray-200 uppercase truncate">...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Screen -->
+        <div id="screen-feedback" class="hidden flex-1 flex flex-col p-6 bg-gray-50 overflow-y-auto">
+            <div class="flex-1 flex flex-col items-center justify-center">
+                <div id="feedback-icon" class="text-6xl mb-4">✅</div>
+                <h2 id="feedback-title" class="text-2xl font-bold mb-4">...</h2>
+                <p id="feedback-text" class="text-gray-800 mb-6 font-medium text-2xl text-center leading-tight"></p>
+                
+                <div class="w-full bg-white p-6 rounded-xl shadow-sm text-left border-l-8 border-accent">
+                    <p class="font-bold text-accent-text mb-2 tracking-tight text-xs uppercase">📚 RÉFÉRENCE MANUEL :</p>
+                    <p id="feedback-ref" class="italic text-lg text-gray-700 leading-snug"></p>
+                </div>
+            </div>
+            
+            <button id="btn-next" class="btn-gold w-full mt-8 mb-4">
+                CONTINUER
+            </button>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="screen-result" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <h2 class="section-title">Test Terminé !</h2>
+            <div class="bg-white border-4 border-accent rounded-3xl p-8 mb-6 w-full shadow-xl">
+                <div class="text-8xl font-black text-primary mb-2" id="final-score">0</div>
+                <div class="text-xl font-bold text-accent-text">Points sur <span id="final-total">30</span></div>
+            </div>
+            <p class="text-gray-500 mb-8 text-sm px-4" id="final-comment">...</p>
+            <button onclick="location.reload()" class="btn-gold w-full">
+                REPASSER LE SERVICE
+            </button>
+        </div>
+        
+        <footer class="text-center p-3 bg-white border-t text-[9px] text-gray-400 uppercase tracking-widest">
+            Poli-Sécure • Excellence Horlogère • Zéro Accident
+        </footer>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'polisecure-v2';
+        
+        let app, db, auth;
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+            }
+        } catch (e) {
+            console.warn("Firebase not configured, running offline mode.");
+        }
+
+        let userId = null;
+        let score = 0;
+        let currentScenarioIndex = 0;
+        let timer = null;
+        let timeLeft = 100;
+        let timeTotal = 10;
+        let isDragging = false;
+        let startX = 0;
+        let currentX = 0;
+        const swipeThreshold = 80;
+        let currentChoices = []; 
+
+        const scenarios = [
+            { id: 'pockets', category: "Rangement", title: "Outils & Poches", desc: "Vous vous déplacez avec vos brucelles pointues vers un autre poste. Comment les porter ?", icon: "🛠️", ref: "« ne pas mettre les outils dans les poches des vêtements » (Page 7)", choices: [{ text: "En poche", correct: false, comment: "DANGER ! Risque de perforation grave en cas de trébuchement." }, { text: "À la main", correct: true, comment: "Correct. Gardez toujours les outils pointus en main ou en sacoche." }] },
+            { id: 'hair', category: "Équipement", title: "Happement", desc: "Vous travaillez sur un touret rotatif à grande vitesse. Comment gérez-vous vos cheveux ?", icon: "💇", ref: "« Les cheveux longs doivent être attachés et retenus dans un filet... » (Page 18)", choices: [{ text: "Libres", correct: false, comment: "DANGER ! Risque de happement mortel immédiat par la machine." }, { text: "Filet / Attachés", correct: true, comment: "Excellent réflexe. Le filet garantit que rien ne dépasse." }] },
+            { id: 'blow', category: "Hygiène", title: "Usage Soufflette", desc: "Votre blouse est recouverte de poussière après polissage. Utilisez-vous la soufflette ?", icon: "🌬️", ref: "« Il n'est pas permis de se nettoyer [...] avec la soufflette. » (Page 11)", choices: [{ text: "Oui, rapide", correct: false, comment: "INTERDIT ! L'air sous pression peut injecter des impuretés sous la peau." }, { text: "Non, aspirer", correct: true, comment: "Correct. Utilisez impérativement une buse aspirante pour vous nettoyer." }] },
+            { id: 'gloves', category: "Équipement", title: "Protection Mains", desc: "La pièce chauffe fort en polissant contre le disque. Allez-vous mettre des gants ?", icon: "🧤", ref: "« il est interdit de porter des gants sur les machines tournantes... » (Page 17)", choices: [{ text: "Oui, protection", correct: false, comment: "DANGER ! Le gant peut être entraîné et broyer la main." }, { text: "Non, support", correct: true, comment: "Correct. Utilisez un support ou un outil pour tenir la pièce chaude." }] },
+            { id: 'food_drink', category: "Santé", title: "Substances Nocives", desc: "Vous avez une bouteille d'eau ouverte posée sur votre établi de polissage actif.", icon: "☕", ref: "« Par principe, la boisson et la nourriture ne doivent pas se trouver à la place de travail. » (Page 8)", choices: [{ text: "Boire ici", correct: false, comment: "DANGER ! Les poussières métalliques invisibles polluent votre eau." }, { text: "Zone propre", correct: true, comment: "Correct. Hydratez-vous uniquement dans les zones propres." }] },
+            { id: 'lighting', category: "Ergonomie", title: "Poste de Précision", desc: "Comment positionner votre établi de contrôle par rapport à la fenêtre ?", icon: "☀️", ref: "« Il faut absolument éviter de travailler face à une fenêtre... » (Page 9)", choices: [{ text: "Face à elle", correct: false, comment: "Erreur. L'éblouissement direct fatigue les yeux et dégrade la vue." }, { text: "Perpendiculaire", correct: true, comment: "Parfait. C'est la position idéale pour une lumière stable." }] },
+            { id: 'noise_protection', category: "Équipement", title: "Ultrasons & Bruit", desc: "L'installation de nettoyage génère 90 dBA. Que décidez-vous ?", icon: "🎧", ref: "« il n'est pas permis de travailler sans protection auditive si le niveau [...] dépasse 85 dBA » (Page 14)", choices: [{ text: "Rien", correct: false, comment: "DANGER ! La perte d'ouïe est irréversible à ce niveau de bruit." }, { text: "Mettre EPI", correct: true, comment: "Obligatoire. Dès 85 dBA, les protections auditives sont requises." }] },
+            { id: 'dust_mask', category: "Équipement", title: "Poussières Fines", desc: "L'aspiration centralisée est en panne, mais vous avez un polissage urgent.", icon: "😷", ref: "« [...] il faut porter un masque de protection individuel (typiquement FFP2). » (Page 11)", choices: [{ text: "Sans masque", correct: false, comment: "DANGER ! Les particules fines pénètrent dans vos alvéoles pulmonaires." }, { text: "Masque FFP2", correct: true, comment: "Exact. C'est le dispositif palliatif obligatoire en panne d'aspiration." }] },
+            { id: 'waste_solvents', category: "Environnement", title: "Déchets Chimiques", desc: "Votre bain de solvant est saturé de résidus. Où s'en débarrasser ?", icon: "♻️", ref: "« [...] ces mélanges inutilisables doivent être éliminés dans des conditions strictes » (Page 24)", choices: [{ text: "Verser évier", correct: false, comment: "INTERDIT ! Vous risquez de polluer les nappes phréatiques." }, { text: "Filière spéc.", correct: true, comment: "Correct. Utilisez les bidons de récupération pour déchets spéciaux." }] },
+            { id: 'posture_assise', category: "Ergonomie", title: "Jambes & Dos", desc: "Comment positionnez-vous vos jambes pour un contrôle au binoculaire ?", icon: "🪑", ref: "« Les pieds sont posés au sol, à plat. Les genoux forment un angle ouvert. » (Page 9)", choices: [{ text: "Croiser", correct: false, comment: "Attention, cela bloque la circulation et fatigue le dos." }, { text: "Pieds à plat", correct: true, comment: "Parfait pour une posture ergonomique durable." }] },
+            { id: 'echelle_outils', category: "Rangement", title: "Grimper", desc: "Vous montez sur une échelle avec un tournevis en main pour une réparation.", icon: "🪜", ref: "« ne pas porter des outils dans la main en grimpant... » (Page 7)", choices: [{ text: "En main", correct: false, comment: "DANGER ! Gardez vos mains libres pour maintenir votre équilibre." }, { text: "Mains libres", correct: true, comment: "Correct. Utilisez une sacoche ou faites-vous passer l'outil." }] },
+            { id: 'eclairage_tournant', category: "Santé", title: "Illusion d'Arrêt", desc: "Un collègue propose un tube fluo standard pour votre touret rotatif.", icon: "💡", ref: "« [...] les éclairages fluorescents standards sont à proscrire. » (Page 9)", choices: [{ text: "Installer", correct: false, comment: "DANGER ! L'effet stroboscope peut simuler l'arrêt d'un disque tournant." }, { text: "Refuser", correct: true, comment: "Excellent. Utilisez uniquement des lampes à filament ou diodes." }] },
+            { id: 'secours_hemorragie', category: "Urgence", title: "Coupure Profonde", desc: "Un collègue saigne abondamment du bras. Quelle action ?", icon: "🩸", ref: "« [...] ralentir l'écoulement sanguin en appuyant au-dessus de la blessure » (Page 22)", choices: [{ text: "Le faire marcher", correct: false, comment: "Erreur ! Gardez la victime au repos pour ralentir le coeur." }, { text: "Comprimer plaie", correct: true, comment: "Bon réflexe. Appuyez fermement pour stopper l'hémorragie." }] },
+            { id: 'secours_intoxication', category: "Urgence", title: "Gaz Toxique", desc: "Une personne est inanimée près de vapeurs chimiques. Que faire ?", icon: "😵", ref: "« [...] il ne faut pas pratiquer le bouche-à-bouche... » (Page 22)", choices: [{ text: "Bouche-à-bouche", correct: false, comment: "DANGER ! Vous seriez intoxiqué par les poumons de la victime." }, { text: "Assistance Masque", correct: true, comment: "Correct. Utilisez une pompe ou un masque d'oxygène médical." }] },
+            { id: 'soin_peau', category: "Santé", title: "Couche Cornée", desc: "C'est la fin de journée. Vos mains sont sèches après les lavages.", icon: "🧴", ref: "« [...] appliquer une crème nourrissante qui aidera à la régénérescence... » (Page 21)", choices: [{ text: "Savon fort", correct: false, comment: "Non. Le savon abrasif détruit la protection naturelle de la peau." }, { text: "Crème du soir", correct: true, comment: "Correct. C'est essentiel pour restaurer l'épiderme durant la nuit." }] },
+            { id: 'maternite_poids', category: "Santé", title: "Charge Lourde", desc: "Une collègue enceinte s'apprête à soulever une caisse de 7 kg.", icon: "📦", ref: "« [...] manutention d'objets de plus de 5 kg » (Page 8)", choices: [{ text: "Ignorer", correct: false, comment: "Attention, les charges de +5kg sont risquées pour la grossesse." }, { text: "L'aider / Aide", correct: true, comment: "Parfait. Allégez sa tâche en soulevant la caisse à sa place." }] },
+            { id: 'carter_machine', category: "Équipement", title: "Visibilité", desc: "Le carter de protection vous gêne pour polir une toute petite pièce.", icon: "⚙️", ref: "« Il est interdit de neutraliser les dispositifs de sécurité. » (Page 6)", choices: [{ text: "Oter le carter", correct: false, comment: "INTERDIT. Une projection peut vous crever un oeil en un instant." }, { text: "Mieux s'éclairer", correct: true, comment: "Exact. Améliorez l'éclairage mais gardez la protection." }] },
+            { id: 'voies_fuite', category: "Urgence", title: "Zone de Passage", desc: "Vous posez un carton d'outillage dans l'allée centrale.", icon: "🚪", ref: "« Les voies de passage et de fuite doivent rester libres... » (Page 8)", choices: [{ text: "Laisser là", correct: false, comment: "DANGER ! En cas de fumée, un collègue trébuchera sur ce carton." }, { text: "Ranger direct", correct: true, comment: "Correct. Les allées de secours (1,2m) sont sacrées." }] },
+            { id: 'intervention_electrique', category: "Équipement", title: "Blocage Interne", desc: "Vous ouvrez la machine pour décoincer un boîtier coincé.", icon: "🔌", ref: "« Débrancher l'appareil ou la machine avant d'intervenir... » (Page 12)", choices: [{ text: "Bouton Arrêt", correct: false, comment: "Insuffisant ! Le courant peut encore circuler dans les relais." }, { text: "Tirer la prise", correct: true, comment: "Règle de base. Pas de prise, pas de danger électrique." }] },
+            { id: 'alcool_drogue', category: "Législation", title: "Vigilance", desc: "Un collègue semble incohérent (alcool suspecté) devant son touret.", icon: "🍺", ref: "« ne pas se mettre dans un état dangereux pour lui ou les autres... » (Page 3)", choices: [{ text: "Se taire", correct: false, comment: "DANGER. Vous laisseriez un collègue risquer sa vie." }, { text: "Avertir chef", correct: true, comment: "Correct. C'est une obligation de sécurité partagée." }] },
+            { id: 'inspection_suva', category: "Législation", title: "Police du Travail", desc: "L'inspection cantonale arrive inopinément dans l'atelier.", icon: "🕵️", ref: "« Ils peuvent accéder aux places de travail à n'importe quel moment. » (Page 3)", choices: [{ text: "Demander RDV", correct: false, comment: "Impossible. La Suva et l'ICT agissent comme la police." }, { text: "Ouvrir l'accès", correct: true, comment: "Exact. Ils contrôlent les non-conformités sans préavis." }] },
+            { id: 'signalement_defect', category: "Équipement", title: "Maintenance", desc: "Un bouton d'arrêt d'urgence est fendu sur votre touret.", icon: "⚡", ref: "« éliminer ou signaler les défauts compromettant la sécurité » (Page 3)", choices: [{ text: "Réparer seul", correct: false, comment: "DANGER. Seul un technicien habilité peut toucher aux urgences." }, { text: "Alerter COSEC", correct: true, comment: "Correct. Signalez immédiatement tout matériel défectueux." }] },
+            { id: 'hierarchie_top', category: "Législation", title: "Priorité TOP", desc: "Trop de bruit au polissage. Quelle mesure prioritaire ?", icon: "🔝", ref: "« 1. Technique, 2. Opérationnel, 3. Personnel (EPI) » (Page 5)", choices: [{ text: "Casque anti-bruit", correct: false, comment: "Non, c'est la mesure P (dernière option)." }, { text: "Capotage machine", correct: true, comment: "Exact. On privilégie toujours la solution technique (T)." }] },
+            { id: 'maintenance_curative', category: "Équipement", title: "Panne Totale", desc: "Un moteur s'arrête net avec une odeur de brûlé.", icon: "🔧", ref: "« Une panne soudaine peut survenir [...] On parle ici de maintenance curative. » (Page 6)", choices: [{ text: "Audit périodique", correct: false, comment: "Non. L'audit sert à vérifier les procédures, pas à réparer." }, { text: "Appel technique", correct: true, comment: "Correct. C'est une maintenance curative post-incident." }] },
+            { id: 'disjoncteur_fi', category: "Équipement", title: "Courant de Fuite", desc: "Comment protéger au mieux votre ligne électrique ?", icon: "〽️", ref: "« un disjoncteur à courant de défaut (FI) devrait être intercalé » (Page 12)", choices: [{ text: "Grosse multiprise", correct: false, comment: "Non, cela surcharge la ligne et crée des risques de feu." }, { text: "Disjoncteur FI", correct: true, comment: "Exact. Le FI coupe le jus en cas de contact avec un corps." }] },
+            { id: 'tri_dechets', category: "Environnement", title: "Recyclage Or", desc: "Vous avez des résidus de métaux précieux mêlés à de la cire.", icon: "♻️", ref: "« [...] le tri à la source est le moyen choisi dans nos cantons. » (Page 25)", choices: [{ text: "Poubelle commune", correct: false, comment: "Gaspillage et pollution. Ces résidus ont une valeur !" }, { text: "Tri à la source", correct: true, comment: "Correct. C'est la base d'une gestion durable des déchets." }] },
+            { id: 'epi_obligation', category: "Législation", title: "Directive", desc: "Votre entreprise impose les chaussures de sécurité en zone polissage.", icon: "🥽", ref: "« L'employé est alors tenu de les porter. » (Page 15)", choices: [{ text: "Refuser (confort)", correct: false, comment: "Erreur. L'OPA art. 11 punit le non-port des EPI imposés." }, { text: "Les porter", correct: true, comment: "Exact. C'est une obligation légale de seconder l'employeur." }] },
+            { id: 'incendie_alarme', category: "Urgence", title: "Feu de Chiffon", desc: "Un incendie se déclare dans la réserve. Action n°1 ?", icon: "🔔", ref: "« Donner l'alarme (n° 118 et interne). » (Page 23)", choices: [{ text: "Chercher de l'eau", correct: false, comment: "DANGER. L'alarme doit être donnée avant toute action." }, { text: "Lancer l'alarme", correct: true, comment: "Priorité absolue : appeler le 118 et prévenir l'atelier." }] },
+            { id: 'cote_fenetre', category: "Ergonomie", title: "Fatigue Oculaire", desc: "Le soleil Tape sur votre établi. Comment l'atténuer ?", icon: "🪟", ref: "« il faut assombrir au moyen d'un store ou porter une visière... » (Page 9)", choices: [{ text: "Rien faire", correct: false, comment: "L'éblouissement cause des erreurs de polissage." }, { text: "Baisser le store", correct: true, comment: "Parfait. Maîtrisez votre environnement pour briller." }] },
+            { id: 'poussiere_quartz', category: "Santé", title: "Risque Silice", desc: "Vous inhalez de la poussière minérale de quartz. Danger ?", icon: "🏔️", ref: "« Il s'agit de la silicose, une maladie irréversible... » (Page 11)", choices: [{ text: "Rhume passager", correct: false, comment: "Non. C'est une maladie pulmonaire grave et incurable." }, { text: "Silicose grave", correct: true, comment: "Exact. Portez vos protections pour éviter la silicose." }] }
+        ];
+
+        async function initAuth() {
+            if (!auth) return;
+            if (typeof __initial_auth_token !== 'undefined') { await signInWithCustomToken(auth, __initial_auth_token); } 
+            else { await signInAnonymously(auth); }
+        }
+
+        if (auth) {
+            onAuthStateChanged(auth, (user) => { if (user) { userId = user.uid; loadLeaderboard(); } });
+        }
+
+        function switchScreen(id) {
+            ['screen-welcome', 'screen-game', 'screen-feedback', 'screen-result'].forEach(s => {
+                document.getElementById(s).classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'screen-game') {
+                document.getElementById('game-stats').classList.remove('hidden');
+            }
+        }
+
+        function loadLeaderboard() {
+            if (!db) return;
+            const lbRef = collection(db, `artifacts/${appId}/public/data/scores`);
+            const q = query(lbRef, orderBy("score", "desc"), limit(3));
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById('leaderboard-list');
+                list.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    list.innerHTML += `<div class="flex justify-between bg-accent-light/30 p-2 rounded mb-1 border border-accent/20">
+                        <span class="font-mono text-[10px] text-primary">${doc.id.substring(0,6)}</span>
+                        <span class="font-bold text-accent-text text-[10px]">${data.score} / 30</span>
+                    </div>`;
+                });
+            });
+        }
+
+        function startScenario() {
+            if (currentScenarioIndex >= scenarios.length) { endGame(); return; }
+            const scenario = scenarios[currentScenarioIndex];
+            currentChoices = [...scenario.choices].sort(() => Math.random() - 0.5);
+
+            document.getElementById('scenario-category').innerText = scenario.category;
+            document.getElementById('scenario-title').innerText = scenario.title;
+            document.getElementById('scenario-desc').innerText = scenario.desc;
+            document.getElementById('scenario-icon').innerText = scenario.icon;
+            
+            document.getElementById('ind-left').innerText = currentChoices[0].text;
+            document.getElementById('ind-right').innerText = currentChoices[1].text;
+            document.getElementById('label-left').innerText = "← " + currentChoices[0].text;
+            document.getElementById('label-right').innerText = currentChoices[1].text + " →";
+
+            const card = document.getElementById('active-card');
+            card.style.transform = 'translate(0,0) rotate(0)';
+            card.style.opacity = '1';
+            
+            timeLeft = 100;
+            updateTimerDisplay();
+            switchScreen('screen-game');
+
+            timer = setInterval(() => {
+                timeLeft -= 1;
+                updateTimerDisplay();
+                if (timeLeft <= 0) { clearInterval(timer); handleChoice(null); }
+            }, 100);
+        }
+
+        function updateTimerDisplay() {
+            const bar = document.getElementById('timer-bar');
+            const text = document.getElementById('timer-text');
+            bar.style.width = timeLeft + "%";
+            text.innerText = Math.ceil((timeLeft / 100) * timeTotal) + "s";
+            if (timeLeft < 30) bar.style.backgroundColor = 'var(--danger)';
+            else bar.style.backgroundColor = 'var(--accent)';
+        }
+
+        // Capture d'écran directe
+        document.getElementById('btn-screenshot').onclick = function() {
+            const flash = document.getElementById('flash');
+            flash.style.opacity = '1';
+            setTimeout(() => flash.style.opacity = '0', 100);
+
+            html2canvas(document.getElementById('capture-area'), {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `PoliSecure_Resultat_${Date.now()}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        };
+
+        const area = document.getElementById('swipe-area');
+        const card = document.getElementById('active-card');
+        const indLeft = document.getElementById('ind-left');
+        const indRight = document.getElementById('ind-right');
+
+        function onStart(e) {
+            if (isDragging) return;
+            isDragging = true;
+            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            card.style.transition = 'none';
+        }
+
+        function onMove(e) {
+            if (!isDragging) return;
+            currentX = (e.type.includes('touch') ? e.touches[0].clientX : e.clientX) - startX;
+            const rotation = currentX * 0.08;
+            card.style.transform = `translateX(${currentX}px) rotate(${rotation}deg)`;
+            const opacity = Math.min(Math.abs(currentX) / swipeThreshold, 1);
+            if (currentX < 0) { indLeft.style.opacity = opacity; indRight.style.opacity = 0; }
+            else { indRight.style.opacity = opacity; indLeft.style.opacity = 0; }
+        }
+
+        function onEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+            card.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease';
+            indLeft.style.opacity = 0; indRight.style.opacity = 0;
+            if (currentX < -swipeThreshold) { card.style.transform = 'translateX(-150%) rotate(-30deg)'; card.style.opacity = '0'; handleChoice(0); } 
+            else if (currentX > swipeThreshold) { card.style.transform = 'translateX(150%) rotate(30deg)'; card.style.opacity = '0'; handleChoice(1); } 
+            else { card.style.transform = 'translate(0,0) rotate(0)'; }
+            currentX = 0;
+        }
+
+        area.addEventListener('mousedown', onStart);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onEnd);
+        area.addEventListener('touchstart', onStart, {passive: true});
+        window.addEventListener('touchmove', onMove, {passive: false});
+        window.addEventListener('touchend', onEnd);
+
+        function handleChoice(choiceIndex) {
+            clearInterval(timer);
+            const scenario = scenarios[currentScenarioIndex];
+            let isCorrect = false;
+            let comment = "Temps écoulé ! Soyez plus vigilant à l'atelier.";
+            if (choiceIndex !== null) { isCorrect = currentChoices[choiceIndex].correct; comment = currentChoices[choiceIndex].comment; }
+            if (isCorrect) score++;
+            document.getElementById('current-score').innerText = score;
+            setTimeout(() => showFeedback(isCorrect, comment, scenario.ref), 400);
+        }
+
+        function showFeedback(isCorrect, comment, ref) {
+            document.getElementById('feedback-icon').innerText = isCorrect ? "✅" : "❌";
+            document.getElementById('feedback-title').innerText = isCorrect ? "Excellent !" : "Oups...";
+            document.getElementById('feedback-title').className = `text-2xl font-bold mb-4 ${isCorrect ? 'text-green-600' : 'text-red-600'}`;
+            document.getElementById('feedback-text').innerText = comment;
+            document.getElementById('feedback-ref').innerText = ref;
+            switchScreen('screen-feedback');
+        }
+
+        function endGame() {
+            document.getElementById('final-score').innerText = score;
+            const comments = ["Formation nécessaire. Relisez le manuel MSST !", "Pas mal, mais des erreurs persistent.", "Bravo ! Vous êtes un apprenti poli et sûr.", "Parfait ! La Suva vous félicite !"];
+            let idx = score > 28 ? 3 : (score > 22 ? 2 : (score > 15 ? 1 : 0));
+            document.getElementById('final-comment').innerText = comments[idx];
+            saveScore();
+            switchScreen('screen-result');
+        }
+
+        async function saveScore() { if (userId && db) { const r = doc(db, `artifacts/${appId}/public/data/scores`, userId); await setDoc(r, { score, timestamp: Date.now() }); } }
+
+        document.getElementById('btn-start').onclick = startScenario;
+        document.getElementById('btn-next').onclick = () => { currentScenarioIndex++; startScenario(); };
+
+        initAuth().catch(e => console.error(e));
+    </script>
+</body>
+</html>

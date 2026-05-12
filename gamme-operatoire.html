@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacture - Terminaison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .tab-content { display: none !important; }
+        .tab-content.active { display: flex !important; }
+    </style>
+</head>
+<body class="h-screen w-full flex bg-zinc-950 font-sans text-zinc-800 overflow-hidden">
+    <!-- Datalists -->
+    <datalist id="zones-list"></datalist>
+    <datalist id="matieres-list"></datalist>
+    <datalist id="phases-list"></datalist>
+    <datalist id="operations-list"></datalist>
+    <datalist id="machines-list"></datalist>
+    <datalist id="abrasifs-list"></datalist>
+    <datalist id="supports-list"></datalist>
+    <datalist id="terminaisons-list"></datalist>
+
+    <!-- BANDEAU LATÉRAL (SIDEBAR) -->
+    <aside class="w-64 bg-zinc-950 border-r border-zinc-800 flex flex-col flex-shrink-0">
+        <div class="p-5 border-b border-zinc-800 bg-zinc-900/50">
+            <a href="index.html" class="text-xs text-zinc-500 hover:text-amber-500 flex items-center gap-1 mb-3 transition-colors">
+                &larr; Retour à l'accueil
+            </a>
+            <h1 class="text-xl font-serif text-amber-500 tracking-wide uppercase">Manufacture</h1>
+            <p class="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Terminaison</p>
+        </div>
+        
+        <nav class="flex-1 p-3 space-y-2 mt-4">
+            <button id="btn-nav-dashboard" onclick="setActiveTab('dashboard')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 bg-zinc-800 text-amber-400 border-l-2 border-amber-500">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Tableau de bord
+            </button>
+            <button id="btn-nav-editor" onclick="goToEditor()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border-l-2 border-transparent">
+                <i data-lucide="edit-3" class="w-4 h-4"></i> Édition de gamme
+            </button>
+            <div class="pt-4 mt-4 border-t border-zinc-800">
+                <label class="cursor-pointer w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border-l-2 border-transparent">
+                    <i data-lucide="upload" class="w-4 h-4"></i> Importer une gamme
+                    <input type="file" accept=".json" class="hidden" onchange="importJSON(event)" />
+                </label>
+            </div>
+        </nav>
+
+        <div class="p-4 text-xs text-zinc-600 text-center border-t border-zinc-800">
+            Système de Méthodes v2.0
+        </div>
+    </aside>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboard-view" class="tab-content active flex-1 flex-col bg-zinc-50 p-8 overflow-auto">
+        <div class="max-w-6xl w-full mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-light text-zinc-900 tracking-tight">Tableau de bord</h2>
+                    <p class="text-zinc-500 mt-1">Gestion des gammes opératoires de terminaison</p>
+                </div>
+                <button onclick="handleCreateNew()" class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded shadow-lg shadow-amber-900/20 flex items-center gap-2 font-medium transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Nouvelle gamme
+                </button>
+            </div>
+
+            <div class="bg-white border border-zinc-200 rounded-lg shadow-sm overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-zinc-900 text-amber-500 text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="py-4 px-6 font-medium">Référence</th>
+                            <th class="py-4 px-6 font-medium">Pièce</th>
+                            <th class="py-4 px-6 font-medium">Matière</th>
+                            <th class="py-4 px-6 font-medium">Dernière modif.</th>
+                            <th class="py-4 px-6 font-medium text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-tbody" class="divide-y divide-zinc-100 text-sm">
+                        <!-- Dashboard rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDITOR VIEW -->
+    <div id="editor-view" class="tab-content flex-1 flex-col bg-zinc-50 overflow-hidden relative">
+        <div id="editor-empty" class="flex-1 flex items-center justify-center bg-zinc-50 text-zinc-400">
+            Veuillez sélectionner ou créer une gamme dans le tableau de bord.
+        </div>
+        <div id="editor-content" class="hidden flex-1 flex flex-col bg-zinc-50 overflow-hidden relative h-full w-full">
+            <div class="bg-white border-b border-zinc-200 px-6 py-3 flex justify-between items-center flex-shrink-0 shadow-sm z-10">
+                <div class="flex items-center gap-3">
+                    <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider border border-amber-200">Mode Édition</span>
+                    <h2 id="editor-title" class="text-lg font-semibold text-zinc-800">Nouvelle Gamme</h2>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="handleSaveGamme()" class="flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-amber-500 px-4 py-1.5 rounded shadow-md text-sm font-medium transition-colors">
+                        <i data-lucide="save" class="w-4 h-4"></i> Sauvegarder
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-auto p-4 md:p-6 pb-24 h-full">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+                    
+                    <!-- PANNEAU PIECE -->
+                    <div class="xl:col-span-2 bg-white rounded-lg shadow-sm border border-zinc-200 overflow-hidden">
+                        <h3 class="bg-zinc-900 text-amber-500 px-4 py-2 text-xs font-semibold uppercase tracking-wider flex items-center gap-2">
+                            Informations Pièce
+                        </h3>
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-3">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-bold text-zinc-500 mb-1 uppercase tracking-wide">Référence</label>
+                                        <input type="text" id="meta-ref" oninput="updateMeta('ref', this.value)" class="w-full border border-zinc-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-amber-500 outline-none bg-zinc-50" />
+                                    </div>
+                                    <div class="w-20">
+                                        <label class="block text-xs font-bold text-zinc-500 mb-1 uppercase tracking-wide">Vers.</label>
+                                        <input type="text" id="meta-version" oninput="updateMeta('version', this.value)" class="w-full border border-zinc-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-amber-500 outline-none bg-zinc-50 text-center" />
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-bold text-zinc-500 mb-1 uppercase tracking-wide">Pièce</label>
+                                        <input type="text" id="meta-piece" oninput="updateMeta('piece', this.value)" class="w-full border border-zinc-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-amber-500 outline-none bg-zinc-50" />
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-bold text-zinc-500 mb-1 uppercase tracking-wide">Matière</label>
+                                        <input list="matieres-list" id="meta-matiere" oninput="updateMeta('matiere', this.value)" class="w-full border border-zinc-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-amber-500 outline-none bg-zinc-50" placeholder="Acier, Or..." />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-zinc-500 mb-1 uppercase tracking-wide">État initial (Entrant)</label>
+                                    <textarea id="meta-etatInitial" oninput="updateMeta('etatInitial', this.value)" class="w-full border border-zinc-300 rounded px-3 py-2 text-sm resize-none focus:ring-1 focus:ring-amber-500 outline-none bg-zinc-50 min-h-[2.8rem]"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-zinc-500 mb-1 uppercase tracking-wide">Résultat attendu (Sortant)</label>
+                                    <textarea id="meta-resultat" oninput="updateMeta('resultat', this.value)" class="w-full border border-zinc-300 rounded px-3 py-2 text-sm resize-none focus:ring-1 focus:ring-amber-500 outline-none bg-zinc-50 min-h-[2.8rem]"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANNEAU SURFACES -->
+                    <div class="bg-white rounded-lg shadow-sm border border-zinc-200 overflow-hidden flex flex-col max-h-[240px]">
+                        <div class="bg-zinc-900 px-4 py-2 flex justify-between items-center">
+                            <h3 class="text-amber-500 text-xs font-semibold uppercase tracking-wider">Zones & Surfaces</h3>
+                            <button onclick="addSurfaceDef()" class="text-amber-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 transition-colors">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Ajouter
+                            </button>
+                        </div>
+                        <div id="surfaces-container" class="p-3 flex-1 overflow-y-auto space-y-2 bg-zinc-50/50">
+                            <!-- Surfaces will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLEAU GAMME -->
+                <div class="bg-white rounded-lg shadow-sm border border-zinc-200 overflow-hidden flex flex-col w-full">
+                    <div class="bg-zinc-50 border-b border-zinc-200 p-2 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex gap-2">
+                            <button onclick="addRow()" class="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors shadow-sm">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Ajouter une opération
+                            </button>
+                            <button onclick="loadTemplate()" class="flex items-center gap-1.5 bg-white border border-zinc-300 hover:bg-zinc-100 text-zinc-700 px-3 py-1.5 rounded text-sm font-medium transition-colors">
+                                Modèle standard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left border-collapse min-w-[1400px]">
+                            <thead class="bg-zinc-900 text-amber-500 border-b-2 border-amber-600">
+                                <tr>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-10 text-center uppercase tracking-wide">N°</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-32 uppercase tracking-wide">Phase</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-36 uppercase tracking-wide">Zone / Surface</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-36 uppercase tracking-wide">Opération</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-48 uppercase tracking-wide">Objectif</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-36 uppercase tracking-wide">Machine</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-32 uppercase tracking-wide">Abrasif</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-24 uppercase tracking-wide">Support</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-32 uppercase tracking-wide">Pâte</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-16 text-center uppercase tracking-wide" title="Diamètre (mm)">Ø</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-16 text-center uppercase tracking-wide" title="Vitesse coupe (m/s)">Vc</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-20 text-center uppercase tracking-wide text-white bg-zinc-950">tr/min</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-24 uppercase tracking-wide">Pression</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-20 text-center uppercase tracking-wide">Tps (m)</th>
+                                    <th class="py-2.5 px-2 text-xs font-semibold w-24 text-center uppercase tracking-wide border-l border-zinc-700 bg-zinc-800">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-editor-body" class="divide-y divide-zinc-200 text-sm">
+                                <!-- Rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIED DE PAGE : KPIs -->
+            <div class="absolute bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 px-6 py-2 flex justify-end gap-6 text-sm text-zinc-400 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="hash" class="w-4 h-4 text-amber-500"></i>
+                    <span>Nombre d'étapes : <strong id="kpi-steps" class="text-white ml-1">0</strong></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+                    <span>Temps total estimé : <strong id="kpi-time" class="text-white ml-1">0</strong> min</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN SCRIPT -->
+    <script>
+        const MATIERES = ['Acier inox', 'Titane', 'Or', 'Platine', 'Laiton', 'Maillechort', 'Céramique', 'Saphir', 'Argent', 'Palladium', 'Autre'];
+        const PHASES = ['Observation', 'Préparation grossière', 'Préparation intermédiaire', 'Préparation fine', 'Finition', 'Avivage / Décor', 'Lavage', 'Contrôle', 'Correction'];
+        const OPERATIONS = ['Contrôle initial', 'Ébavurage', 'Meulage', 'Adoucissage', 'Lapidage', 'Émerisage', 'Cabronnage', 'Feutrage', 'Brossage', 'Satinage', 'Polissage', 'Avivage', 'Brunissage', 'Diamantage', 'Microbillage', 'Sablage', 'Tribofinition', 'Lavage', 'Retouche'];
+        const MACHINES = ['Main / établi', 'Tour de polissage', 'Touret', 'Lapidaire', 'Brosseuse', 'Microbilleuse', 'Sableuse', 'Tonneau (Tribofinition)', 'Bac ultrasons', 'Machine CNC', 'Binoculaire'];
+        const ABRASIFS = ['Aucun', 'Émeri', 'Corindon', 'Carbure de silicium', 'Diamant', 'cBN', 'Pierre ponce', 'Blanc de Meudon', 'Pâte abrasive', 'Pâte de polissage', "Pâte d'avivage", 'Scotch-Brite', 'Micro-abrasif film', 'Autre'];
+        const SUPPORTS = ['Aucun', 'Cabron', 'Papier abrasif', 'Toile émeri', 'Feutre', 'Disque coton', 'Disque toile', 'Disque flanelle', 'Brosse', 'Posage', 'Autre'];
+        const TERMINAISONS = ['Poli', 'Poli avivé', 'Poli miroir', 'Satiné droit', 'Satiné circulaire', 'Satiné soleil', 'Sablé', 'Microbillé', 'Perlé', 'Côtes de Genève', 'Anglé / Adouci', 'Brossé', 'Cerclé', 'Colimaçonné', 'Traits tirés'];
+
+        const NON_ROTATIVE_MACHINES = ['Main / établi', 'Bac ultrasons', 'Binoculaire', 'Tonneau (Tribofinition)'];
+
+        const TEMPLATE_POLI_BRILLANT = [
+            { id: 101, phase: 'Observation', surface: 'Toutes surfaces', operation: 'Contrôle initial', objectif: 'Identifier défauts et zones sensibles', machine: 'Binoculaire', abrasif: 'Aucun', grain: '', support: 'Aucun', pate: '', diam: '', vc: '', pression: '', temps: '2' },
+            { id: 102, phase: 'Préparation grossière', surface: 'Z1 : Arêtes', operation: 'Ébavurage', objectif: 'Casser les angles vifs sans arrondir', machine: 'Main / établi', abrasif: 'Aucun', grain: '', support: 'Cabron', pate: '', diam: '', vc: '', pression: 'Très légère', temps: '5' },
+            { id: 103, phase: 'Préparation fine', surface: 'Z2 : Flancs', operation: 'Feutrage', objectif: 'Préparer la surface, homogénéiser', machine: 'Tour de polissage', abrasif: 'Pâte abrasive', grain: 'Moyen', support: 'Feutre', pate: 'Pâte de préparation', diam: '150', vc: '18', pression: 'Légère', temps: '10' },
+            { id: 104, phase: 'Finition', surface: 'Z2 : Flancs', operation: 'Polissage', objectif: 'Obtenir un poli sans rayures', machine: 'Tour de polissage', abrasif: 'Pâte de polissage', grain: 'Fin', support: 'Disque coton', pate: 'Dialux Blanc', diam: '150', vc: '25', pression: 'Légère', temps: '8' },
+            { id: 105, phase: 'Avivage / Décor', surface: 'Toutes surfaces', operation: 'Avivage', objectif: 'Éclat final, miroitement', machine: 'Tour de polissage', abrasif: "Pâte d'avivage", grain: '', support: 'Disque toile', pate: 'Menzerna', diam: '150', vc: '30', pression: 'Très légère', temps: '4' },
+        ];
+
+        const TEMPLATE_FOND_OR = [
+            { id: 201, phase: 'Préparation grossière', surface: 'Z1 : Fond plat', operation: 'Lapidage', objectif: 'Mise à plat parfaite', machine: 'Lapidaire', abrasif: 'Carbure de silicium', grain: 'P600', support: 'Toile émeri', pate: '', diam: '200', vc: '15', pression: 'Légère', temps: '3' },
+            { id: 202, phase: 'Finition', surface: 'Z2 : Biseau', operation: 'Polissage', objectif: 'Poli noir / miroir', machine: 'Tour de polissage', abrasif: 'Diamant', grain: '3 µm', support: 'Disque coton', pate: 'Pâte diamantée', diam: '100', vc: '20', pression: 'Très légère', temps: '8' },
+            { id: 203, phase: 'Avivage / Décor', surface: 'Z1 : Fond plat', operation: 'Satinage', objectif: 'Satiné circulaire régulier', machine: 'Brosseuse', abrasif: 'Scotch-Brite', grain: 'Très fin', support: 'Brosse', pate: '', diam: '80', vc: '10', pression: 'Constante', temps: '5' }
+        ];
+
+        const TEMPLATE_PONT_MOUVEMENT = [
+            { id: 301, phase: 'Préparation fine', surface: 'Toutes surfaces', operation: 'Tribofinition', objectif: 'Ébavurage collectif doux', machine: 'Tonneau (Tribofinition)', abrasif: 'Céramique', grain: 'Fin', support: 'Aucun', pate: 'Additif liquide', diam: '', vc: '', pression: 'NA', temps: '120' },
+            { id: 302, phase: 'Avivage / Décor', surface: 'Z1 : Face visible', operation: 'Satinage', objectif: 'Côtes de Genève', machine: 'Machine CNC', abrasif: 'Corindon', grain: 'Fin', support: 'Posage', pate: 'Lubrifiant', diam: '20', vc: '12', pression: 'CNC', temps: '10' },
+            { id: 303, phase: 'Avivage / Décor', surface: 'Z2 : Logements', operation: 'Satinage', objectif: 'Perlage des noyures', machine: 'Main / établi', abrasif: 'Émeri', grain: 'Moyen', support: 'Posage', pate: '', diam: '3', vc: '5', pression: 'Légère', temps: '15' },
+            { id: 304, phase: 'Avivage / Décor', surface: 'Z3 : Arêtes', operation: 'Adoucissage', objectif: 'Anglage poli', machine: 'Main / établi', abrasif: 'Pâte de polissage', grain: '', support: 'Cabron', pate: 'Dialux Blanc', diam: '', vc: '', pression: 'Soutenue', temps: '25' }
+        ];
+
+        const EMPTY_ROW = { phase: '', surface: '', operation: '', objectif: '', machine: '', abrasif: '', grain: '', support: '', pate: '', diam: '', vc: '', pression: '', temps: '' };
+
+        let gammesDB = [
+            { id: 1, lastModified: new Date().toISOString(), meta: { ref: 'THH-2026-001', version: 'V1', piece: 'Carrure Chrono', matiere: 'Acier inox', etatInitial: "Brut d'usinage", resultat: 'Poli miroir' }, surfacesDef: [{ id: 1, ref: 'Z1', nom: 'Arêtes', terminaison: 'Poli avivé' }, { id: 2, ref: 'Z2', nom: 'Flancs', terminaison: 'Poli miroir' }], rows: JSON.parse(JSON.stringify(TEMPLATE_POLI_BRILLANT)) },
+            { id: 2, lastModified: new Date(Date.now() - 86400000).toISOString(), meta: { ref: 'LUN-AERO-04', version: 'V2', piece: 'Lunette', matiere: 'Titane', etatInitial: 'Reprise de tournage', resultat: 'Satiné circulaire' }, surfacesDef: [{ id: 1, ref: 'Z1', nom: 'Dessus', terminaison: 'Satiné circulaire' }, { id: 2, ref: 'Z2', nom: 'Biseau', terminaison: 'Poli miroir' }], rows: [] },
+            { id: 3, lastModified: new Date(Date.now() - 172800000).toISOString(), meta: { ref: 'FND-OR-18K-09', version: 'V1', piece: 'Fond de boîte', matiere: 'Or', etatInitial: 'Étampé', resultat: 'Satiné circulaire / Biseau poli' }, surfacesDef: [{ id: 1, ref: 'Z1', nom: 'Fond plat', terminaison: 'Satiné circulaire' }, { id: 2, ref: 'Z2', nom: 'Biseau', terminaison: 'Poli miroir' }], rows: JSON.parse(JSON.stringify(TEMPLATE_FOND_OR)) },
+            { id: 4, lastModified: new Date(Date.now() - 259200000).toISOString(), meta: { ref: 'MVT-PNT-BAR-02', version: 'V3', piece: 'Pont de barillet', matiere: 'Laiton', etatInitial: 'Usiné CNC', resultat: 'Côtes de Genève, anglage poli' }, surfacesDef: [{ id: 1, ref: 'Z1', nom: 'Face visible', terminaison: 'Côtes de Genève' }, { id: 2, ref: 'Z2', nom: 'Logements', terminaison: 'Perlé' }, { id: 3, ref: 'Z3', nom: 'Arêtes', terminaison: 'Anglé / Adouci' }], rows: JSON.parse(JSON.stringify(TEMPLATE_PONT_MOUVEMENT)) }
+        ];
+
+        let activeTab = 'dashboard';
+        let currentGammeId = null;
+        let meta = { ref: '', version: 'V1', piece: '', matiere: 'Acier inox', etatInitial: '', resultat: '' };
+        let surfacesDef = [];
+        let rows = [];
+
+        function renderIcons() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return String(unsafe)
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function calculateRpm(diam, vc) {
+            const d = parseFloat(String(diam).replace(',', '.'));
+            const v = parseFloat(String(vc).replace(',', '.'));
+            if (d > 0 && v > 0) return Math.round((v * 60000) / (Math.PI * d));
+            return '';
+        }
+
+        function populateDatalists() {
+            document.getElementById('matieres-list').innerHTML = MATIERES.map(m => `<option value="${m}"></option>`).join('');
+            document.getElementById('phases-list').innerHTML = PHASES.map(p => `<option value="${p}"></option>`).join('');
+            document.getElementById('operations-list').innerHTML = OPERATIONS.map(o => `<option value="${o}"></option>`).join('');
+            document.getElementById('machines-list').innerHTML = MACHINES.map(m => `<option value="${m}"></option>`).join('');
+            document.getElementById('abrasifs-list').innerHTML = ABRASIFS.map(a => `<option value="${a}"></option>`).join('');
+            document.getElementById('supports-list').innerHTML = SUPPORTS.map(s => `<option value="${s}"></option>`).join('');
+            document.getElementById('terminaisons-list').innerHTML = TERMINAISONS.map(t => `<option value="${t}"></option>`).join('');
+        }
+
+        function updateZonesList() {
+            let html = `<option value="Toutes surfaces"></option>`;
+            html += surfacesDef.map(s => `<option value="${escapeHtml(s.ref)} : ${escapeHtml(s.nom)}${s.terminaison ? ' (' + escapeHtml(s.terminaison) + ')' : ''}"></option>`).join('');
+            document.getElementById('zones-list').innerHTML = html;
+        }
+
+        function updateKPIs() {
+            document.getElementById('kpi-steps').innerText = rows.length;
+            const totalTime = rows.reduce((acc, row) => {
+                const t = parseFloat(String(row.temps).replace(',', '.'));
+                return acc + (isNaN(t) ? 0 : t);
+            }, 0);
+            document.getElementById('kpi-time').innerText = totalTime;
+        }
+
+        function updateMeta(field, value) {
+            meta[field] = value;
+            if (field === 'ref') {
+                document.getElementById('editor-title').innerText = value || 'Nouvelle Gamme';
+            }
+        }
+
+        function updateSurfaceDef(idx, field, value) {
+            surfacesDef[idx][field] = value;
+            updateZonesList();
+        }
+
+        function addSurfaceDef() {
+            surfacesDef.push({ id: Date.now(), ref: `Z${surfacesDef.length + 1}`, nom: '', terminaison: '' });
+            renderSurfaces();
+        }
+
+        function removeSurfaceDef(idx) {
+            surfacesDef.splice(idx, 1);
+            renderSurfaces();
+        }
+
+        function renderSurfaces() {
+            let html = '';
+            if (surfacesDef.length === 0) {
+                html = '<p class="text-xs text-zinc-400 italic text-center py-4">Aucune zone définie.</p>';
+            } else {
+                html = surfacesDef.map((surf, idx) => `
+                    <div class="flex gap-2 group items-center">
+                        <input type="text" value="${escapeHtml(surf.ref)}" oninput="updateSurfaceDef(${idx}, 'ref', this.value)" placeholder="Z1" class="w-12 border border-zinc-300 rounded px-2 py-1 text-xs font-bold text-center focus:ring-1 focus:ring-amber-500 outline-none bg-white">
+                        <input type="text" value="${escapeHtml(surf.nom)}" oninput="updateSurfaceDef(${idx}, 'nom', this.value)" placeholder="Description..." class="flex-1 border border-zinc-300 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-amber-500 outline-none bg-white">
+                        <input list="terminaisons-list" value="${escapeHtml(surf.terminaison)}" oninput="updateSurfaceDef(${idx}, 'terminaison', this.value)" placeholder="Terminaison" class="w-32 border border-zinc-300 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-amber-500 outline-none bg-white font-medium text-zinc-700">
+                        <button onclick="removeSurfaceDef(${idx})" class="text-zinc-300 hover:text-red-500 px-1 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('surfaces-container').innerHTML = html;
+            updateZonesList();
+            renderIcons();
+        }
+
+        function handleRowChange(idx, field, value) {
+            rows[idx][field] = value;
+            if (field === 'diam' || field === 'vc') {
+                const rpmInput = document.getElementById(`rpm-${idx}`);
+                if (rpmInput) {
+                    rpmInput.value = calculateRpm(rows[idx].diam, rows[idx].vc);
+                }
+            }
+            if (field === 'machine') {
+                renderRows();
+            }
+            if (field === 'temps') {
+                updateKPIs();
+            }
+        }
+
+        function addRow() {
+            rows.push({ ...EMPTY_ROW, id: Date.now() });
+            renderRows();
+        }
+
+        function deleteRow(index) {
+            if (confirm('Supprimer cette étape ?')) {
+                rows.splice(index, 1);
+                renderRows();
+            }
+        }
+
+        function duplicateRow(index) {
+            rows.splice(index + 1, 0, { ...rows[index], id: Date.now() });
+            renderRows();
+        }
+
+        function moveRow(index, direction) {
+            if (index + direction < 0 || index + direction >= rows.length) return;
+            const temp = rows[index];
+            rows[index] = rows[index + direction];
+            rows[index + direction] = temp;
+            renderRows();
+        }
+
+        function loadTemplate() {
+            if (confirm('Remplacer le tableau actuel par le modèle standard (Poli Brillant) ?')) {
+                rows = TEMPLATE_POLI_BRILLANT.map(r => ({ ...r, id: Date.now() + Math.random() }));
+                renderRows();
+            }
+        }
+
+        function renderRows() {
+            const tbody = document.getElementById('table-editor-body');
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="15" class="py-12 text-center text-zinc-400 italic">La gamme est vide. Cliquez sur "Ajouter une opération" pour débuter.</td></tr>`;
+                updateKPIs();
+                return;
+            }
+
+            tbody.innerHTML = rows.map((row, index) => {
+                const isRotative = !NON_ROTATIVE_MACHINES.includes(row.machine);
+                return `
+                <tr class="bg-white hover:bg-amber-50/30 transition-colors group">
+                    <td class="p-1 border-r border-zinc-100 text-center font-semibold text-zinc-400">${index + 1}</td>
+                    <td class="p-1 border-r border-zinc-100"><input list="phases-list" value="${escapeHtml(row.phase)}" oninput="handleRowChange(${index}, 'phase', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs font-medium text-zinc-700 placeholder:font-normal" placeholder="Phase..." /></td>
+                    <td class="p-1 border-r border-zinc-100"><input list="zones-list" value="${escapeHtml(row.surface)}" oninput="handleRowChange(${index}, 'surface', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs font-semibold text-amber-900 placeholder:font-normal" placeholder="Ex: Z1..." /></td>
+                    <td class="p-1 border-r border-zinc-100"><input list="operations-list" value="${escapeHtml(row.operation)}" oninput="handleRowChange(${index}, 'operation', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs font-bold text-zinc-800 placeholder:font-normal" placeholder="Opération..." /></td>
+                    <td class="p-1 border-r border-zinc-100"><input type="text" value="${escapeHtml(row.objectif)}" oninput="handleRowChange(${index}, 'objectif', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs" /></td>
+                    <td class="p-1 border-r border-zinc-100"><input list="machines-list" value="${escapeHtml(row.machine)}" onchange="handleRowChange(${index}, 'machine', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs font-medium text-zinc-800 placeholder:font-normal" placeholder="Machine..." /></td>
+                    <td class="p-1 border-r border-zinc-100"><input list="abrasifs-list" value="${escapeHtml(row.abrasif)}" oninput="handleRowChange(${index}, 'abrasif', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs font-medium text-zinc-800 placeholder:font-normal" placeholder="Abrasif..." /></td>
+                    <td class="p-1 border-r border-zinc-100"><input list="supports-list" value="${escapeHtml(row.support)}" oninput="handleRowChange(${index}, 'support', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs font-medium text-zinc-800 placeholder:font-normal" placeholder="Support..." /></td>
+                    <td class="p-1 border-r border-zinc-100"><input type="text" value="${escapeHtml(row.pate)}" oninput="handleRowChange(${index}, 'pate', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs" /></td>
+                    
+                    <td class="p-1 border-r border-zinc-100 align-middle">
+                        ${isRotative ? `<input type="number" step="0.1" id="diam-${index}" value="${escapeHtml(row.diam)}" oninput="handleRowChange(${index}, 'diam', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs text-center font-medium" />` : `<div class="w-full text-center text-zinc-300 text-[10px] py-1.5 bg-zinc-50 rounded select-none">NA</div>`}
+                    </td>
+                    <td class="p-1 border-r border-zinc-100 align-middle">
+                        ${isRotative ? `<input type="number" step="0.1" id="vc-${index}" value="${escapeHtml(row.vc)}" oninput="handleRowChange(${index}, 'vc', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs text-center font-medium" />` : `<div class="w-full text-center text-zinc-300 text-[10px] py-1.5 bg-zinc-50 rounded select-none">NA</div>`}
+                    </td>
+                    <td class="p-1 border-r border-zinc-100 bg-zinc-50 align-middle">
+                        ${isRotative ? `<input type="text" readonly id="rpm-${index}" value="${calculateRpm(row.diam, row.vc)}" class="w-full bg-transparent border-0 p-1 text-xs text-center font-bold text-zinc-800 outline-none cursor-default" />` : `<div class="w-full text-center text-zinc-300 text-[10px] py-1.5 select-none font-bold">NA</div>`}
+                    </td>
+
+                    <td class="p-1 border-r border-zinc-100"><input type="text" value="${escapeHtml(row.pression)}" oninput="handleRowChange(${index}, 'pression', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs" /></td>
+                    <td class="p-1 border-r border-zinc-200"><input type="number" step="0.5" value="${escapeHtml(row.temps)}" oninput="handleRowChange(${index}, 'temps', this.value)" class="w-full bg-transparent border-0 rounded p-1 hover:bg-zinc-100 focus:ring-1 focus:ring-amber-500 text-xs text-center font-bold text-amber-700" /></td>
+                    
+                    <td class="p-1 bg-zinc-50 border-l border-zinc-200 group-hover:bg-zinc-100 transition-colors">
+                        <div class="flex flex-wrap justify-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                            <button onclick="moveRow(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="p-1 rounded text-zinc-400 hover:text-amber-600 hover:bg-white shadow-sm disabled:opacity-0" title="Monter"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="moveRow(${index}, 1)" ${index === rows.length - 1 ? 'disabled' : ''} class="p-1 rounded text-zinc-400 hover:text-amber-600 hover:bg-white shadow-sm disabled:opacity-0" title="Descendre"><i data-lucide="arrow-down" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="duplicateRow(${index})" class="p-1 rounded text-zinc-400 hover:text-blue-600 hover:bg-white shadow-sm" title="Dupliquer"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="deleteRow(${index})" class="p-1 rounded text-zinc-400 hover:text-red-600 hover:bg-white shadow-sm" title="Supprimer"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            updateKPIs();
+            renderIcons();
+        }
+
+        function setActiveTab(tab) {
+            activeTab = tab;
+            const dashboardView = document.getElementById('dashboard-view');
+            const editorView = document.getElementById('editor-view');
+            const btnDashboard = document.getElementById('btn-nav-dashboard');
+            const btnEditor = document.getElementById('btn-nav-editor');
+
+            if (tab === 'dashboard') {
+                dashboardView.classList.add('active');
+                editorView.classList.remove('active');
+                btnDashboard.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 bg-zinc-800 text-amber-400 border-l-2 border-amber-500';
+                btnEditor.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border-l-2 border-transparent';
+                renderDashboard();
+            } else {
+                dashboardView.classList.remove('active');
+                editorView.classList.add('active');
+                btnDashboard.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border-l-2 border-transparent';
+                btnEditor.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 bg-zinc-800 text-amber-400 border-l-2 border-amber-500';
+                renderEditorState();
+            }
+        }
+
+        function goToEditor() {
+            if (currentGammeId) {
+                setActiveTab('editor');
+            } else {
+                handleCreateNew();
+            }
+        }
+
+        function handleCreateNew() {
+            currentGammeId = Date.now();
+            meta = { ref: 'NOUVELLE-GAMME', version: 'V1', piece: '', matiere: 'Acier inox', etatInitial: '', resultat: '' };
+            surfacesDef = [{ id: Date.now(), ref: 'Z1', nom: 'Surface principale', terminaison: '' }];
+            rows = [];
+            setActiveTab('editor');
+        }
+
+        function handleEditGamme(id) {
+            const gamme = gammesDB.find(g => g.id === id);
+            if (gamme) {
+                currentGammeId = gamme.id;
+                meta = JSON.parse(JSON.stringify(gamme.meta));
+                surfacesDef = JSON.parse(JSON.stringify(gamme.surfacesDef || []));
+                rows = JSON.parse(JSON.stringify(gamme.rows || []));
+                setActiveTab('editor');
+            }
+        }
+
+        function handleDuplicateGamme(id) {
+            const gamme = gammesDB.find(g => g.id === id);
+            if (gamme) {
+                const newGamme = JSON.parse(JSON.stringify(gamme));
+                newGamme.id = Date.now();
+                newGamme.lastModified = new Date().toISOString();
+                newGamme.meta.ref = `${gamme.meta.ref}-COPIE`;
+                gammesDB.unshift(newGamme);
+                renderDashboard();
+            }
+        }
+
+        function handleDeleteGamme(id) {
+            if (confirm('Supprimer définitivement cette gamme ?')) {
+                gammesDB = gammesDB.filter(g => g.id !== id);
+                if (currentGammeId === id) {
+                    currentGammeId = null;
+                    setActiveTab('dashboard');
+                } else {
+                    renderDashboard();
+                }
+            }
+        }
+
+        function handleSaveGamme() {
+            if (!currentGammeId) return;
+            const updatedGamme = {
+                id: currentGammeId,
+                lastModified: new Date().toISOString(),
+                meta: JSON.parse(JSON.stringify(meta)),
+                surfacesDef: JSON.parse(JSON.stringify(surfacesDef)),
+                rows: JSON.parse(JSON.stringify(rows))
+            };
+            const index = gammesDB.findIndex(g => g.id === currentGammeId);
+            if (index !== -1) {
+                gammesDB[index] = updatedGamme;
+            } else {
+                gammesDB.unshift(updatedGamme);
+            }
+
+            // Téléchargement du fichier JSON
+            const data = JSON.stringify({ meta, surfacesDef, rows }, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Gamme_${meta.ref || 'Terminaison'}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            alert('Gamme sauvegardée et fichier JSON téléchargé avec succès !');
+            renderDashboard(); // Re-render dashboard to show updated data if we switch back
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    
+                    if (!parsed.meta || !parsed.rows) {
+                        throw new Error("Format de fichier JSON invalide.");
+                    }
+
+                    const newGamme = {
+                        id: Date.now(),
+                        lastModified: new Date().toISOString(),
+                        meta: parsed.meta,
+                        surfacesDef: parsed.surfacesDef || [],
+                        rows: parsed.rows || []
+                    };
+                    
+                    // Assurer un identifiant unique à chaque surface et chaque ligne
+                    newGamme.surfacesDef = newGamme.surfacesDef.map(s => ({ ...s, id: Date.now() + Math.random() }));
+                    newGamme.rows = newGamme.rows.map(r => ({ ...r, id: Date.now() + Math.random() }));
+
+                    gammesDB.unshift(newGamme);
+                    
+                    alert('Gamme importée avec succès !');
+                    handleEditGamme(newGamme.id);
+                } catch (error) {
+                    alert("Erreur lors de l'importation : " + error.message);
+                }
+                
+                // Réinitialiser l'input pour permettre l'importation du même fichier par la suite
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function renderDashboard() {
+            const tbody = document.getElementById('dashboard-tbody');
+            if (gammesDB.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-zinc-400">Aucune gamme enregistrée.</td></tr>`;
+            } else {
+                tbody.innerHTML = gammesDB.map(g => `
+                    <tr class="hover:bg-zinc-50 transition-colors group">
+                        <td class="py-4 px-6 font-semibold text-zinc-900">${escapeHtml(g.meta.ref)}</td>
+                        <td class="py-4 px-6 text-zinc-600">${escapeHtml(g.meta.piece) || '-'}</td>
+                        <td class="py-4 px-6">
+                            <span class="bg-zinc-100 text-zinc-700 px-2 py-1 rounded text-xs border border-zinc-200">${escapeHtml(g.meta.matiere)}</span>
+                        </td>
+                        <td class="py-4 px-6 text-zinc-500">${new Date(g.lastModified).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}</td>
+                        <td class="py-4 px-6">
+                            <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="handleEditGamme(${g.id})" class="p-1.5 text-zinc-400 hover:text-amber-600 hover:bg-amber-50 rounded" title="Éditer"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="handleDuplicateGamme(${g.id})" class="p-1.5 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="Dupliquer"><i data-lucide="copy" class="w-4 h-4"></i></button>
+                                <button onclick="handleDeleteGamme(${g.id})" class="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded" title="Supprimer"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            renderIcons();
+        }
+
+        function renderEditorState() {
+            if (!currentGammeId) {
+                document.getElementById('editor-empty').classList.remove('hidden');
+                document.getElementById('editor-content').classList.add('hidden');
+                return;
+            }
+            document.getElementById('editor-empty').classList.add('hidden');
+            document.getElementById('editor-content').classList.remove('hidden');
+
+            document.getElementById('meta-ref').value = meta.ref || '';
+            document.getElementById('meta-version').value = meta.version || '';
+            document.getElementById('meta-piece').value = meta.piece || '';
+            document.getElementById('meta-matiere').value = meta.matiere || '';
+            document.getElementById('meta-etatInitial').value = meta.etatInitial || '';
+            document.getElementById('meta-resultat').value = meta.resultat || '';
+            document.getElementById('editor-title').innerText = meta.ref || 'Nouvelle Gamme';
+
+            renderSurfaces();
+            renderRows();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateDatalists();
+            setActiveTab('dashboard');
+            renderIcons();
+        });
+    </script>
+</body>
+</html>

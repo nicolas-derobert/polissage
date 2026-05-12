@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Révision : technique connexee</title>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #cfa346;
+            --accent-text: #856404;
+            --accent-light: #f4e8cb;
+            --bg-color: #f8f9fa;
+            --panel-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #2d3436;
+            --danger: #e67e22;
+            --success: #3498db;
+            --correct: #2ecc71;
+            --incorrect: #e74c3c;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            touch-action: none; 
+            min-height: 100vh; 
+            width: 100%; 
+            margin: 0;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .game-container-outer {
+            height: 100dvh;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .game-container-outer {
+                height: 90vh;
+                border-radius: 1rem;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        .header {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            background: var(--panel-bg);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            font-weight: bold;
+            color: var(--accent-text);
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .card-container { 
+            perspective: 1000px; 
+            flex: 1;
+            position: relative; 
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-card {
+            transition: transform 0.1s ease-out, opacity 0.3s ease;
+            user-select: none;
+            touch-action: none;
+            cursor: grab;
+            position: absolute;
+            inset: 2rem 1rem;
+            backface-visibility: hidden;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--panel-bg);
+            border: 2px solid var(--accent);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .game-card:active { cursor: grabbing; }
+
+        .swipe-indicator {
+            position: absolute;
+            top: 2rem;
+            padding: 0.5rem 1rem;
+            border: 4px solid var(--accent);
+            border-radius: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.25rem;
+            opacity: 0;
+            z-index: 20;
+            pointer-events: none;
+            color: var(--accent-text);
+            background: rgba(255, 255, 255, 0.9);
+            transition: opacity 0.2s ease;
+        }
+            
+        .indicator-left { right: 2rem; transform: rotate(15deg); border-color: var(--danger); color: var(--danger); }
+        .indicator-right { left: 2rem; transform: rotate(-15deg); border-color: var(--success); color: var(--success); }
+        
+        .btn-gold {
+            background-color: var(--accent);
+            color: var(--primary);
+            transition: all 0.2s;
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 1rem;
+        }
+        .btn-gold:active { transform: translateY(1px); scale: 0.98; }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            gap: 1rem;
+            z-index: 100;
+            background: var(--panel-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-control {
+            flex: 1;
+            padding: 1rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s, opacity 0.2s;
+            color: white;
+        }
+
+        .btn-faux { background-color: var(--incorrect); }
+        .btn-vrai { background-color: var(--correct); }
+        .btn-control:active { transform: scale(0.95); }
+            
+        .section-title {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-light);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+            
+        .category-tag {
+            background: var(--accent-light);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--accent);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.5;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        #flash {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-out;
+        }
+
+        /* Overlay d'explication */
+        .explanation-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.97);
+            z-index: 150;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            box-sizing: border-box;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+        }
+
+        .explanation-overlay.active {
+            transform: translateY(0);
+        }
+
+        .expl-result-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .expl-result-title.correct { color: var(--correct); }
+        .expl-result-title.incorrect { color: var(--incorrect); }
+
+        .truth-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin: 0 auto 1.5rem auto;
+            text-transform: uppercase;
+        }
+        .truth-badge.true {
+            background-color: #e3f2fd;
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        .truth-badge.false {
+            background-color: #fdf3e8;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .expl-question {
+            margin-bottom: 0.5rem;
+            text-align: left;
+            font-size: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .expl-question.true-statement {
+            background: #e3f2fd;
+            border-left: 4px solid var(--success);
+            color: #1a5276;
+        }
+        
+        .expl-question.false-statement {
+            background: #fdf3e8;
+            border-left: 4px solid var(--danger);
+            color: #a04000;
+        }
+        
+        .expl-question strong {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: inherit;
+            opacity: 0.8;
+        }
+
+        .expl-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .quote-block {
+            background: var(--bg-color);
+            border-left: 4px solid #bdc3c7;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--primary);
+        }
+
+        .quote-block strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .end-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 2rem;
+            text-align: center;
+            z-index: 200;
+            background: var(--panel-bg);
+            position: absolute;
+            inset: 0;
+        }
+
+        .live-score-display {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            z-index: 100;
+            background: var(--panel-bg);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        @media (max-height: 600px) {
+            .game-card { inset: 1rem; padding: 1rem; }
+            .question-text { font-size: 1.1rem; }
+            .explanation-overlay { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container-outer">
+        <div class="header">
+            <a href="index.html" style="position: absolute; left: 1rem; top: 1rem; text-decoration: none; font-size: 1.2rem; color: var(--primary);" title="Retour à l'accueil">
+                &larr;
+            </a>
+            <div class="section-title">Module Polissage</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="score-display">Question <span id="current-q-num">1</span> / <span id="total-q-num">14</span></div>
+        </div>
+
+        <div class="card-container" id="card-container">
+            <!-- Cards injected by JS -->
+        </div>
+
+        <div class="controls" id="controls">
+            <button class="btn-control btn-faux" onclick="handleButtonClick(false)">FAUX</button>
+            <button class="btn-control btn-vrai" onclick="handleButtonClick(true)">VRAI</button>
+        </div>
+
+        <!-- OVERLAY EXPLICATION -->
+        <div class="explanation-overlay" id="explanation-overlay">
+            <h2 class="expl-result-title" id="expl-title">Bonne réponse !</h2>
+            
+            <div class="expl-question" id="expl-question">
+                <strong>Rappel de l'affirmation :</strong>
+                <em>"Question text here"</em>
+            </div>
+
+            <div id="truth-badge" class="truth-badge">
+                <span id="truth-icon" style="display: flex; align-items: center;"></span>
+                <span id="truth-text"></span>
+            </div>
+
+            <p class="expl-text" id="expl-text">Explanation here.</p>
+            <div class="quote-block">
+                <strong id="expl-quote-title">Citation exacte du cours :</strong>
+                <em id="expl-quote">"Quote here"</em>
+            </div>
+            <div style="text-align: center; margin-top: auto;">
+            <button class="btn-gold" onclick="closeExplanation()">Question suivante<br><span style="font-size: 0.75rem; font-weight: normal; text-transform: none;">(ou balayez l'écran)</span></button>
+            </div>
+        </div>
+
+        <div class="end-screen" id="end-screen">
+            <div class="section-title">Résultats</div>
+            <h2 style="font-size: 3rem; color: var(--accent); margin: 1rem 0;" id="final-score">0/14</h2>
+            <p id="end-message" style="margin-bottom: 2rem; font-size: 1.2rem;"></p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                <button class="btn-gold" onclick="initGame(false)">Recommencer tout</button>
+                <button class="btn-gold" id="btn-review" onclick="initGame(true)" style="display: none; background-color: var(--danger); color: white;">Revoir les erreurs</button>
+            </div>
+        </div>
+
+        <div class="live-score-display" id="live-score-display">Score: 0 / 14</div>
+    </div>
+
+    <div id="flash"></div>
+
+    <script>
+    let questions = [
+    {
+        category: "Étampage",
+        text: "L'étampage permet de produire des pièces plates en grande série à faible coût.",
+        answer: true,
+        explanation: "Les presses rapides sont prévues pour la production de masse, notamment pour des composants de boîtes de montres ou des maillons de chaînes.",
+        quote: "Les presses rapides destinées à la fabrication de pièces plates garantissent une production de masse à faible coût.",
+        page: "43"
+    },
+    {
+        category: "Étampage",
+        text: "L'étampage de la carrure se fait toujours en une seule déformation.",
+        answer: false,
+        explanation: "La mise en forme se fait par plusieurs déformations successives, dont le nombre varie selon la forme de la pièce.",
+        quote: "L'étampage (formage) qui sera réalisé par plusieurs déformations successives.",
+        page: "43"
+    },
+    {
+        category: "Presses",
+        text: "Les presses mécaniques fonctionnent grâce à l'injection d'un fluide dans un piston.",
+        answer: false,
+        explanation: "Cette description correspond aux presses hydrauliques. Les presses mécaniques utilisent un système de bielle-manivelle.",
+        quote: "Les presses mécaniques ont leur motricité fournie par un système de bielle-manivelle.",
+        page: "44"
+    },
+    {
+        category: "Outillage",
+        text: "Les blocs à colonnes doivent garantir une grande précision de planéité, d'orthogonalité et de parallélisme.",
+        answer: true,
+        explanation: "Ces blocs servent au guidage précis des outils et se caractérisent par une très grande précision géométrique.",
+        quote: "Les blocs à colonnes se caractérisent par une précision extrêmement élevée au niveau de la planéité, de l'orthogonalité et du parallélisme.",
+        page: "44"
+    },
+    {
+        category: "Électroérosion",
+        text: "L'électroérosion peut usiner tous les matériaux, même s'ils ne conduisent pas l'électricité.",
+        answer: false,
+        explanation: "L'électroérosion nécessite que la matière soit conductrice, car l'enlèvement de matière se fait par décharges électriques.",
+        quote: "Cette technique se caractérise par son aptitude à usiner tous les matériaux conducteurs de l'électricité.",
+        page: "44"
+    },
+    {
+        category: "Électroérosion",
+        text: "Pour usiner par électroérosion, il faut notamment une électrode, une pièce, un diélectrique et de l'électricité.",
+        answer: true,
+        explanation: "Ces quatre éléments sont indispensables au procédé d'électroérosion.",
+        quote: "Pour usiner par électroérosion, quatre éléments sont nécessaires : 1. Une électrode 2. Une pièce 3. Un diélectrique 4. De l'électricité.",
+        page: "44-45"
+    },
+    {
+        category: "Électroérosion",
+        text: "Il existe trois types d'usinage par électroérosion : par enfonçage, par fil et par perçage rapide.",
+        answer: true,
+        explanation: "Le document distingue ces trois variantes selon la forme de l'électrode ou le mode d'enlèvement de matière.",
+        quote: "Il existe trois types d'usinage par électroérosion.",
+        page: "45"
+    },
+    {
+        category: "Électroérosion",
+        text: "Pour obtenir un état de surface proche du poli-miroir en électroérosion, il faut augmenter fortement l'intensité du courant.",
+        answer: false,
+        explanation: "Le document indique au contraire qu'il faut baisser l'intensité du courant à quelques dixièmes d'ampères.",
+        quote: "Des états de surface proches du poli-miroir sont réalisés en baissant l'intensité du courant.",
+        page: "46"
+    },
+    {
+        category: "Soudage",
+        text: "En soudage, les métaux à assembler doivent généralement être de même nature afin d'avoir le même point de fusion.",
+        answer: true,
+        explanation: "Le document précise que cette condition est nécessaire dans les procédés de soudage présentés.",
+        quote: "Les métaux à assembler doivent être de même nature afin d'avoir le même point de fusion.",
+        page: "46"
+    },
+    {
+        category: "Brasage",
+        text: "Lors d'un brasage, les métaux de base doivent fondre pour créer la liaison.",
+        answer: false,
+        explanation: "En brasage, les métaux de base sont chauffés jusqu'au mouillage, mais ils ne fondent pas.",
+        quote: "Les matières (métaux) sont portées à une certaine température où elles « mouillent », mais ne fondent pas.",
+        page: "47"
+    },
+    {
+        category: "Brasage",
+        text: "Le brasage permet d'assembler des métaux de nature différente et de limiter les déformations.",
+        answer: true,
+        explanation: "C'est l'un des avantages du brasage par rapport au soudage.",
+        quote: "Il permet d'assembler des métaux de nature différente et d'éviter la déformation des parties à assembler.",
+        page: "47"
+    },
+    {
+        category: "Moulage à la cire perdue",
+        text: "Dans le moulage à la cire perdue, le moule est cassé après solidification du métal pour obtenir la pièce.",
+        answer: true,
+        explanation: "Après évacuation de la cire et coulée du métal, le moule est détruit pour libérer la pièce.",
+        quote: "Une fois le métal solidifié, le moule est cassé pour obtenir la pièce désirée.",
+        page: "48"
+    },
+    {
+        category: "Perçage",
+        text: "Le centrage sert à réaliser un avant-trou pour guider la mèche.",
+        answer: true,
+        explanation: "Le centrage prépare le perçage en guidant correctement le foret.",
+        quote: "Cette opération réalisée avec une mèche à centrer a pour but de faire un avant trou afin de guider la mèche.",
+        page: "49"
+    },
+    {
+        category: "Perçage",
+        text: "L'alésoir sert à garantir la précision, la forme géométrique et la propreté d'un trou.",
+        answer: true,
+        explanation: "L'alésage intervient après le perçage pour améliorer la qualité dimensionnelle et géométrique du trou.",
+        quote: "L'alésoir est utilisé afin de garantir la précision, la forme géométrique et la propreté d'un trou.",
+        page: "49"
+    },
+    {
+        category: "Usinage CNC",
+        text: "Une machine CNC permet de reproduire des mouvements de nombreuses fois avec une grande précision.",
+        answer: true,
+        explanation: "Les déplacements sont codés par ordinateur, ce qui permet leur répétition fiable en production.",
+        quote: "Ainsi les mouvements peuvent être reproduits des dizaines, des milliers de fois avec de très grandes précisions.",
+        page: "50"
+    },
+    {
+        category: "Sertissage",
+        text: "Le sertissage désigne l'ensemble des techniques destinées à fixer les pierres sur le métal.",
+        answer: true,
+        explanation: "Le sertissage ne se limite pas à la tenue mécanique : il participe aussi à l'organisation esthétique des pierres.",
+        quote: "C'est l'ensemble des techniques destinées à fixer les pierres sur le métal.",
+        page: "51"
+    },
+    {
+        category: "Sertissage",
+        text: "Le serti clos retient la gemme grâce à de fines tiges de métal appelées griffes.",
+        answer: false,
+        explanation: "Cette description correspond au serti à griffes. Le serti clos utilise un rail et un rabat de matière.",
+        quote: "La gemme est ajustée dans un « rail » (rainure). La tenue étant obtenue par le rabat de la matière.",
+        page: "51"
+    },
+    {
+        category: "Sertissage",
+        text: "Dans le serti à griffes, de fines tiges de métal entourent la gemme.",
+        answer: true,
+        explanation: "Les griffes sont solidaires de la ceinture du chaton et permettent de maintenir la pierre.",
+        quote: "De fines tiges de métal, les griffes, sont solidaires de la ceinture et entourent la gemme.",
+        page: "52"
+    },
+    {
+        category: "Assurance Qualité",
+        text: "Une égrisure de la gemme due au sertissage peut être acceptée si elle est peu visible.",
+        answer: false,
+        explanation: "Le document indique qu'aucune égrisure causée par le sertissage n'est tolérable.",
+        quote: "Aucune égrisure de la gemme due au sertissage n'est tolérable.",
+        page: "53"
+    },
+    {
+        category: "Techniques décoratives",
+        text: "Le ciselage donne la forme en repoussant la matière sans enlever de matière.",
+        answer: true,
+        explanation: "Contrairement à la gravure, le ciselage crée un relief par déformation de la matière.",
+        quote: "Il n'y a pas d'enlèvement de matière puisqu'il s'agit d'une gravure en relief.",
+        page: "54"
+    }
+];
+
+        let allQuestions = [...questions];
+        let incorrectQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let cards = [];
+        let currentQuestionData = null;
+        
+        const container = document.getElementById('card-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentQNum = document.getElementById('current-q-num');
+        const totalQNum = document.getElementById('total-q-num');
+        const flashEl = document.getElementById('flash');
+        const endScreen = document.getElementById('end-screen');
+        const controls = document.getElementById('controls');
+        const explanationOverlay = document.getElementById('explanation-overlay');
+        const liveScoreDisplay = document.getElementById('live-score-display');
+        const btnReview = document.getElementById('btn-review');
+
+        // Logique de swipe pour fermer l'explication
+        let explStartX = 0, explStartY = 0, isExplDragging = false;
+        const startExplSwipe = (x, y) => {
+            explStartX = x; explStartY = y; isExplDragging = true;
+        };
+        const endExplSwipe = (x, y) => {
+            if (!isExplDragging || !explanationOverlay.classList.contains('active')) return;
+            isExplDragging = false;
+            let diffX = x - explStartX;
+            let diffY = y - explStartY;
+            if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+                closeExplanation();
+            }
+        };
+        explanationOverlay.addEventListener('touchstart', (e) => startExplSwipe(e.changedTouches[0].screenX, e.changedTouches[0].screenY), {passive: true});
+        explanationOverlay.addEventListener('touchend', (e) => endExplSwipe(e.changedTouches[0].screenX, e.changedTouches[0].screenY), {passive: true});
+        explanationOverlay.addEventListener('mousedown', (e) => startExplSwipe(e.clientX, e.clientY));
+        explanationOverlay.addEventListener('mouseup', (e) => endExplSwipe(e.clientX, e.clientY));
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function initGame(reviewMode = false) {
+            if (!reviewMode) {
+                questions = [...allQuestions];
+                incorrectQuestions = [];
+            } else {
+                questions = [...incorrectQuestions];
+                incorrectQuestions = [];
+            }
+            totalQNum.textContent = questions.length;
+
+            shuffle(questions);
+            currentIndex = 0;
+            score = 0;
+            updateLiveScore();
+            endScreen.style.display = 'none';
+            controls.style.display = 'flex';
+            explanationOverlay.classList.remove('active');
+            container.innerHTML = '';
+            updateProgress();
+            
+            for (let i = questions.length - 1; i >= 0; i--) {
+                createCard(questions[i], i);
+            }
+            
+            cards = document.querySelectorAll('.game-card');
+            makeTopCardInteractive();
+        }
+
+        function createCard(qData, index) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.style.zIndex = questions.length - index;
+            card.style.transform = `scale(${1 - (index * 0.02)}) translateY(${index * 5}px)`;
+            
+            card.innerHTML = `
+                <div class="swipe-indicator indicator-left">FAUX</div>
+                <div class="swipe-indicator indicator-right">VRAI</div>
+                <div class="category-tag">${qData.category}</div>
+                <div class="question-text">${qData.text}</div>
+                <div style="font-size: 0.85rem; color: #7f8c8d; margin-top: auto;">Glissez à droite pour VRAI, à gauche pour FAUX</div>
+            `;
+            
+            container.appendChild(card);
+        }
+
+        let isDragging = false;
+        let startX, currentX;
+        let activeCard = null;
+
+        function makeTopCardInteractive() {
+            if (currentIndex >= questions.length) {
+                showEndScreen();
+                return;
+            }
+            
+            currentQuestionData = questions[currentIndex];
+            activeCard = cards[questions.length - 1 - currentIndex];
+            activeCard.style.transform = 'scale(1) translateY(0px)';
+            
+            activeCard.addEventListener('pointerdown', onPointerDown);
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+        }
+
+        function removeEventListeners() {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+        }
+
+        function onPointerDown(e) {
+            isDragging = true;
+            startX = e.clientX;
+            activeCard.style.transition = 'none';
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            currentX = e.clientX - startX;
+            const rotate = currentX * 0.05;
+            activeCard.style.transform = `translateX(${currentX}px) rotate(${rotate}deg)`;
+
+            const indLeft = activeCard.querySelector('.indicator-left');
+            const indRight = activeCard.querySelector('.indicator-right');
+
+            if (currentX > 50) { indRight.style.opacity = '1'; indLeft.style.opacity = '0'; } 
+            else if (currentX < -50) { indLeft.style.opacity = '1'; indRight.style.opacity = '0'; } 
+            else { indLeft.style.opacity = '0'; indRight.style.opacity = '0'; }
+        }
+
+        function onPointerUp(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            removeEventListeners();
+            
+            const threshold = 100;
+            activeCard.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
+
+            if (currentX > threshold) { processAnswer(true, activeCard); } 
+            else if (currentX < -threshold) { processAnswer(false, activeCard); } 
+            else {
+                activeCard.style.transform = 'translateX(0px) rotate(0deg)';
+                activeCard.querySelector('.indicator-left').style.opacity = '0';
+                activeCard.querySelector('.indicator-right').style.opacity = '0';
+                makeTopCardInteractive(); 
+            }
+        }
+
+        function handleButtonClick(userSaysTrue) {
+            if (currentIndex >= questions.length || isDragging || explanationOverlay.classList.contains('active')) return;
+            activeCard = cards[questions.length - 1 - currentIndex];
+            removeEventListeners(); 
+            
+            activeCard.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
+            if (userSaysTrue) {
+                activeCard.querySelector('.indicator-right').style.opacity = '1';
+                processAnswer(true, activeCard);
+            } else {
+                activeCard.querySelector('.indicator-left').style.opacity = '1';
+                processAnswer(false, activeCard);
+            }
+        }
+
+        function processAnswer(userAnswer, cardElement) {
+            const correctAnswer = currentQuestionData.answer;
+            const isCorrect = userAnswer === correctAnswer;
+            
+            if (isCorrect) {
+                score++;
+                flashScreen(varColor('--correct'));
+            } else {
+                flashScreen(varColor('--incorrect'));
+                incorrectQuestions.push(currentQuestionData);
+            }
+            updateLiveScore();
+
+            const direction = userAnswer ? 1 : -1;
+            const moveX = direction * (window.innerWidth + 200);
+            const rotate = direction * 30;
+            
+            cardElement.style.transform = `translateX(${moveX}px) rotate(${rotate}deg)`;
+            cardElement.style.opacity = '0';
+
+            // Afficher l'explication après la fin de l'animation de la carte
+            setTimeout(() => {
+                showExplanation(isCorrect);
+            }, 300);
+        }
+
+        function showExplanation(isCorrect) {
+            const titleEl = document.getElementById('expl-title');
+            const questionEl = document.getElementById('expl-question');
+            const textEl = document.getElementById('expl-text');
+            const quoteEl = document.getElementById('expl-quote');
+            const quoteTitleEl = document.getElementById('expl-quote-title');
+            
+            const truthBadge = document.getElementById('truth-badge');
+            const truthIcon = document.getElementById('truth-icon');
+            const truthText = document.getElementById('truth-text');
+
+            if (isCorrect) {
+                titleEl.textContent = "Votre réponse est juste !";
+                titleEl.className = "expl-result-title correct";
+            } else {
+                titleEl.textContent = "Votre réponse est fausse...";
+                titleEl.className = "expl-result-title incorrect";
+            }
+
+            // Gestion de l'affichage Vrai / Faux
+            const isStatementTrue = currentQuestionData.answer;
+            if (isStatementTrue) {
+                truthBadge.className = 'truth-badge true';
+                truthIcon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                truthText.textContent = "L'affirmation est VRAIE";
+                questionEl.className = 'expl-question true-statement';
+            } else {
+                truthBadge.className = 'truth-badge false';
+                truthIcon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+                truthText.textContent = "L'affirmation est FAUSSE";
+                questionEl.className = 'expl-question false-statement';
+            }
+
+            questionEl.innerHTML = `<strong>Rappel de l'affirmation :</strong> <em>"${currentQuestionData.text}"</em>`;
+            textEl.innerHTML = `<strong>Explication :</strong> ${currentQuestionData.explanation}`;
+            quoteEl.innerHTML = `"${currentQuestionData.quote}"`;
+
+            // Affichage certifié de la page
+            quoteTitleEl.textContent = `Citation exacte du cours (Page ${currentQuestionData.page}) :`;
+
+            explanationOverlay.classList.add('active');
+        }
+
+        function closeExplanation() {
+            explanationOverlay.classList.remove('active');
+            currentIndex++;
+            updateProgress();
+            
+            setTimeout(() => {
+                makeTopCardInteractive();
+            }, 300);
+        }
+
+        function updateProgress() {
+            const percent = (currentIndex / questions.length) * 100;
+            progressBar.style.width = `${percent}%`;
+            if (currentIndex < questions.length) {
+                currentQNum.textContent = currentIndex + 1;
+            }
+        }
+
+        function updateLiveScore() {
+            if (liveScoreDisplay) {
+                liveScoreDisplay.textContent = `Score: ${score} / ${questions.length}`;
+            }
+        }
+
+        function varColor(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        function flashScreen(color) {
+            flashEl.style.background = color;
+            flashEl.style.opacity = '0.3';
+            setTimeout(() => { flashEl.style.opacity = '0'; }, 150);
+        }
+
+        function showEndScreen() {
+            controls.style.display = 'none';
+            endScreen.style.display = 'flex';
+            document.getElementById('final-score').textContent = `${score} / ${questions.length}`;
+            
+            let message = "";
+            const ratio = score / questions.length;
+            if (ratio === 1) message = "Parfait ! Vous maîtrisez parfaitement les outils et consommables de polissage ! 🏆";
+            else if (ratio >= 0.7) message = "Très bon résultat ! Quelques révisions et vous serez expert. 🥈";
+            else message = "Il va falloir revoir le cours en détail. Bon courage ! 💪";
+            
+            document.getElementById('end-message').textContent = message;
+
+            if (incorrectQuestions.length > 0) {
+                btnReview.style.display = 'inline-block';
+                btnReview.textContent = `Revoir les erreurs (${incorrectQuestions.length})`;
+            } else {
+                btnReview.style.display = 'none';
+            }
+        }
+
+        window.onload = () => initGame(false);
+    </script>
+</body>
+</html>

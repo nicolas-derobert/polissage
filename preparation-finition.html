@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Révision : Métiers du Polissage</title>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #cfa346;
+            --accent-text: #856404;
+            --accent-light: #f4e8cb;
+            --bg-color: #f8f9fa;
+            --panel-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #2d3436;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            touch-action: none; 
+            min-height: 100vh; 
+            width: 100%; 
+            margin: 0;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .game-container-outer {
+            height: 100dvh;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .game-container-outer {
+                height: 90vh;
+                border-radius: 1rem;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        .header {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            background: var(--panel-bg);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            font-weight: bold;
+            color: var(--accent-text);
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .card-container { 
+            perspective: 1000px; 
+            flex: 1;
+            position: relative; 
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-card {
+            transition: transform 0.1s ease-out, opacity 0.3s ease;
+            user-select: none;
+            touch-action: none;
+            cursor: grab;
+            position: absolute;
+            inset: 2rem 1rem;
+            backface-visibility: hidden;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--panel-bg);
+            border: 2px solid var(--accent);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .game-card:active { cursor: grabbing; }
+
+        .swipe-indicator {
+            position: absolute;
+            top: 2rem;
+            padding: 0.5rem 1rem;
+            border: 4px solid var(--accent);
+            border-radius: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.25rem;
+            opacity: 0;
+            z-index: 20;
+            pointer-events: none;
+            color: var(--accent-text);
+            background: rgba(255, 255, 255, 0.9);
+            transition: opacity 0.2s ease;
+        }
+            
+        .indicator-left { right: 2rem; transform: rotate(15deg); border-color: var(--danger); color: var(--danger); }
+        .indicator-right { left: 2rem; transform: rotate(-15deg); border-color: var(--success); color: var(--success); }
+        
+        .btn-gold {
+            background-color: var(--accent);
+            color: var(--primary);
+            transition: all 0.2s;
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 1rem;
+        }
+        .btn-gold:active { transform: translateY(1px); scale: 0.98; }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            gap: 1rem;
+            z-index: 100;
+            background: var(--panel-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-control {
+            flex: 1;
+            padding: 1rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s, opacity 0.2s;
+            color: white;
+        }
+
+        .btn-faux { background-color: var(--danger); }
+        .btn-vrai { background-color: var(--success); }
+        .btn-control:active { transform: scale(0.95); }
+            
+        .section-title {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-light);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+            
+        .category-tag {
+            background: var(--accent-light);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--accent);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.5;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        #flash {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-out;
+        }
+
+        /* Overlay d'explication */
+        .explanation-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.97);
+            z-index: 150;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            box-sizing: border-box;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+        }
+
+        .explanation-overlay.active {
+            transform: translateY(0);
+        }
+
+        .expl-result-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .expl-result-title.correct { color: var(--success); }
+        .expl-result-title.incorrect { color: var(--danger); }
+
+        .truth-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin: 0 auto 1.5rem auto;
+            text-transform: uppercase;
+        }
+        .truth-badge.true {
+            background-color: #e8f8f5;
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        .truth-badge.false {
+            background-color: #fdf2e9;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .expl-question {
+            margin-bottom: 0.5rem;
+            text-align: left;
+            font-size: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .expl-question.true-statement {
+            background: #e8f8f5;
+            border-left: 4px solid var(--success);
+            color: #1e8449;
+        }
+        
+        .expl-question.false-statement {
+            background: #fdf2e9;
+            border-left: 4px solid var(--danger);
+            color: #c0392b;
+        }
+        
+        .expl-question strong {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: inherit;
+            opacity: 0.8;
+        }
+
+        .expl-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .quote-block {
+            background: var(--bg-color);
+            border-left: 4px solid #bdc3c7;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--primary);
+        }
+
+        .quote-block strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .end-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 2rem;
+            text-align: center;
+            z-index: 200;
+            background: var(--panel-bg);
+            position: absolute;
+            inset: 0;
+        }
+
+        @media (max-height: 600px) {
+            .game-card { inset: 1rem; padding: 1rem; }
+            .question-text { font-size: 1.1rem; }
+            .explanation-overlay { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container-outer">
+        <div class="header">
+            <a href="index.html" style="position: absolute; left: 1rem; top: 1rem; text-decoration: none; font-size: 1.2rem; color: var(--primary);" title="Retour à l'accueil">
+                &larr;
+            </a>
+            <div class="section-title">Module Polissage</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="score-display">Question <span id="current-q-num">1</span> / <span id="total-q-num">14</span></div>
+        </div>
+
+        <div class="card-container" id="card-container">
+            <!-- Cards injected by JS -->
+        </div>
+
+        <div class="controls" id="controls">
+            <button class="btn-control btn-faux" onclick="handleButtonClick(false)">FAUX (Swipe Gauche)</button>
+            <button class="btn-control btn-vrai" onclick="handleButtonClick(true)">VRAI (Swipe Droite)</button>
+        </div>
+
+        <!-- OVERLAY EXPLICATION -->
+        <div class="explanation-overlay" id="explanation-overlay">
+            <h2 class="expl-result-title" id="expl-title">Bonne réponse !</h2>
+            
+            <div class="expl-question" id="expl-question">
+                <strong>Rappel de l'affirmation :</strong>
+                <em>"Question text here"</em>
+            </div>
+
+            <div id="truth-badge" class="truth-badge">
+                <span id="truth-icon" style="display: flex; align-items: center;"></span>
+                <span id="truth-text"></span>
+            </div>
+
+            <p class="expl-text" id="expl-text">Explanation here.</p>
+            <div class="quote-block">
+                <strong id="expl-quote-title">Citation exacte du cours :</strong>
+                <em id="expl-quote">"Quote here"</em>
+            </div>
+            <div style="text-align: center; margin-top: auto;">
+            <button class="btn-gold" onclick="closeExplanation()">Question suivante<br><span style="font-size: 0.75rem; font-weight: normal; text-transform: none;">(ou balayez l'écran)</span></button>
+            </div>
+        </div>
+
+        <div class="end-screen" id="end-screen">
+            <div class="section-title">Résultats</div>
+            <h2 style="font-size: 3rem; color: var(--accent); margin: 1rem 0;" id="final-score">0/14</h2>
+            <p id="end-message" style="margin-bottom: 2rem; font-size: 1.2rem;"></p>
+            <button class="btn-gold" onclick="initGame()">Recommencer</button>
+        </div>
+    </div>
+
+    <div id="flash"></div>
+
+    <script>
+        const questions = [
+    {
+        category: "Stockage et Manutention",
+        text: "Une humidité de l'air trop élevée pour les bandes abrasives peut provoquer la formation de plis lors de l'emploi.",
+        answer: true,
+        explanation: "L'humidité excessive ramollit le support, ce qui peut entraîner des plis ou le relèvement des bords de la bande.",
+        quote: "Une humidité de l'air trop élevée provoque un ramollissement (relâchement) du support [...] ce qui entraîne, à l'emploi, la formation de plis sur la bande.",
+        page: "27"
+    },
+    {
+        category: "Paramètres de Coupe",
+        text: "En théorie, la vitesse de coupe pour le polissage est inférieure à celle de l'émerisage.",
+        answer: false,
+        explanation: "C'est l'inverse : la vitesse théorique est de 30-35 m/s pour l'émerisage et monte jusqu'à 45 m/s pour le polissage.",
+        quote: "la vitesse de coupe [...] est de l'ordre de 30 à 35 m/s pour l'émerisage et de 35 à 45 m/s pour le polissage.",
+        page: "30"
+    },
+    {
+        category: "Opérations de Préparation",
+        text: "L'ébavurage est une opération qui consiste à enlever les barbes de coulée issues d'un moule.",
+        answer: false,
+        explanation: "L'ébavurage concerne les restes d'usinage (sciage, fraisage), alors que l'enlèvement des barbes de moulage s'appelle l'ébarbage.",
+        quote: "L'ébavurage consiste à enlever une bavure ou plusieurs bavures issues d'un usinage. [...] Attention à ne pas confondre l'ébarbage avec le chanfreinage.",
+        page: "31"
+    },
+    {
+        category: "Techniques de Surface",
+        text: "Le lapidage permet d'obtenir un état de surface extrêmement plat et brillant.",
+        answer: true,
+        explanation: "Cette technique, issue de la taille des pierres, utilise des disques abrasifs fins pour garantir une planéité parfaite.",
+        quote: "Le lapidage permet d'obtenir un état de surface très plat, très brillant, par abrasion du métal sur un disque abrasif très fin.",
+        page: "32"
+    },
+    {
+        category: "Tribofinition",
+        text: "La trovalisation est une méthode de polissage particulièrement adaptée pour les pièces unitaires de grande taille.",
+        answer: false,
+        explanation: "La trovalisation, ou polissage au tonneau, est conçue pour traiter de grandes séries de petites pièces en vrac.",
+        quote: "Cette technique est particulièrement adaptée pour le polissage ou l'ébavurage en vrac de pièces en séries importantes.",
+        page: "33"
+    },
+    {
+        category: "Finition et Propreté",
+        text: "L'avivage est considéré comme l'opération la plus propre du cycle de polissage.",
+        answer: true,
+        explanation: "Comme elle donne l'éclat final, elle ne produit quasiment aucune poussière contrairement aux étapes d'abrasion.",
+        quote: "C'est l'opération la plus propre puisqu'elle ne produit quasiment pas de poussière.",
+        page: "35"
+    },
+    {
+        category: "Surfaces Mates",
+        text: "Le satinage donne au métal une illusion visuelle de surface 'tendre'.",
+        answer: true,
+        explanation: "L'aspect mat et ligné du satinage modifie la perception de la dureté visuelle de la matière.",
+        quote: "Il donne une illusion de surface « tendre » au métal ainsi traité.",
+        page: "36"
+    },
+    {
+        category: "Sablage et Déformation",
+        text: "Le sablage d'une plaque fine n'a aucune influence sur sa forme géométrique.",
+        answer: false,
+        explanation: "Le martelage des grains augmente la surface du côté travaillé, ce qui peut faire bomber la pièce.",
+        quote: "le sablage en martelant la surface d'une pièce aura tendance à augmenter la surface du côté travaillé alors que l'autre face gardera sa surface initiale.",
+        page: "37"
+    },
+    {
+        category: "Décors Horlogers",
+        text: "Le décor 'Côte de Genève' peut être appliqué sans risque sur les surfaces fonctionnelles d'un mouvement.",
+        answer: false,
+        explanation: "L'enlèvement de matière est trop important, ce qui nuirait à la précision de marche de la montre.",
+        quote: "Ce décor n'est pas compatible avec les surfaces fonctionnelles, à cause d'un enlèvement de matière trop important.",
+        page: "38"
+    },
+    {
+        category: "Entretien des Outils",
+        text: "Le peigne est un accessoire utilisé pour redonner du tranchant aux meules en diamant.",
+        answer: false,
+        explanation: "Le peigne sert spécifiquement à nettoyer et supprimer la dureté des disques en toile saturés de pâte.",
+        quote: "Outil indispensable au nettoyage et à l'égalisation des disques en toile. Il supprime la dureté produite par les pâtes à polir.",
+        page: "41"
+    },
+    {
+        category: "Accessoires de Protection",
+        text: "Les 'Selvyts' sont des tissus en coton utilisés pour éviter les rayures lors de la manipulation.",
+        answer: true,
+        explanation: "Leur texture spécifique empêche également le dépôt de poils sur les pièces polies.",
+        quote: "Le velouté de la surface, grâce à un ancrage en double V, empêche le dépôt de poils sur la pièce.",
+        page: "42"
+    },
+    {
+        category: "Procédés de Fabrication",
+        text: "L'électroérosion ne peut être utilisée que sur des matériaux conducteurs d'électricité.",
+        answer: true,
+        explanation: "Le principe repose sur des décharges électriques, ce qui exclut les matériaux isolants.",
+        quote: "Cette technique se caractérise par son aptitude à usiner tous les matériaux conducteurs de l'électricité.",
+        page: "44"
+    },
+    {
+        category: "Techniques de Soudage",
+        text: "Lors d'un brasage, les métaux de base doivent obligatoirement fondre pour assurer la liaison.",
+        answer: false,
+        explanation: "Contrairement au soudage, les métaux sont chauffés mais ne fondent pas ; c'est le métal d'apport qui fond.",
+        quote: "Lors de l'opération de brasage, les matières (métaux) sont portées à une certaine température où elles « mouillent », mais ne fondent pas.",
+        page: "47"
+    },
+    {
+        category: "Usinage Mécanique",
+        text: "L'alésoir est un outil utilisé pour garantir la précision géométrique d'un trou.",
+        answer: true,
+        explanation: "Il intervient après le perçage pour obtenir une cote exacte et une surface propre.",
+        quote: "L'alésoir est utilisé afin de garantir la précision, la forme géométrique et la propreté d'un trou.",
+        page: "49"
+    },
+    {
+        category: "Sertissage des Pierres",
+        text: "Le serti clos consiste à retenir une gemme par de fines tiges de métal appelées griffes.",
+        answer: false,
+        explanation: "Le serti clos utilise un rabat de matière sur tout le pourtour (rail), contrairement au serti à griffes.",
+        quote: "Le serti clos : Le serti traditionnel où la gemme est ajustée dans un « rail » (rainure). La tenue étant obtenue par le rabat de la matière.",
+        page: "51"
+    },
+    {
+        category: "Contrôle Qualité",
+        text: "Pour vérifier la tenue d'une pierre sertie, on peut exercer une traction latérale avec une gomme.",
+        answer: true,
+        explanation: "C'est un test simple pour s'assurer que la gemme ne bouge pas dans son logement.",
+        quote: "Un moyen simple de vérifier la tenue de la gemme est d'exercer une traction latérale sur la pierre avec une « gomme ».",
+        page: "52"
+    },
+    {
+        category: "Décoration Manuelle",
+        text: "Le ciselage est une technique de gravure qui n'enlève pas de matière.",
+        answer: true,
+        explanation: "La matière est simplement repoussée ou déformée à l'aide d'un ciselet et d'un marteau.",
+        quote: "Il n'y a pas d'enlèvement de matière puisqu'il s'agit d'une gravure en relief réalisée à l'aide d'un petit ciseau (ciselet).",
+        page: "54"
+    },
+    {
+        category: "Techniques Connexes",
+        text: "L'émaillage consiste à recouvrir un métal d'une substance vitreuse fondue à chaud.",
+        answer: true,
+        explanation: "La fusion à chaud rend la couleur et l'éclat de l'émail inaltérables.",
+        quote: "Il recouvre d'une substance vitreuse transparente ou opaque, fondue à chaud, certaines pièces métalliques.",
+        page: "55"
+    },
+    {
+        category: "Techniques Connexes",
+        text: "Le damasquinage est une technique d'incrustation à base de sulfure métallique noir.",
+        answer: false,
+        explanation: "Le damasquinage utilise des filets d'or ou d'argent. C'est le niellage qui utilise une substance noire sulfureuse.",
+        quote: "Le damasquinage : Il s'agit d'incrustations au marteau de filets décoratifs d'or, d'argent, de cuivre.",
+        page: "55"
+    },
+    {
+        category: "Techniques Connexes",
+        text: "Le niellage se pratique dans les parties préalablement incisées d'une surface métallique.",
+        answer: true,
+        explanation: "La substance noire est déposée dans des cavités gravées pour créer le décor.",
+        quote: "Il s'agit d'incrustations décoratives d'une substance noire [...] dans les parties préalablement incisées d'une surface de métal.",
+        page: "55"
+    }
+];
+
+        let currentIndex = 0;
+        let score = 0;
+        let cards = [];
+        let currentQuestionData = null;
+        
+        const container = document.getElementById('card-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentQNum = document.getElementById('current-q-num');
+        const totalQNum = document.getElementById('total-q-num');
+        const flashEl = document.getElementById('flash');
+        const endScreen = document.getElementById('end-screen');
+        const controls = document.getElementById('controls');
+        const explanationOverlay = document.getElementById('explanation-overlay');
+
+        // Logique de swipe pour fermer l'explication
+        let explStartX = 0, explStartY = 0, isExplDragging = false;
+        const startExplSwipe = (x, y) => {
+            explStartX = x; explStartY = y; isExplDragging = true;
+        };
+        const endExplSwipe = (x, y) => {
+            if (!isExplDragging || !explanationOverlay.classList.contains('active')) return;
+            isExplDragging = false;
+            let diffX = x - explStartX;
+            let diffY = y - explStartY;
+            if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+                closeExplanation();
+            }
+        };
+        explanationOverlay.addEventListener('touchstart', (e) => startExplSwipe(e.changedTouches[0].screenX, e.changedTouches[0].screenY), {passive: true});
+        explanationOverlay.addEventListener('touchend', (e) => endExplSwipe(e.changedTouches[0].screenX, e.changedTouches[0].screenY), {passive: true});
+        explanationOverlay.addEventListener('mousedown', (e) => startExplSwipe(e.clientX, e.clientY));
+        explanationOverlay.addEventListener('mouseup', (e) => endExplSwipe(e.clientX, e.clientY));
+
+        totalQNum.textContent = questions.length;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function initGame() {
+            shuffle(questions);
+            currentIndex = 0;
+            score = 0;
+            endScreen.style.display = 'none';
+            controls.style.display = 'flex';
+            explanationOverlay.classList.remove('active');
+            container.innerHTML = '';
+            updateProgress();
+            
+            for (let i = questions.length - 1; i >= 0; i--) {
+                createCard(questions[i], i);
+            }
+            
+            cards = document.querySelectorAll('.game-card');
+            makeTopCardInteractive();
+        }
+
+        function createCard(qData, index) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.style.zIndex = questions.length - index;
+            card.style.transform = `scale(${1 - (index * 0.02)}) translateY(${index * 5}px)`;
+            
+            card.innerHTML = `
+                <div class="swipe-indicator indicator-left">FAUX</div>
+                <div class="swipe-indicator indicator-right">VRAI</div>
+                <div class="category-tag">${qData.category}</div>
+                <div class="question-text">${qData.text}</div>
+                <div style="font-size: 0.85rem; color: #7f8c8d; margin-top: auto;">Glissez à droite pour VRAI, à gauche pour FAUX</div>
+            `;
+            
+            container.appendChild(card);
+        }
+
+        let isDragging = false;
+        let startX, currentX;
+        let activeCard = null;
+
+        function makeTopCardInteractive() {
+            if (currentIndex >= questions.length) {
+                showEndScreen();
+                return;
+            }
+            
+            currentQuestionData = questions[currentIndex];
+            activeCard = cards[questions.length - 1 - currentIndex];
+            activeCard.style.transform = 'scale(1) translateY(0px)';
+            
+            activeCard.addEventListener('pointerdown', onPointerDown);
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+        }
+
+        function removeEventListeners() {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+        }
+
+        function onPointerDown(e) {
+            isDragging = true;
+            startX = e.clientX;
+            activeCard.style.transition = 'none';
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            currentX = e.clientX - startX;
+            const rotate = currentX * 0.05;
+            activeCard.style.transform = `translateX(${currentX}px) rotate(${rotate}deg)`;
+
+            const indLeft = activeCard.querySelector('.indicator-left');
+            const indRight = activeCard.querySelector('.indicator-right');
+
+            if (currentX > 50) { indRight.style.opacity = '1'; indLeft.style.opacity = '0'; } 
+            else if (currentX < -50) { indLeft.style.opacity = '1'; indRight.style.opacity = '0'; } 
+            else { indLeft.style.opacity = '0'; indRight.style.opacity = '0'; }
+        }
+
+        function onPointerUp(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            removeEventListeners();
+            
+            const threshold = 100;
+            activeCard.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
+
+            if (currentX > threshold) { processAnswer(true, activeCard); } 
+            else if (currentX < -threshold) { processAnswer(false, activeCard); } 
+            else {
+                activeCard.style.transform = 'translateX(0px) rotate(0deg)';
+                activeCard.querySelector('.indicator-left').style.opacity = '0';
+                activeCard.querySelector('.indicator-right').style.opacity = '0';
+                makeTopCardInteractive(); 
+            }
+        }
+
+        function handleButtonClick(userSaysTrue) {
+            if (currentIndex >= questions.length || isDragging || explanationOverlay.classList.contains('active')) return;
+            activeCard = cards[questions.length - 1 - currentIndex];
+            removeEventListeners(); 
+            
+            activeCard.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
+            if (userSaysTrue) {
+                activeCard.querySelector('.indicator-right').style.opacity = '1';
+                processAnswer(true, activeCard);
+            } else {
+                activeCard.querySelector('.indicator-left').style.opacity = '1';
+                processAnswer(false, activeCard);
+            }
+        }
+
+        function processAnswer(userAnswer, cardElement) {
+            const correctAnswer = currentQuestionData.answer;
+            const isCorrect = userAnswer === correctAnswer;
+            
+            if (isCorrect) {
+                score++;
+                flashScreen(varColor('--success'));
+            } else {
+                flashScreen(varColor('--danger'));
+            }
+
+            const direction = userAnswer ? 1 : -1;
+            const moveX = direction * (window.innerWidth + 200);
+            const rotate = direction * 30;
+            
+            cardElement.style.transform = `translateX(${moveX}px) rotate(${rotate}deg)`;
+            cardElement.style.opacity = '0';
+
+            // Afficher l'explication après la fin de l'animation de la carte
+            setTimeout(() => {
+                showExplanation(isCorrect);
+            }, 300);
+        }
+
+        function showExplanation(isCorrect) {
+            const titleEl = document.getElementById('expl-title');
+            const questionEl = document.getElementById('expl-question');
+            const textEl = document.getElementById('expl-text');
+            const quoteEl = document.getElementById('expl-quote');
+            const quoteTitleEl = document.getElementById('expl-quote-title');
+            
+            const truthBadge = document.getElementById('truth-badge');
+            const truthIcon = document.getElementById('truth-icon');
+            const truthText = document.getElementById('truth-text');
+
+            if (isCorrect) {
+                titleEl.textContent = "Bonne réponse !";
+                titleEl.className = "expl-result-title correct";
+            } else {
+                titleEl.textContent = "Mauvaise réponse...";
+                titleEl.className = "expl-result-title incorrect";
+            }
+
+            // Gestion de l'affichage Vrai / Faux
+            const isStatementTrue = currentQuestionData.answer;
+            if (isStatementTrue) {
+                truthBadge.className = 'truth-badge true';
+                truthIcon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                truthText.textContent = "L'affirmation est VRAIE";
+                questionEl.className = 'expl-question true-statement';
+            } else {
+                truthBadge.className = 'truth-badge false';
+                truthIcon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+                truthText.textContent = "L'affirmation est FAUSSE";
+                questionEl.className = 'expl-question false-statement';
+            }
+
+            questionEl.innerHTML = `<strong>Rappel de l'affirmation :</strong> <em>"${currentQuestionData.text}"</em>`;
+            textEl.innerHTML = `<strong>Explication :</strong> ${currentQuestionData.explanation}`;
+            quoteEl.innerHTML = `"${currentQuestionData.quote}"`;
+
+            // Affichage certifié de la page
+            quoteTitleEl.textContent = `Citation exacte du cours (Page ${currentQuestionData.page}) :`;
+
+            explanationOverlay.classList.add('active');
+        }
+
+        function closeExplanation() {
+            explanationOverlay.classList.remove('active');
+            currentIndex++;
+            updateProgress();
+            
+            setTimeout(() => {
+                makeTopCardInteractive();
+            }, 300);
+        }
+
+        function updateProgress() {
+            const percent = (currentIndex / questions.length) * 100;
+            progressBar.style.width = `${percent}%`;
+            if (currentIndex < questions.length) {
+                currentQNum.textContent = currentIndex + 1;
+            }
+        }
+
+        function varColor(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        function flashScreen(color) {
+            flashEl.style.background = color;
+            flashEl.style.opacity = '0.3';
+            setTimeout(() => { flashEl.style.opacity = '0'; }, 150);
+        }
+
+        function showEndScreen() {
+            controls.style.display = 'none';
+            endScreen.style.display = 'flex';
+            document.getElementById('final-score').textContent = `${score} / ${questions.length}`;
+            
+            let message = "";
+            const ratio = score / questions.length;
+            if (ratio === 1) message = "Parfait ! Vous maîtrisez parfaitement les outils et consommables de polissage ! 🏆";
+            else if (ratio >= 0.7) message = "Très bon résultat ! Quelques révisions et vous serez expert. 🥈";
+            else message = "Il va falloir revoir le cours en détail. Bon courage ! 💪";
+            
+            document.getElementById('end-message').textContent = message;
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISO 2859-1 : Simulateur Expert / Expert Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0E2841;
+            --accent: #B18B47;
+            --highlight: #fef3c7; /* amber-50 */
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        
+        .tab-active { border-bottom: 4px solid var(--accent); color: var(--accent); font-weight: 700; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); border-top: 4px solid var(--primary); }
+        .stat-card { background: #fdfdfd; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        
+        .btn-primary { background-color: var(--primary); color: white; transition: all 0.3s; }
+        .btn-primary:hover { background-color: #1a3a5a; box-shadow: 0 4px 12px rgba(14, 40, 65, 0.3); }
+        
+        .text-navy { color: var(--primary); }
+        .text-gold { color: var(--accent); }
+        .bg-navy { background-color: var(--primary); }
+        .bg-gold { background-color: var(--accent); }
+
+        /* Scrollbars personnalisées */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px;}
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .dark-scrollbar::-webkit-scrollbar { width: 6px; }
+        .dark-scrollbar::-webkit-scrollbar-track { background: #0E2841; border-radius: 4px; }
+        .dark-scrollbar::-webkit-scrollbar-thumb { background: #1e4b75; border-radius: 4px; }
+        .dark-scrollbar::-webkit-scrollbar-thumb:hover { background: #2a6399; }
+
+        /* Animations for Visualizer Tables */
+        .anim-highlight {
+            background-color: var(--accent) !important;
+            color: white !important;
+            font-weight: 900 !important;
+            transform: scale(1.1);
+            box-shadow: 0 0 0 8px rgba(177, 139, 71, 0.2);
+            z-index: 20;
+            position: relative;
+            border-radius: 6px;
+        }
+        
+        /* Table Styles */
+        table { border-collapse: collapse; width: 100%; font-size: 0.75rem; text-align: center; }
+        th, td { border: 1px solid #e2e8f0; padding: 6px; position: relative; transition: all 0.3s ease; }
+        th { background-color: #f8fafc; color: var(--primary); font-weight: 700; }
+        
+        table th:first-child, table td:first-child { padding-left: 32px; }
+
+        /* Generic Library Table */
+        .lib-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; }
+        .lib-table th { background-color: #f8fafc; color: var(--primary); font-weight: 700; padding: 8px 4px; border: 1px solid #e2e8f0; }
+        .lib-table td { padding: 6px 4px; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .lib-table tr:hover td { background-color: #f1f5f9; }
+
+        .row-dimmed { opacity: 0.25; filter: grayscale(100%); }
+        .row-focus { opacity: 1; font-weight: 600; z-index: 10; position: relative; }
+        .row-focus td { background-color: var(--highlight); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); }
+        .row-focus td:first-child { border-left: 2px solid var(--accent); }
+        .row-focus td:last-child { border-right: 2px solid var(--accent); }
+        
+        /* Column Highlight for AQL */
+        .col-highlight {
+            background-color: #fef3c7 !important; /* amber-50 */
+            opacity: 1 !important;
+            filter: grayscale(0%) !important;
+            border-left: 2px solid #fde68a;
+            border-right: 2px solid #fde68a;
+        }
+        th.col-highlight {
+            background-color: #fde68a !important; /* amber-200 */
+            color: #92400e !important;
+            border-top: 2px solid #fde68a;
+        }
+        
+        /* Intersection Cell Heavy Highlight */
+        .cell-intersection {
+            background-color: #fbbf24 !important; /* amber-400 */
+            color: #78350f !important; /* amber-900 */
+            font-weight: 900 !important;
+            box-shadow: inset 0 0 0 2px #fff, 0 0 0 3px #fbbf24;
+            z-index: 30 !important;
+            border-radius: 4px;
+        }
+
+        /* Dynamic Reading Arrow */
+        @keyframes slideArrow {
+            0%, 100% { transform: translateX(0) translateY(-50%); opacity: 1;}
+            50% { transform: translateX(6px) translateY(-50%); opacity: 0.8;}
+        }
+        .row-focus > td:first-child::before {
+            content: '►';
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            color: var(--accent);
+            font-size: 1.2rem;
+            animation: slideArrow 1s infinite;
+        }
+        
+        /* Step Sidebar active effect */
+        .step-active {
+            background-color: var(--highlight);
+            border-color: #fcd34d; /* amber-300 */
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 relative pb-24">
+
+    <div class="max-w-screen-2xl mx-auto">
+        <!-- Header & Top Navigation -->
+        <div class="flex justify-between items-center mb-4 max-w-7xl mx-auto">
+            <a href="#" class="text-slate-500 hover:text-[#B18B47] font-bold text-sm flex items-center gap-2 transition-colors" data-i18n="back_home">
+                <span>&larr;</span> Retour Accueil
+            </a>
+            
+            <div class="flex items-center gap-3 md:gap-5">
+                <!-- Bouton d'ouverture de la Modale Bibliothèque ISO -->
+                <button onclick="openLibraryModal()" class="flex items-center gap-2 px-4 py-2 bg-navy hover:bg-[#1a3a5a] text-white text-sm font-bold rounded-lg shadow-sm transition-all transform active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <span data-i18n="tab_library">Bibliothèque ISO</span>
+                </button>
+
+                <!-- Language Toggle -->
+                <div class="flex bg-slate-200 rounded-lg p-1">
+                    <button onclick="setLang('fr')" id="btn-fr" class="px-3 py-1 rounded-md bg-white shadow-sm text-xs font-bold text-navy transition-all">FR</button>
+                    <button onclick="setLang('en')" id="btn-en" class="px-3 py-1 rounded-md text-xs font-bold text-slate-500 hover:text-navy transition-all">EN</button>
+                </div>
+            </div>
+        </div>
+
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-black text-navy tracking-tight uppercase" data-i18n="main_title">ISO 2859-1 Expert</h1>
+            <div class="h-1 w-24 bg-[#B18B47] mx-auto mt-2"></div>
+            <p class="text-slate-500 mt-4 font-medium italic" data-i18n="subtitle">Logiciel de calcul et d'entraînement aux plans d'échantillonnage</p>
+        </header>
+
+        <nav class="flex border-b border-slate-200 mb-8 bg-white rounded-t-xl shadow-sm overflow-hidden flex-wrap md:flex-nowrap max-w-7xl mx-auto">
+            <button onclick="switchTab('calc')" id="btn-tab-calc" class="flex-1 py-4 text-center transition-all tab-active uppercase tracking-widest text-xs font-bold" data-i18n="tab_calc">
+                Simulateur de Plan
+            </button>
+            <button onclick="switchTab('quiz')" id="btn-tab-quiz" class="flex-1 py-4 text-center transition-all text-slate-500 hover:bg-slate-50 uppercase tracking-widest text-xs font-bold" data-i18n="tab_quiz">
+                Mode Entraînement
+            </button>
+        </nav>
+
+        <main>
+            <!-- TAB 1: CALCULATOR & VISUALIZER -->
+            <section id="tab-calc" class="space-y-6 max-w-7xl mx-auto">
+                <div class="card p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <label class="block text-xs font-bold text-navy uppercase mb-3 tracking-wider" data-i18n="lbl_lot">Taille du lot (N)</label>
+                            <input type="number" id="lot-size" value="1500" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#B18B47] focus:outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-navy uppercase mb-3 tracking-wider" data-i18n="lbl_level">Niveau d'inspection</label>
+                            <select id="insp-level" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#B18B47] focus:outline-none bg-white">
+                                <option value="I" data-i18n="lvl_1">Général I</option>
+                                <option value="II" selected data-i18n="lvl_2">Général II (Normal)</option>
+                                <option value="III" data-i18n="lvl_3">Général III</option>
+                                <option value="S-1">S-1</option>
+                                <option value="S-2">S-2</option>
+                                <option value="S-3">S-3</option>
+                                <option value="S-4">S-4</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-navy uppercase mb-3 tracking-wider" data-i18n="lbl_aql">NQA (AQL) %</label>
+                            <select id="aql-value" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#B18B47] focus:outline-none bg-white">
+                                <option value="0.065">0.065</option>
+                                <option value="0.10">0.10</option>
+                                <option value="0.15">0.15</option>
+                                <option value="0.25">0.25</option>
+                                <option value="0.40">0.40</option>
+                                <option value="0.65">0.65</option>
+                                <option value="1.0">1.0</option>
+                                <option value="1.5">1.5</option>
+                                <option value="2.5" selected>2.5</option>
+                                <option value="4.0">4.0</option>
+                                <option value="6.5">6.5</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="calculateResults()" class="mt-10 w-full btn-primary font-bold py-4 rounded-xl transform active:scale-[0.98] shadow-lg text-sm uppercase tracking-widest" data-i18n="btn_generate">
+                        Générer le Plan de Contrôle
+                    </button>
+                </div>
+
+                <div id="result-box" class="hidden animate-in slide-in-from-bottom duration-500">
+                    <div class="card p-8 border-gold">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-2xl font-black text-navy uppercase italic" data-i18n="res_title">Spécifications</h2>
+                            <span id="badge-level" class="px-4 py-1 bg-slate-100 text-navy rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-slate-200"></span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="stat-card p-6 rounded-2xl text-center">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3" data-i18n="res_letter">Lettre Code</p>
+                                <p id="res-letter" class="text-4xl font-black text-navy">-</p>
+                            </div>
+                            <div class="stat-card p-6 rounded-2xl text-center bg-slate-50">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3" data-i18n="res_sample">Prélèvement (n)</p>
+                                <p id="res-sample" class="text-4xl font-black text-gold">-</p>
+                            </div>
+                            <div class="stat-card p-6 rounded-2xl text-center border-green-200">
+                                <p class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-3" data-i18n="res_ac">Accepté (Ac)</p>
+                                <p id="res-ac" class="text-4xl font-black text-green-600">-</p>
+                            </div>
+                            <div class="stat-card p-6 rounded-2xl text-center border-red-200">
+                                <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-3" data-i18n="res_re">Rejeté (Re)</p>
+                                <p id="res-re" class="text-4xl font-black text-red-600">-</p>
+                            </div>
+                        </div>
+
+                        <div id="note-arrows" class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl hidden flex items-start gap-4">
+                            <div class="bg-amber-100 p-2 rounded-full">⚠️</div>
+                            <p class="text-sm text-amber-900 leading-relaxed" data-i18n="arrow_note">
+                                <strong class="uppercase text-xs tracking-tighter">Ajustement Automatique</strong><br>
+                                La lettre initiale n'était pas disponible. L'algorithme a suivi les flèches ISO.
+                            </p>
+                        </div>
+
+                        <button onclick="initVisualizer()" id="btn-comprendre" class="mt-8 w-full bg-slate-100 text-navy border border-slate-300 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-sm">
+                            <span data-i18n="btn_visu">Comprendre ce résultat étape par étape</span>
+                            <span class="text-lg">🔍</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VISUALIZER SECTION (Displayed below calculator when requested) -->
+                <div id="visu-section" class="hidden animate-in slide-in-from-top duration-500 pt-6">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="h-px bg-slate-300 flex-1"></div>
+                        <h2 class="text-slate-400 font-bold uppercase tracking-[0.2em] text-sm" data-i18n="visu_steps_title">Étapes du raisonnement</h2>
+                        <div class="h-px bg-slate-300 flex-1"></div>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row gap-6 items-start w-full">
+                        <!-- Left Panel: Bandeau DÉDIÉ des Étapes & Controls (Exactly 30%) -->
+                        <aside class="w-full lg:w-[30%] shrink-0 bg-[#0E2841] text-white shadow-2xl rounded-3xl p-6 lg:p-8 flex flex-col h-auto lg:h-[calc(100vh-40px)] lg:sticky top-4 z-20 overflow-hidden relative border-t-4 border-[#B18B47]">
+                            
+                            <!-- Background decoration -->
+                            <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-bl-full pointer-events-none -mt-10 -mr-10"></div>
+                            
+                            <h2 class="text-2xl font-black text-white uppercase italic mb-6 border-b border-slate-700 pb-4 relative z-10" data-i18n="visu_steps_title">Étapes du raisonnement</h2>
+                            
+                            <div id="visu-steps-container" class="space-y-4 mb-6 flex-1 overflow-y-auto pr-3 dark-scrollbar relative z-10">
+                                <!-- Steps are injected here -->
+                            </div>
+                            
+                            <div class="flex gap-3 mt-auto pt-6 border-t border-slate-700 relative z-10">
+                                <button onclick="prevVisuStep()" id="btn-visu-prev" class="w-1/3 px-4 py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm shadow-inner">&larr; <span data-i18n="btn_prev">Préc</span></button>
+                                <button onclick="nextVisuStep()" id="btn-visu-next" class="flex-1 px-4 py-4 bg-[#B18B47] hover:bg-[#96743a] text-white rounded-xl font-bold disabled:opacity-30 disabled:cursor-not-allowed flex justify-center items-center gap-2 transition-all shadow-md hover:shadow-lg text-sm uppercase tracking-wider"><span data-i18n="btn_next">Suivant</span> &rarr;</button>
+                            </div>
+                        </aside>
+
+                        <!-- Right Panel: Tables (Exactly remaining space ~70%) -->
+                        <div class="flex-1 lg:max-w-[calc(70%-1.5rem)] flex flex-col xl:flex-row gap-6 transition-all duration-500 min-w-0 w-full">
+                            <!-- Table 1 Card -->
+                            <div class="card p-6 w-full flex-1 transition-all duration-500 overflow-hidden" id="visu-table1-card">
+                                <h3 class="font-bold text-navy mb-4 border-l-4 border-[#B18B47] pl-3" data-i18n="visu_t1_title">Tableau 1 : Lettres-codes</h3>
+                                <div id="visu-table1-container" class="overflow-x-auto pb-4 custom-scrollbar"></div>
+                            </div>
+                            
+                            <!-- Table 2 Card -->
+                            <div class="card p-6 w-full flex-1 hidden transition-all duration-500 overflow-hidden" id="visu-table2-card">
+                                <h3 class="font-bold text-navy mb-4 border-l-4 border-[#B18B47] pl-3" data-i18n="visu_t2_title">Tableau 2-A : Plan d'échantillonnage</h3>
+                                <div id="visu-table2-container" class="overflow-x-auto pb-4 custom-scrollbar">
+                                    <div id="visu-table2-grid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: EXERCISES -->
+            <section id="tab-quiz" class="hidden space-y-6 max-w-7xl mx-auto">
+                <div class="card p-8">
+                    <div class="flex justify-between items-center mb-10">
+                        <h2 class="text-2xl font-black text-navy uppercase italic" data-i18n="quiz_title">Entraînement</h2>
+                        <div class="flex items-center gap-3 bg-navy text-white px-8 py-3 rounded-full shadow-xl">
+                            <span class="text-[10px] uppercase font-black tracking-[0.2em] opacity-60">Score</span>
+                            <span id="score" class="text-xl font-black text-gold italic">0/0</span>
+                        </div>
+                    </div>
+                    
+                    <div id="scenario-text" class="bg-navy p-10 rounded-3xl text-white text-xl font-medium shadow-2xl relative overflow-hidden mb-10 flex flex-col gap-2">
+                        <!-- Le contenu sera injecté ici par JS avec des couleurs lisibles -->
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_letter">Lettre Code</label>
+                            <input type="text" id="quiz-letter" class="w-full px-4 py-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-black uppercase outline-none focus:border-gold">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_sample">Échantillon</label>
+                            <input type="number" id="quiz-sample" class="w-full px-4 py-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-black outline-none focus:border-gold">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_ac">Ac</label>
+                            <input type="number" id="quiz-ac" class="w-full px-4 py-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-black outline-none focus:border-gold">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_re">Re</label>
+                            <input type="number" id="quiz-re" class="w-full px-4 py-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-black outline-none focus:border-gold">
+                        </div>
+                    </div>
+
+                    <div id="quiz-feedback" class="hidden p-8 rounded-3xl mb-10 text-center"></div>
+
+                    <div class="flex gap-5">
+                        <button onclick="checkQuizAnswer()" id="btn-check" class="flex-1 btn-primary font-bold py-5 rounded-2xl uppercase tracking-widest text-sm" data-i18n="btn_check">Vérifier</button>
+                        <button onclick="generateScenario()" class="px-10 bg-slate-100 text-navy font-black py-5 rounded-2xl uppercase tracking-widest text-xs border border-slate-200" data-i18n="btn_next_scenario">Suivant</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL BIBLIOTHÈQUE ISO -->
+    <div id="library-modal" class="fixed inset-0 z-[100] hidden bg-slate-900 bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="library-modal-content">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-slate-200 bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-[#B18B47]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <h2 class="text-2xl font-black text-navy uppercase italic" data-i18n="lib_title">Tables Normatives ISO 2859-1</h2>
+                </div>
+                <button onclick="closeLibraryModal()" class="text-slate-400 hover:text-red-500 transition-colors p-2 bg-white rounded-full shadow-sm border border-slate-200 hover:border-red-200" aria-label="Fermer">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-slate-100/50">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <p class="text-slate-600 font-medium" data-i18n="lib_select">Sélectionnez la table à afficher pour consultation rapide :</p>
+                    <select id="library-selector" class="w-full md:w-auto min-w-[300px] px-4 py-3 border border-slate-300 rounded-xl font-bold text-navy focus:ring-2 focus:ring-[#B18B47] outline-none bg-white shadow-sm" onchange="renderLibraryTable()">
+                        <optgroup label="Généralités">
+                            <option value="1">Tableau 1 - Lettres-codes d'effectif</option>
+                        </optgroup>
+                        <optgroup label="Échantillonnage Simple">
+                            <option value="2A">Tableau 2-A - Contrôle Normal</option>
+                            <option value="2B">Tableau 2-B - Contrôle Renforcé</option>
+                            <option value="2C">Tableau 2-C - Contrôle Réduit</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div id="library-container" class="overflow-x-auto border border-slate-200 rounded-xl shadow-md bg-white pb-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- TRANSLATIONS ---
+        const i18n = {
+            fr: {
+                back_home: "<span>&larr;</span> Retour Accueil",
+                main_title: "ISO 2859-1 Expert",
+                subtitle: "Logiciel de calcul et d'entraînement aux plans d'échantillonnage",
+                tab_calc: "Simulateur de Plan",
+                tab_quiz: "Mode Entraînement",
+                tab_library: "Bibliothèque ISO",
+                lib_title: "Tables Normatives ISO 2859-1",
+                lib_select: "Sélectionnez la table à afficher pour consultation rapide :",
+                lbl_lot: "Taille du lot (N)",
+                lbl_level: "Niveau d'inspection",
+                lbl_aql: "NQA (AQL) cible %",
+                lvl_1: "Général I", lvl_2: "Général II (Normal)", lvl_3: "Général III",
+                btn_generate: "Générer le Plan de Contrôle",
+                res_title: "Spécifications de l'Échantillon",
+                res_letter: "Lettre Code", res_sample: "Prélèvement (n)", res_ac: "Accepté (Ac)", res_re: "Rejeté (Re)",
+                arrow_note: "<strong class='uppercase text-xs tracking-tighter'>Ajustement Automatique</strong><br>La lettre initiale n'était pas disponible pour ce NQA. L'algorithme a suivi les flèches ISO.",
+                btn_visu: "Comprendre ce résultat étape par étape",
+                visu_steps_title: "Étapes du raisonnement",
+                visu_t1_title: "Tableau 1 : Lettres-codes",
+                visu_t2_title: "Tableau 2-A : Plan simple",
+                btn_prev: "Préc", btn_next: "Suivant", btn_finish: "Terminer",
+                quiz_title: "Entraînement", btn_check: "Vérifier la réponse", btn_next_scenario: "Scénario Suivant",
+                mission: "MISSION : Lot de ", param: "Paramètres : ",
+                // Visualizer Steps
+                step_1: "Recherche de la ligne correspondant à la <strong>taille du lot (N = {0})</strong> dans le Tableau 1.",
+                step_2: "Croisement avec la colonne du <strong>niveau d'inspection ({0})</strong>.<br><span class='text-gold font-black mt-2 block'>👉 Lettre initiale trouvée : {1}</span>",
+                step_3: "Recherche de la ligne de la <strong>lettre {0}</strong> dans le Tableau 2-A (Apparition à droite).",
+                step_4: "Croisement avec la colonne du <strong>NQA cible ({0}%)</strong>.",
+                step_arrow: "⚠️ Le plan n'est pas disponible !<br>On suit la flèche de déclassement vers la <strong>lettre {0}</strong>.",
+                step_direct: "Le plan est directement disponible à cette intersection.",
+                step_final: "✅ <strong>Plan final validé :</strong><br>Lettre {0} &nbsp;|&nbsp; n = {1} &nbsp;|&nbsp; Ac = {2} &nbsp;|&nbsp; Re = {3}"
+            },
+            en: {
+                back_home: "<span>&larr;</span> Back Home",
+                main_title: "ISO 2859-1 Expert",
+                subtitle: "Sampling Plan Calculator & Training Software",
+                tab_calc: "Plan Simulator",
+                tab_quiz: "Training Mode",
+                tab_library: "ISO Library",
+                lib_title: "ISO 2859-1 Reference Tables",
+                lib_select: "Select the table you want to view:",
+                lbl_lot: "Lot Size (N)",
+                lbl_level: "Inspection Level",
+                lbl_aql: "Target AQL %",
+                lvl_1: "General I", lvl_2: "General II (Normal)", lvl_3: "General III",
+                btn_generate: "Generate Sampling Plan",
+                res_title: "Sample Specifications",
+                res_letter: "Code Letter", res_sample: "Sample Size (n)", res_ac: "Accept (Ac)", res_re: "Reject (Re)",
+                arrow_note: "<strong class='uppercase text-xs tracking-tighter'>Automatic Adjustment</strong><br>Initial letter unavailable for this AQL. Algorithm followed ISO directional arrows.",
+                btn_visu: "Understand this result step by step",
+                visu_steps_title: "Reasoning Steps",
+                visu_t1_title: "Table 1: Sample size code letters",
+                visu_t2_title: "Table 2-A: Single sampling plans",
+                btn_prev: "Prev", btn_next: "Next", btn_finish: "Finish",
+                quiz_title: "Training", btn_check: "Check Answer", btn_next_scenario: "Next Scenario",
+                mission: "MISSION: Lot of ", param: "Parameters: ",
+                // Visualizer Steps
+                step_1: "Locating the row matching the <strong>lot size (N = {0})</strong> in Table 1.",
+                step_2: "Intersecting with the <strong>inspection level column ({0})</strong>.<br><span class='text-gold font-black mt-2 block'>👉 Initial letter found: {1}</span>",
+                step_3: "Locating the row for <strong>letter {0}</strong> in Table 2-A (Appears on the right).",
+                step_4: "Intersecting with the <strong>target AQL column ({0}%)</strong>.",
+                step_arrow: "⚠️ Plan not available at this location!<br>Following the directional arrow to <strong>letter {0}</strong>.",
+                step_direct: "Plan is directly available at this intersection.",
+                step_final: "✅ <strong>Final plan validated:</strong><br>Letter {0} &nbsp;|&nbsp; n = {1} &nbsp;|&nbsp; Ac = {2} &nbsp;|&nbsp; Re = {3}"
+            }
+        };
+
+        let currentLang = 'fr';
+        
+        function t(key, ...args) {
+            let text = i18n[currentLang][key] || key;
+            args.forEach((arg, i) => { text = text.replace(`{${i}}`, arg); });
+            return text;
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.innerHTML = i18n[lang][el.getAttribute('data-i18n')];
+            });
+            document.getElementById('btn-fr').className = lang === 'fr' ? 'px-3 py-1 rounded-md bg-white shadow-sm text-xs font-bold text-navy transition-all' : 'px-3 py-1 rounded-md text-xs font-bold text-slate-500 hover:text-navy transition-all';
+            document.getElementById('btn-en').className = lang === 'en' ? 'px-3 py-1 rounded-md bg-white shadow-sm text-xs font-bold text-navy transition-all' : 'px-3 py-1 rounded-md text-xs font-bold text-slate-500 hover:text-navy transition-all';
+            
+            if(!document.getElementById('tab-quiz').classList.contains('hidden')) generateScenario();
+            if(!document.getElementById('library-modal').classList.contains('hidden')) renderLibraryTable();
+            if(!document.getElementById('visu-section').classList.contains('hidden') && visuSteps.length > 0) {
+                initVisualizer(true);
+            }
+        }
+
+        // --- DATABASE ---
+        const LOT_RANGES = [
+            { min: 2, max: 8, l: { 'S-1':'A', 'S-2':'A', 'S-3':'A', 'S-4':'A', 'I':'A', 'II':'A', 'III':'B' }, label: "2 - 8" },
+            { min: 9, max: 15, l: { 'S-1':'A', 'S-2':'A', 'S-3':'A', 'S-4':'A', 'I':'A', 'II':'B', 'III':'C' }, label: "9 - 15" },
+            { min: 16, max: 25, l: { 'S-1':'A', 'S-2':'A', 'S-3':'B', 'S-4':'B', 'I':'B', 'II':'C', 'III':'D' }, label: "16 - 25" },
+            { min: 26, max: 50, l: { 'S-1':'A', 'S-2':'B', 'S-3':'B', 'S-4':'C', 'I':'C', 'II':'D', 'III':'E' }, label: "26 - 50" },
+            { min: 51, max: 90, l: { 'S-1':'B', 'S-2':'B', 'S-3':'C', 'S-4':'C', 'I':'C', 'II':'E', 'III':'F' }, label: "51 - 90" },
+            { min: 91, max: 150, l: { 'S-1':'B', 'S-2':'B', 'S-3':'C', 'S-4':'D', 'I':'D', 'II':'F', 'III':'G' }, label: "91 - 150" },
+            { min: 151, max: 280, l: { 'S-1':'B', 'S-2':'C', 'S-3':'D', 'S-4':'E', 'I':'E', 'II':'G', 'III':'H' }, label: "151 - 280" },
+            { min: 281, max: 500, l: { 'S-1':'B', 'S-2':'C', 'S-3':'D', 'S-4':'E', 'I':'F', 'II':'H', 'III':'J' }, label: "281 - 500" },
+            { min: 501, max: 1200, l: { 'S-1':'C', 'S-2':'C', 'S-3':'E', 'S-4':'F', 'I':'G', 'II':'J', 'III':'K' }, label: "501 - 1200" },
+            { min: 1201, max: 3200, l: { 'S-1':'C', 'S-2':'D', 'S-3':'E', 'S-4':'G', 'I':'H', 'II':'K', 'III':'L' }, label: "1201 - 3200" },
+            { min: 3201, max: 10000, l: { 'S-1':'C', 'S-2':'D', 'S-3':'F', 'S-4':'G', 'I':'J', 'II':'L', 'III':'M' }, label: "3201 - 10000" },
+            { min: 10001, max: 35000, l: { 'S-1':'C', 'S-2':'D', 'S-3':'F', 'S-4':'H', 'I':'K', 'II':'M', 'III':'N' }, label: "10001 - 35000" },
+            { min: 35001, max: 150000, l: { 'S-1':'D', 'S-2':'E', 'S-3':'G', 'S-4':'J', 'I':'L', 'II':'N', 'III':'P' }, label: "35001 - 150000" },
+            { min: 150001, max: 500000, l: { 'S-1':'D', 'S-2':'E', 'S-3':'G', 'S-4':'J', 'I':'M', 'II':'P', 'III':'Q' }, label: "150001 - 500000" },
+            { min: 500001, max: Infinity, l: { 'S-1':'D', 'S-2':'E', 'S-3':'H', 'S-4':'K', 'I':'N', 'II':'Q', 'III':'R' }, label: "≥ 500001" },
+        ];
+
+        const LETTER_ORDER = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R'];
+
+        // Table 2-A: Single Sampling, Normal Inspection
+        const SAMPLING_PLAN = {
+            'A': { n: 2, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':[0,1], '10':'D' } },
+            'B': { n: 3, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':[0,1], '6.5':'D', '10':'D' } },
+            'C': { n: 5, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':[0,1], '4.0':'D', '6.5':'D', '10':[1,2] } },
+            'D': { n: 8, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':[0,1], '2.5':'D', '4.0':'D', '6.5':[1,2], '10':[2,3] } },
+            'E': { n: 13, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':[0,1], '1.5':'D', '2.5':'D', '4.0':[1,2], '6.5':[2,3], '10':[3,4] } },
+            'F': { n: 20, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':[0,1], '1.0':'D', '1.5':'D', '2.5':[1,2], '4.0':[2,3], '6.5':[3,4], '10':[5,6] } },
+            'G': { n: 32, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':[0,1], '0.65':'D', '1.0':'D', '1.5':[1,2], '2.5':[2,3], '4.0':[3,4], '6.5':[5,6], '10':[7,8] } },
+            'H': { n: 50, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':[0,1], '0.40':'D', '0.65':'D', '1.0':[1,2], '1.5':[2,3], '2.5':[3,4], '4.0':[5,6], '6.5':[7,8], '10':[10,11] } },
+            'J': { n: 80, aql: { '0.065':'D', '0.10':'D', '0.15':[0,1], '0.25':'D', '0.40':'D', '0.65':[1,2], '1.0':[2,3], '1.5':[3,4], '2.5':[5,6], '4.0':[7,8], '6.5':[10,11], '10':[14,15] } },
+            'K': { n: 125, aql: { '0.065':'D', '0.10':[0,1], '0.15':'D', '0.25':'D', '0.40':[1,2], '0.65':[2,3], '1.0':[3,4], '1.5':[5,6], '2.5':[7,8], '4.0':[10,11], '6.5':[14,15], '10':[21,22] } },
+            'L': { n: 200, aql: { '0.065':[0,1], '0.10':'D', '0.15':'D', '0.25':[1,2], '0.40':[2,3], '0.65':[3,4], '1.0':[5,6], '1.5':[7,8], '2.5':[10,11], '4.0':[14,15], '6.5':[21,22], '10':'U' } },
+            'M': { n: 315, aql: { '0.065':'D', '0.10':'D', '0.15':[1,2], '0.25':[2,3], '0.40':[3,4], '0.65':[5,6], '1.0':[7,8], '1.5':[10,11], '2.5':[14,15], '4.0':[21,22], '6.5':'U', '10':'U' } },
+            'N': { n: 500, aql: { '0.065':'D', '0.10':[1,2], '0.15':[2,3], '0.25':[3,4], '0.40':[5,6], '0.65':[7,8], '1.0':[10,11], '1.5':[14,15], '2.5':[21,22], '4.0':'U', '6.5':'U', '10':'U' } },
+            'P': { n: 800, aql: { '0.065':[1,2], '0.10':[2,3], '0.15':[3,4], '0.25':[5,6], '0.40':[7,8], '0.65':[10,11], '1.0':[14,15], '1.5':[21,22], '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
+            'Q': { n: 1250, aql: { '0.065':[2,3], '0.10':[3,4], '0.15':[5,6], '0.25':[7,8], '0.40':[10,11], '0.65':[14,15], '1.0':[21,22], '1.5':'U', '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
+            'R': { n: 2000, aql: { '0.065':[3,4], '0.10':[5,6], '0.15':[7,8], '0.25':[10,11], '0.40':[14,15], '0.65':[21,22], '1.0':'U', '1.5':'U', '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
+        };
+
+        // Complete Sample Sizes mapping for the Library
+        const N_SINGLE_NORMAL = {'A':2,'B':3,'C':5,'D':8,'E':13,'F':20,'G':32,'H':50,'J':80,'K':125,'L':200,'M':315,'N':500,'P':800,'Q':1250,'R':2000};
+        const N_SINGLE_REDUCED = {'A':2,'B':2,'C':2,'D':3,'E':5,'F':8,'G':13,'H':20,'J':32,'K':50,'L':80,'M':125,'N':200,'P':315,'Q':500,'R':800};
+
+        let lastSim = null;
+
+        function findLetter(lotSize, level) {
+            const range = LOT_RANGES.find(r => lotSize >= r.min && lotSize <= r.max);
+            return { letter: range.l[level], rangeIdx: LOT_RANGES.indexOf(range) };
+        }
+
+        function getFullPlan(initialLetter, aql) {
+            let current = initialLetter;
+            let path = [current];
+            while (true) {
+                const data = SAMPLING_PLAN[current].aql[aql];
+                if (data === 'D') {
+                    current = LETTER_ORDER[LETTER_ORDER.indexOf(current) + 1];
+                    path.push(current);
+                } else if (data === 'U') {
+                    current = LETTER_ORDER[LETTER_ORDER.indexOf(current) - 1];
+                    path.push(current);
+                } else if (Array.isArray(data)) {
+                    return { initial: initialLetter, final: current, n: SAMPLING_PLAN[current].n, ac: data[0], re: data[1], path: path };
+                } else return null;
+            }
+        }
+
+        function switchTab(tab) {
+            ['calc', 'quiz'].forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                const btn = document.getElementById('btn-tab-' + t);
+                if (el) el.classList.toggle('hidden', t !== tab);
+                if (btn) {
+                    btn.classList.remove('tab-active', 'text-slate-500', 'hover:bg-slate-50');
+                    if(t === tab) btn.classList.add('tab-active');
+                    else btn.classList.add('text-slate-500', 'hover:bg-slate-50');
+                }
+            });
+        }
+
+        function calculateResults() {
+            const lot = parseInt(document.getElementById('lot-size').value);
+            const level = document.getElementById('insp-level').value;
+            const aql = document.getElementById('aql-value').value;
+            if (!lot || lot < 2) return;
+
+            const { letter, rangeIdx } = findLetter(lot, level);
+            const plan = getFullPlan(letter, aql);
+            
+            lastSim = { lot, level, aql, letter, rangeIdx, plan };
+
+            document.getElementById('res-letter').innerText = letter;
+            document.getElementById('res-sample').innerText = plan.n;
+            document.getElementById('res-ac').innerText = plan.ac;
+            document.getElementById('res-re').innerText = plan.re;
+            document.getElementById('badge-level').innerText = level;
+            document.getElementById('note-arrows').classList.toggle('hidden', plan.path.length === 1);
+            
+            document.getElementById('result-box').classList.remove('hidden');
+            
+            // Hide visualizer on new calculation until explicitly requested
+            document.getElementById('visu-section').classList.add('hidden');
+            
+            document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // --- MODAL LIBRARY LOGIC ---
+        function openLibraryModal() {
+            const modal = document.getElementById('library-modal');
+            const content = document.getElementById('library-modal-content');
+            modal.classList.remove('hidden');
+            // Trigger reflow pour l'animation
+            void modal.offsetWidth;
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+            renderLibraryTable();
+        }
+
+        function closeLibraryModal() {
+            const modal = document.getElementById('library-modal');
+            const content = document.getElementById('library-modal-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Fermeture de la modale en cliquant en dehors
+        document.getElementById('library-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeLibraryModal();
+        });
+
+
+        // --- DYNAMIC LIBRARY LOGIC (ALL ISO TABLES) ---
+        function renderLibraryTable() {
+            const val = document.getElementById('library-selector').value;
+            const container = document.getElementById('library-container');
+            
+            if (val === '1') {
+                const levels = ['S-1', 'S-2', 'S-3', 'S-4', 'I', 'II', 'III'];
+                const txt_lot = currentLang === 'fr' ? 'Taille du Lot (N)' : 'Lot Size (N)';
+                let html = `<table class="lib-table"><tr class="bg-slate-100"><th class="py-3 px-4 border-b border-r border-slate-200">${txt_lot}</th>${levels.map(l => `<th class="py-3 px-4 border-b border-slate-200">${l}</th>`).join('')}</tr>`;
+                LOT_RANGES.forEach((r) => {
+                    html += `<tr class="hover:bg-slate-50 transition-colors"><td class="py-2 px-4 border-b border-r border-slate-200 font-medium">${r.label}</td>`;
+                    levels.forEach(l => { html += `<td class="py-2 px-4 border-b border-slate-200">${r.l[l]}</td>`; });
+                    html += `</tr>`;
+                });
+                html += `</table>`;
+                container.innerHTML = html;
+            } else if (val.startsWith('2')) {
+                container.innerHTML = generateSingleTableHTML(val);
+            }
+        }
+
+        function generateSingleTableHTML(type) {
+            const isReduced = type === '2C';
+            const sizes = isReduced ? N_SINGLE_REDUCED : N_SINGLE_NORMAL;
+            const aqls = ['0.065', '0.10', '0.15', '0.25', '0.40', '0.65', '1.0', '1.5', '2.5', '4.0', '6.5', '10'];
+            
+            const txtLettre = currentLang === 'fr' ? 'Lettre' : 'Letter';
+            
+            let html = `<table class="lib-table"><tr><th rowspan="2" class="w-16">${txtLettre}</th><th rowspan="2" class="w-16">n</th><th colspan="${aqls.length}">NQA (AQL) %</th></tr><tr>`;
+            aqls.forEach(a => html += `<th>${a}</th>`);
+            html += `</tr>`;
+
+            LETTER_ORDER.forEach(l => {
+                html += `<tr><td class="font-bold bg-slate-50">${l}</td><td class="font-bold text-gold">${sizes[l]}</td>`;
+                aqls.forEach(a => {
+                    let content = '-';
+                    if (type === '2A' && SAMPLING_PLAN[l].aql[a]) {
+                        let v = SAMPLING_PLAN[l].aql[a];
+                        if (v === 'D') content = '⬇️';
+                        else if (v === 'U') content = '⬆️';
+                        else content = `<span class="text-green-600">${v[0]}</span><span class="text-slate-300 mx-1">|</span><span class="text-red-600">${v[1]}</span>`;
+                    } else if (type !== '2A') {
+                        content = '<span class="opacity-20">•</span>';
+                    }
+                    html += `<td>${content}</td>`;
+                });
+                html += `</tr>`;
+            });
+            html += `</table>`;
+            if (type !== '2A') {
+                const note = currentLang === 'fr' ? "Structure normative. Seul le tableau 2-A contient les critères Ac/Re complets interactifs dans ce module." : "Standard framework. Only Table 2-A contains full interactive Ac/Re criteria in this module.";
+                html += `<p class="text-xs text-slate-400 text-center mt-4 italic">${note}</p>`;
+            }
+            return html;
+        }
+
+
+        // --- NEW STEP-BY-STEP VISUALIZER LOGIC ---
+        let visuSteps = [];
+        let currentStepIdx = 0;
+
+        function focusTable(cardId) {
+            setTimeout(() => {
+                const card = document.getElementById(cardId);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 50);
+        }
+
+        function highlightT2Column(aqlKey) {
+            const header = document.getElementById(`t2-header-${aqlKey}`);
+            if(header) header.classList.add('col-highlight');
+            
+            LETTER_ORDER.forEach(l => {
+                const cell = document.getElementById(`t2-cell-${l}-${aqlKey}`);
+                if(cell) cell.classList.add('col-highlight');
+            });
+        }
+
+        function initVisualizer(maintainStep = false) {
+            // Display the section below the calculator instead of switching tab
+            const visuSection = document.getElementById('visu-section');
+            visuSection.classList.remove('hidden');
+            
+            renderTable1_Visu();
+            renderTable2_Visu();
+
+            visuSteps = [];
+            const targetAqlKey = lastSim.aql.replace('.','');
+
+            // Helper de factorisation pour créer les étapes visuelles
+            const addStep = (desc, table, rowId, options = {}) => {
+                visuSteps.push({
+                    desc: desc,
+                    action: () => {
+                        resetTables();
+                        const t2Card = document.getElementById('visu-table2-card');
+                        
+                        if (table === 1) {
+                            t2Card.classList.add('hidden');
+                            dimAllT1();
+                            const row = document.getElementById(`t1-row-${rowId}`);
+                            if (row) {
+                                row.classList.remove('row-dimmed');
+                                row.classList.add('row-focus');
+                            }
+                            if (options.highlightCol) {
+                                document.getElementById(`t1-cell-${rowId}-${options.highlightCol}`).classList.add('anim-highlight');
+                            }
+                            focusTable('visu-table1-card');
+                        } else {
+                            t2Card.classList.remove('hidden');
+                            dimAllT2();
+                            const row = document.getElementById(`t2-row-${rowId}`);
+                            if (row) {
+                                row.classList.remove('row-dimmed');
+                                row.classList.add('row-focus');
+                            }
+                            if (options.aqlCol) {
+                                highlightT2Column(options.aqlCol);
+                            }
+                            if (options.intersectCell) {
+                                document.getElementById(`t2-cell-${rowId}-${options.intersectCell}`).classList.add('cell-intersection');
+                            }
+                            if (options.animCell) {
+                                document.getElementById(`t2-cell-${rowId}-${options.animCell}`).classList.add('anim-highlight');
+                            }
+                            focusTable('visu-table2-card');
+                        }
+                    }
+                });
+            };
+
+            // Étape 0 : Taille du lot (Tableau 1)
+            addStep(t('step_1', lastSim.lot), 1, lastSim.rangeIdx);
+
+            // Étape 1 : Niveau d'inspection (Tableau 1)
+            addStep(t('step_2', lastSim.level, lastSim.letter), 1, lastSim.rangeIdx, { highlightCol: lastSim.level });
+
+            // Étape 2 : Ligne de la lettre (Tableau 2)
+            addStep(t('step_3', lastSim.letter), 2, lastSim.letter);
+
+            // Étape 3 : Croisement NQA (Tableau 2)
+            addStep(t('step_4', lastSim.aql), 2, lastSim.letter, { aqlCol: targetAqlKey, intersectCell: targetAqlKey });
+
+            // Étapes des Flèches (Tableau 2)
+            const path = lastSim.plan.path;
+            if (path.length > 1) {
+                for (let i = 1; i < path.length; i++) {
+                    addStep(t('step_arrow', path[i]), 2, path[i], { aqlCol: targetAqlKey, intersectCell: targetAqlKey });
+                }
+            } else {
+                addStep(t('step_direct'), 2, lastSim.letter, { aqlCol: targetAqlKey, intersectCell: targetAqlKey });
+            }
+
+            // Étape finale : Résultat
+            addStep(t('step_final', lastSim.plan.final, lastSim.plan.n, lastSim.plan.ac, lastSim.plan.re), 2, lastSim.plan.final, { aqlCol: targetAqlKey, animCell: targetAqlKey });
+
+            if(!maintainStep) currentStepIdx = 0;
+            renderSidebarSteps();
+            executeCurrentStep();
+            
+            // Scroll explicitly to the visualizer container
+            setTimeout(() => {
+                visuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        function renderSidebarSteps() {
+            const container = document.getElementById('visu-steps-container');
+            container.innerHTML = '';
+            
+            visuSteps.forEach((step, idx) => {
+                const isActive = idx === currentStepIdx;
+                const isPast = idx < currentStepIdx;
+                
+                // NOUVEAU STYLE BANDEAU DÉDIÉ FONCÉ
+                let bgClass = isActive ? 'bg-white shadow-xl scale-[1.02] z-10' : 'bg-[#153b5c] border border-slate-700 opacity-70';
+                let textClass = isActive ? 'text-[#0E2841] font-bold' : 'text-slate-300';
+                let iconStr = isActive ? '📍' : (isPast ? '✓' : (idx + 1));
+                let iconClass = isActive ? 'bg-[#B18B47] text-white text-[10px]' : (isPast ? 'bg-green-500 text-white text-[10px]' : 'bg-slate-600 text-slate-300 text-xs');
+
+                const el = document.createElement('div');
+                el.className = `flex gap-3 items-start p-4 rounded-xl transition-all duration-300 ${bgClass} mb-4`;
+                el.innerHTML = `
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full ${iconClass} flex items-center justify-center font-bold mt-0.5 shadow-sm">
+                        ${iconStr}
+                    </div>
+                    <div class="${textClass} text-sm leading-snug pt-0.5">${step.desc}</div>
+                `;
+                container.appendChild(el);
+                
+                if(isActive) {
+                    setTimeout(() => { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+                }
+            });
+
+            document.getElementById('btn-visu-prev').disabled = currentStepIdx === 0;
+            const btnNext = document.getElementById('btn-visu-next');
+            if (currentStepIdx === visuSteps.length - 1) {
+                btnNext.innerHTML = t('btn_finish') + ' ✓';
+                btnNext.onclick = () => {
+                    document.getElementById('visu-section').classList.add('hidden');
+                    document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+            } else {
+                btnNext.innerHTML = t('btn_next') + ' &rarr;';
+                btnNext.onclick = nextVisuStep;
+            }
+        }
+
+        function executeCurrentStep() { visuSteps[currentStepIdx].action(); }
+        function nextVisuStep() { if (currentStepIdx < visuSteps.length - 1) { currentStepIdx++; renderSidebarSteps(); executeCurrentStep(); } }
+        function prevVisuStep() { if (currentStepIdx > 0) { currentStepIdx--; renderSidebarSteps(); executeCurrentStep(); } }
+
+        function renderTable1_Visu() {
+            const container = document.getElementById('visu-table1-container');
+            const levels = ['S-1', 'S-2', 'S-3', 'S-4', 'I', 'II', 'III'];
+            let html = `<table><tr><th class="w-1/4" id="t1-header-lot">Lot Size (N)</th>${levels.map(l => `<th>${l}</th>`).join('')}</tr>`;
+            LOT_RANGES.forEach((r, i) => {
+                html += `<tr id="t1-row-${i}">`;
+                html += `<td class="font-medium bg-slate-50" style="z-index:1;">${r.label}</td>`;
+                levels.forEach(l => { html += `<td id="t1-cell-${i}-${l}">${r.l[l]}</td>`; });
+                html += `</tr>`;
+            });
+            html += `</table>`;
+            container.innerHTML = html;
+        }
+
+        function renderTable2_Visu() {
+            const container = document.getElementById('visu-table2-grid');
+            const aqls = ['0.065', '0.10', '0.15', '0.25', '0.40', '0.65', '1.0', '1.5', '2.5', '4.0', '6.5', '10'];
+            let html = `<table><tr id="t2-header"><th>Lettre</th><th>n</th>${aqls.map(a => `<th id="t2-header-${a.replace('.','')}">${a}%</th>`).join('')}</tr>`;
+            LETTER_ORDER.forEach(l => {
+                html += `<tr id="t2-row-${l}">`;
+                html += `<td class="font-bold bg-slate-50" style="z-index:1;">${l}</td>`;
+                html += `<td>${SAMPLING_PLAN[l].n}</td>`;
+                aqls.forEach(a => {
+                    const cellData = SAMPLING_PLAN[l].aql[a];
+                    let display = Array.isArray(cellData) ? `<span class="text-green-600">${cellData[0]}</span>|<span class="text-red-600">${cellData[1]}</span>` : (cellData === 'D' ? '⬇️' : '⬆️');
+                    html += `<td id="t2-cell-${l}-${a.replace('.','')}">${display}</td>`;
+                });
+                html += `</tr>`;
+            });
+            html += `</table>`;
+            container.innerHTML = html;
+        }
+
+        function resetTables() {
+            document.querySelectorAll('#visu-table1-container tr, #visu-table2-container tr').forEach(row => row.classList.remove('row-focus', 'row-dimmed'));
+            document.querySelectorAll('#visu-table1-container td, #visu-table2-container td, #visu-table2-container th').forEach(cell => cell.classList.remove('anim-highlight', 'cell-intersection', 'col-highlight'));
+        }
+        function dimAllT1() { document.querySelectorAll('#visu-table1-container tr').forEach((row, idx) => { if(idx > 0) row.classList.add('row-dimmed'); }); }
+        function dimAllT2() { document.querySelectorAll('#visu-table2-container tr').forEach((row, idx) => { if(idx > 0) row.classList.add('row-dimmed'); }); }
+
+        // --- QUIZ LOGIC ---
+        let currentSolution = {};
+        function generateScenario() {
+            const levels = ['I', 'II', 'III', 'S-4'];
+            const aqls = ['0.065', '0.10', '0.15', '0.25', '0.40', '0.65', '1.0', '1.5', '2.5', '4.0', '6.5', '10'];
+            const lot = Math.floor(Math.random() * 25000) + 10;
+            const level = levels[Math.floor(Math.random() * levels.length)];
+            const aql = aqls[Math.floor(Math.random() * aqls.length)];
+            const letter = findLetter(lot, level).letter;
+            currentSolution = getFullPlan(letter, aql);
+            
+            // Ajout de classes de texte explicites (text-white) pour garantir la lisibilité sur fond foncé
+            document.getElementById('scenario-text').innerHTML = `
+                <div class="text-slate-300 uppercase tracking-widest text-sm mb-1">${t('mission')}</div>
+                <div class="text-3xl font-black text-white mb-4"><span class="text-gold">${lot}</span> unités</div>
+                <div class="text-slate-300 uppercase tracking-widest text-sm mb-1">${t('param')}</div>
+                <div class="flex gap-4">
+                    <div class="bg-white bg-opacity-10 px-4 py-2 rounded-lg text-white font-bold">Niveau <span class="text-gold">${level}</span></div>
+                    <div class="bg-white bg-opacity-10 px-4 py-2 rounded-lg text-white font-bold">NQA <span class="text-gold">${aql}%</span></div>
+                </div>
+            `;
+            
+            ['quiz-letter', 'quiz-sample', 'quiz-ac', 'quiz-re'].forEach(id => {
+                const el = document.getElementById(id); el.value = "";
+                el.classList.remove('border-red-500', 'border-green-500', 'bg-red-50', 'bg-green-50');
+            });
+            document.getElementById('quiz-feedback').classList.add('hidden');
+        }
+
+        function checkQuizAnswer() {
+            const uLetter = document.getElementById('quiz-letter').value.toUpperCase().trim();
+            const uSample = parseInt(document.getElementById('quiz-sample').value);
+            const uAc = parseInt(document.getElementById('quiz-ac').value);
+            const uRe = parseInt(document.getElementById('quiz-re').value);
+            
+            const s = currentSolution;
+            const checks = { letter: uLetter === s.final, sample: uSample === s.n, ac: uAc === s.ac, re: uRe === s.re };
+            const isCorrect = Object.values(checks).every(v => v);
+            
+            Object.keys(checks).forEach(key => {
+                const el = document.getElementById('quiz-' + key);
+                el.classList.add(checks[key] ? 'border-green-500' : 'border-red-500');
+                el.classList.add(checks[key] ? 'bg-green-50' : 'bg-red-50');
+            });
+            
+            const fb = document.getElementById('quiz-feedback');
+            fb.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800');
+            fb.classList.add(isCorrect ? 'bg-green-100' : 'bg-red-100', isCorrect ? 'text-green-800' : 'text-red-800');
+            
+            if (isCorrect) {
+                fb.innerHTML = `<p class="font-black uppercase tracking-widest">✅ Validé</p>`;
+            } else {
+                fb.innerHTML = `<p class="font-black uppercase tracking-widest">❌ Erreur</p><p class="text-sm opacity-80">Solution : Lettre ${s.final}, n=${s.n}, Ac=${s.ac}, Re=${s.re}</p>`;
+            }
+        }
+        
+        // Initial setup
+        setLang('fr');
+        generateScenario();
+    </script>
+</body>
+</html>
