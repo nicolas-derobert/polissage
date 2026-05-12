@@ -146,9 +146,14 @@
         </div>
 
         <header class="text-center mb-10">
-            <h1 class="text-4xl font-black text-navy tracking-tight uppercase" data-i18n="main_title">ISO 2859-1 Expert</h1>
+            <h1 class="text-4xl font-black text-navy tracking-tight uppercase" data-i18n="main_title">Contrôle par échantillonnage (NQA / AQL)</h1>
             <div class="h-1 w-24 bg-[#B18B47] mx-auto mt-2"></div>
             <p class="text-slate-500 mt-4 font-medium italic" data-i18n="subtitle">Logiciel de calcul et d'entraînement aux plans d'échantillonnage</p>
+            <div class="mt-6 max-w-2xl mx-auto bg-white p-5 rounded-xl shadow-sm border border-slate-200 text-sm text-slate-600 text-left" data-i18n="nqa_aql_desc">
+                <p class="mb-1"><strong>NQA</strong> : Niveau de Qualité Acceptable (Français)</p>
+                <p class="mb-3"><strong>AQL</strong> : Acceptable Quality Limit (Anglais)</p>
+                <p>C'est le pourcentage maximum de pièces non-conformes toléré dans un lot pour que celui-ci soit considéré comme satisfaisant et accepté lors du contrôle.</p>
+            </div>
         </header>
 
         <nav class="flex border-b border-slate-200 mb-8 bg-white rounded-t-xl shadow-sm overflow-hidden flex-wrap md:flex-nowrap max-w-7xl mx-auto">
@@ -402,8 +407,9 @@
         const i18n = {
             fr: {
                 back_home: "<span>&larr;</span> Retour Accueil",
-                main_title: "ISO 2859-1 Expert",
+                main_title: "Contrôle par échantillonnage",
                 subtitle: "Logiciel de calcul et d'entraînement aux plans d'échantillonnage",
+                nqa_aql_desc: "<p class='mb-2 font-semibold'>NQA et AQL désignent pratiquement la même notion.</p><ul class='list-disc pl-5 mb-3 space-y-1'><li>En français, on parle de <strong>NQA</strong> : Niveau de Qualité Acceptable.</li><li>En anglais, on parle de <strong>AQL</strong> : Acceptable Quality Limit.</li></ul><p>Dans les deux cas, il s’agit d’un niveau de défauts accepté comme référence pour construire un plan d’échantillonnage.</p>",
                 tab_calc: "Simulateur de Plan",
                 tab_quiz: "Mode Entraînement",
                 tab_course: "Cours PDF",
@@ -440,8 +446,9 @@
             },
             en: {
                 back_home: "<span>&larr;</span> Back Home",
-                main_title: "ISO 2859-1 Expert",
+                main_title: "Sampling Inspection",
                 subtitle: "Sampling Plan Calculator & Training Software",
+                nqa_aql_desc: "<p class='mb-2 font-semibold'>AQL and NQA designate practically the same concept.</p><ul class='list-disc pl-5 mb-3 space-y-1'><li>In English, we use <strong>AQL</strong>: Acceptable Quality Limit.</li><li>In French, we use <strong>NQA</strong>: Niveau de Qualité Acceptable.</li></ul><p>In both cases, it is an accepted level of defects used as a reference to build a sampling plan.</p>",
                 tab_calc: "Plan Simulator",
                 tab_quiz: "Training Mode",
                 tab_course: "PDF Course",
