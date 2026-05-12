@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QualiTools - Accueil</title>
+    <title>Qualité et métrologie</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -86,128 +86,22 @@
 </head>
 <body>
     <div class="main-content">
-        <h1 class="text-4xl font-bold text-[var(--accent-text)] mb-2 tracking-widest uppercase">QualiTools</h1>
+        <h1 class="text-4xl font-bold text-[var(--accent-text)] mb-2 tracking-widest uppercase">Qualité et métrologie</h1>
         <p class="text-gray-500 mb-8 text-lg">Suite d'outils pour la Qualité et la Simulation Probabiliste</p>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 text-left">
-            <!-- Section 1 : Résolution de Problèmes -->
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <h2 class="section-title w-full text-center">Résolution de Problèmes</h2>
-                <p class="text-sm text-gray-600 mb-4 h-10 text-center">Méthodes d'analyse et de recherche de causes.</p>
-                <div class="flex flex-col gap-2">
-                    <a href="ishikawa.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="fish" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Ishikawa (5M)</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Diagramme causes-effets</span>
-                    </a>
-                    <a href="qqoqcp.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="clipboard-list" class="w-8 h-8 mb-1"></i>
-                            <span class="block">QQOQCP</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Analyse de contexte</span>
-                    </a>
-                    <a href="5pourquoi.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="list-tree" class="w-8 h-8 mb-1"></i>
-                            <span class="block">5 Pourquoi</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Arbre des causes racines</span>
-                    </a>
-                    <a href="pareto.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="trending-up" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Diagramme de Pareto</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Loi des 80/20</span>
-                    </a>
-                </div>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
 
             <!-- Section 2 : Métrologie & Processus -->
             <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
                 <h2 class="section-title w-full text-center">Métrologie & Processus</h2>
                 <p class="text-sm text-gray-600 mb-4 h-10 text-center">Contrôle, conformité et gestion des gammes.</p>
                 <div class="flex flex-col gap-2">
-                    <a href="choix-des-moyens-de-mesure.html" class="btn-gold">
+                    <a href="echantillonnage-lecture-table.html" class="btn-gold">
                         <div class="flex flex-col items-center">
-                            <i data-lucide="microscope" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Choix des Moyens</span>
+                            <i data-lucide="table-properties" class="w-8 h-8 mb-1"></i>
+                            <span class="block">ISO 2859-1 Expert</span>
                         </div>
-                        <span class="text-xs font-normal opacity-75">Capabilité & Incertitude</span>
-                    </a>
-                    <a href="gamme de controle.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="clipboard-check" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Gamme de Contrôle</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Édition & Rapports</span>
-                    </a>
-                    <a href="gamme de controle simple.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="file-check" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Gamme Simple</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Version Simplifiée</span>
-                    </a>
-                    <a href="echantillonnage.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="test-tube-2" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Echantillonnage</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Plans de contrôle et normes</span>
-                    </a>
-                    <a href="processus-de-controle.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="git-merge" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Le étapes de contrôle</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Cartographie des flux</span>
-                    </a>
-                    <a href="logigramme-qualite.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="share-2" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Logigramme</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Éditeur de diagrammes</span>
-                    </a>
-                    <a href="SMQ-App.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="layout-dashboard" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Pilotage SMQ</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Dashboard ISO 9001</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Section 3 : Statistiques & Simulations -->
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <h2 class="section-title w-full text-center">Statistiques & Simulations</h2>
-                <p class="text-sm text-gray-600 mb-4 h-10 text-center">Visualisation des lois et probabilités.</p>
-                <div class="flex flex-col gap-2">
-                    <a href="analyse-donnees.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="bar-chart-3" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Atelier Histogramme</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Construction et Analyse</span>
-                    </a>
-                    <a href="galton.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="git-graph" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Planche de Galton</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Distribution Normale</span>
-                    </a>
-                    <a href="lance-de-des.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="dices" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Lancer de Dés</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Théorème Central Limite</span>
+                        <span class="text-xs font-normal opacity-75">Simulateur & Bibliothèque</span>
                     </a>
                 </div>
             </div>
@@ -217,20 +111,6 @@
                 <h2 class="section-title w-full text-center">Sécurité & Formation</h2>
                 <p class="text-sm text-gray-600 mb-4 h-10 text-center">Apprentissage par la pratique et le jeu.</p>
                 <div class="flex flex-col gap-2">
-                    <a href="conformite.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="ruler" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Conformité & Tolérances</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Formation Lecture de Plan</span>
-                    </a>
-                    <a href="sante-securite-quizz.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="shield-alert" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Quiz Sécurité</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Testez vos réflexes SST</span>
-                    </a>
                     <a href="abrasif.html" class="btn-gold">
                         <div class="flex flex-col items-center">
                             <i data-lucide="shield-check" class="w-8 h-8 mb-1"></i>
