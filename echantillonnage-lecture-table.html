@@ -122,7 +122,6 @@
     </style>
 </head>
 <body class="p-4 md:p-8 relative pb-24">
-
     <div class="max-w-screen-2xl mx-auto">
         <!-- Header & Top Navigation -->
         <div class="flex justify-between items-center mb-4 max-w-7xl mx-auto">
@@ -148,7 +147,7 @@
         <header class="text-center mb-10">
             <h1 class="text-4xl font-black text-navy tracking-tight uppercase" data-i18n="main_title">Contrôle par échantillonnage (NQA / AQL)</h1>
             <div class="h-1 w-24 bg-[#B18B47] mx-auto mt-2"></div>
-            <p class="text-slate-500 mt-4 font-medium italic" data-i18n="subtitle">Logiciel de calcul et d'entraînement aux plans d'échantillonnage</p>
+            <p class="text-slate-500 mt-4 font-medium italic" data-i18n="subtitle">Selon norme ISO 2859-1</p>
             <div class="mt-6 max-w-2xl mx-auto bg-white p-5 rounded-xl shadow-sm border border-slate-200 text-sm text-slate-600 text-left" data-i18n="nqa_aql_desc">
                 <p class="mb-1"><strong>NQA</strong> : Niveau de Qualité Acceptable (Français)</p>
                 <p class="mb-3"><strong>AQL</strong> : Acceptable Quality Limit (Anglais)</p>
@@ -172,7 +171,7 @@
             <!-- TAB 1: CALCULATOR & VISUALIZER -->
             <section id="tab-calc" class="hidden space-y-6 max-w-7xl mx-auto">
                 <div class="card p-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div>
                             <label class="block text-xs font-bold text-navy uppercase mb-3 tracking-wider" data-i18n="lbl_lot">Taille du lot (N)</label>
                             <input type="number" id="lot-size" value="1500" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#B18B47] focus:outline-none transition-all">
@@ -187,6 +186,14 @@
                                 <option value="S-2">S-2</option>
                                 <option value="S-3">S-3</option>
                                 <option value="S-4">S-4</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-navy uppercase mb-3 tracking-wider" data-i18n="lbl_severity">Sévérité</label>
+                            <select id="insp-severity" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#B18B47] focus:outline-none bg-white">
+                                <option value="normal" selected data-i18n="sev_normal">Normal</option>
+                                <option value="tightened" data-i18n="sev_tightened">Renforcé</option>
+                                <option value="reduced" data-i18n="sev_reduced">Réduit</option>
                             </select>
                         </div>
                         <div>
@@ -207,22 +214,34 @@
                             </select>
                         </div>
                     </div>
-                    <button onclick="calculateResults()" class="mt-10 w-full btn-primary font-bold py-4 rounded-xl transform active:scale-[0.98] shadow-lg text-sm uppercase tracking-widest" data-i18n="btn_generate">
-                        Générer le Plan de Contrôle
-                    </button>
+                    <div class="flex flex-col md:flex-row gap-4 mt-10">
+                        <button onclick="calculateResults()" class="flex-1 btn-primary font-bold py-4 rounded-xl transform active:scale-[0.98] shadow-lg text-sm uppercase tracking-widest" data-i18n="btn_generate">
+                            Générer le Plan de Contrôle
+                        </button>
+                        <button onclick="resetSimulator()" class="px-8 bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-navy font-bold py-4 rounded-xl transition-all uppercase tracking-widest text-xs border border-slate-200" data-i18n="btn_reset">
+                            Réinitialiser
+                        </button>
+                    </div>
                 </div>
 
                 <div id="result-box" class="hidden animate-in slide-in-from-bottom duration-500">
                     <div class="card p-8 border-gold">
-                        <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
                             <h2 class="text-2xl font-black text-navy uppercase italic" data-i18n="res_title">Spécifications</h2>
-                            <span id="badge-level" class="px-4 py-1 bg-slate-100 text-navy rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-slate-200"></span>
+                            <div class="flex gap-2">
+                                <span id="badge-level" class="px-4 py-1 bg-slate-100 text-navy rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-slate-200"></span>
+                                <span id="badge-severity" class="px-4 py-1 bg-[#B18B47] text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-sm"></span>
+                            </div>
                         </div>
                         
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
                             <div class="stat-card p-6 rounded-2xl text-center">
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3" data-i18n="res_letter">Lettre Code</p>
-                                <p id="res-letter" class="text-4xl font-black text-navy">-</p>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3" data-i18n="res_letter_initial">Lettre Initiale</p>
+                                <p id="res-letter-initial" class="text-4xl font-black text-slate-300">-</p>
+                            </div>
+                            <div class="stat-card p-6 rounded-2xl text-center">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3" data-i18n="res_letter_final">Lettre Finale</p>
+                                <p id="res-letter-final" class="text-4xl font-black text-navy">-</p>
                             </div>
                             <div class="stat-card p-6 rounded-2xl text-center bg-slate-50">
                                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3" data-i18n="res_sample">Prélèvement (n)</p>
@@ -253,7 +272,7 @@
                     </div>
                 </div>
 
-                <!-- VISUALIZER SECTION (Displayed below calculator when requested) -->
+                <!-- VISUALIZER SECTION -->
                 <div id="visu-section" class="hidden animate-in slide-in-from-top duration-500 pt-6">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="h-px bg-slate-300 flex-1"></div>
@@ -290,7 +309,7 @@
                             
                             <!-- Table 2 Card -->
                             <div class="card p-6 w-full flex-1 hidden transition-all duration-500 overflow-hidden" id="visu-table2-card">
-                                <h3 class="font-bold text-navy mb-4 border-l-4 border-[#B18B47] pl-3" data-i18n="visu_t2_title">Tableau 2-A : Plan d'échantillonnage</h3>
+                                <h3 class="font-bold text-navy mb-4 border-l-4 border-[#B18B47] pl-3" id="visu-t2-title-dyn">Tableau 2-A : Plan d'échantillonnage</h3>
                                 <div id="visu-table2-container" class="overflow-x-auto pb-4 custom-scrollbar">
                                     <div id="visu-table2-grid"></div>
                                 </div>
@@ -312,16 +331,20 @@
                     </div>
                     
                     <div id="scenario-text" class="bg-navy p-10 rounded-3xl text-white text-xl font-medium shadow-2xl relative overflow-hidden mb-10 flex flex-col gap-2">
-                        <!-- Le contenu sera injecté ici par JS avec des couleurs lisibles -->
+                        <!-- Le contenu sera injecté ici par JS -->
                     </div>
 
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mb-10">
                         <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_letter">Lettre Code</label>
-                            <input type="text" id="quiz-letter" class="w-full px-4 py-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-black uppercase outline-none focus:border-gold">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_letter_initial">Lettre Initiale</label>
+                            <input type="text" id="quiz-letter-initial" class="w-full px-4 py-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-black uppercase outline-none focus:border-gold">
                         </div>
                         <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_sample">Échantillon</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_letter_final">Lettre Finale</label>
+                            <input type="text" id="quiz-letter-final" class="w-full px-4 py-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-black uppercase outline-none focus:border-gold">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest" data-i18n="res_sample">Échantillon (n)</label>
                             <input type="number" id="quiz-sample" class="w-full px-4 py-5 border-2 border-slate-100 rounded-2xl text-center text-3xl font-black outline-none focus:border-gold">
                         </div>
                         <div class="space-y-3">
@@ -336,9 +359,10 @@
 
                     <div id="quiz-feedback" class="hidden p-8 rounded-3xl mb-10 text-center"></div>
 
-                    <div class="flex gap-5">
+                    <div class="flex flex-wrap gap-5">
                         <button onclick="checkQuizAnswer()" id="btn-check" class="flex-1 btn-primary font-bold py-5 rounded-2xl uppercase tracking-widest text-sm" data-i18n="btn_check">Vérifier</button>
-                        <button onclick="generateScenario()" class="px-10 bg-slate-100 text-navy font-black py-5 rounded-2xl uppercase tracking-widest text-xs border border-slate-200" data-i18n="btn_next_scenario">Suivant</button>
+                        <button onclick="generateScenario()" class="px-10 bg-slate-100 text-navy hover:bg-slate-200 font-black py-5 rounded-2xl uppercase tracking-widest text-xs border border-slate-200 transition-colors" data-i18n="btn_next_scenario">Suivant</button>
+                        <button onclick="resetQuiz()" class="px-6 bg-red-50 text-red-600 hover:bg-red-100 font-bold py-5 rounded-2xl uppercase tracking-widest text-xs border border-red-100 transition-colors" data-i18n="btn_reset_quiz" title="Remise à zéro du score">↺ RAZ</button>
                     </div>
                 </div>
             </section>
@@ -408,7 +432,7 @@
             fr: {
                 back_home: "<span>&larr;</span> Retour Accueil",
                 main_title: "Contrôle par échantillonnage",
-                subtitle: "Logiciel de calcul et d'entraînement aux plans d'échantillonnage",
+                subtitle: "Selon norme ISO 2859-1",
                 nqa_aql_desc: "<p class='mb-2 font-semibold'>NQA et AQL désignent pratiquement la même notion.</p><ul class='list-disc pl-5 mb-3 space-y-1'><li>En français, on parle de <strong>NQA</strong> : Niveau de Qualité Acceptable.</li><li>En anglais, on parle de <strong>AQL</strong> : Acceptable Quality Limit.</li></ul><p>Dans les deux cas, il s’agit d’un niveau de défauts accepté comme référence pour construire un plan d’échantillonnage.</p>",
                 tab_calc: "Simulateur de Plan",
                 tab_quiz: "Mode Entraînement",
@@ -422,23 +446,29 @@
                 lib_select: "Sélectionnez la table à afficher pour consultation rapide :",
                 lbl_lot: "Taille du lot (N)",
                 lbl_level: "Niveau d'inspection",
+                lbl_severity: "Sévérité",
+                sev_normal: "Normal", sev_tightened: "Renforcé", sev_reduced: "Réduit",
                 lbl_aql: "NQA (AQL) cible %",
                 lvl_1: "Général I", lvl_2: "Général II (Normal)", lvl_3: "Général III",
                 btn_generate: "Générer le Plan de Contrôle",
+                btn_reset: "Réinitialiser",
+                btn_reset_quiz: "↺ RAZ",
                 res_title: "Spécifications de l'Échantillon",
-                res_letter: "Lettre Code", res_sample: "Prélèvement (n)", res_ac: "Accepté (Ac)", res_re: "Rejeté (Re)",
+                res_letter_initial: "Lettre Initiale", res_letter_final: "Lettre Finale", res_sample: "Prélèvement (n)", res_ac: "Accepté (Ac)", res_re: "Rejeté (Re)",
                 arrow_note: "<strong class='uppercase text-xs tracking-tighter'>Ajustement Automatique</strong><br>La lettre initiale n'était pas disponible pour ce NQA. L'algorithme a suivi les flèches ISO.",
                 btn_visu: "Comprendre ce résultat étape par étape",
                 visu_steps_title: "Étapes du raisonnement",
                 visu_t1_title: "Tableau 1 : Lettres-codes",
-                visu_t2_title: "Tableau 2-A : Plan simple",
+                visu_t2_title_normal: "Tableau 2-A : Plan simple (Normal)",
+                visu_t2_title_tightened: "Tableau 2-B : Plan simple (Renforcé)",
+                visu_t2_title_reduced: "Tableau 2-C : Plan simple (Réduit)",
                 btn_prev: "Préc", btn_next: "Suivant", btn_finish: "Terminer",
                 quiz_title: "Entraînement", btn_check: "Vérifier la réponse", btn_next_scenario: "Scénario Suivant",
-                mission: "MISSION : Lot de ", param: "Paramètres : ",
+                mission: "MISSION : Lot de ", param: "Paramètres : ", control: "Contrôle",
                 // Visualizer Steps
                 step_1: "Recherche de la ligne correspondant à la <strong>taille du lot (N = {0})</strong> dans le Tableau 1.",
                 step_2: "Croisement avec la colonne du <strong>niveau d'inspection ({0})</strong>.<br><span class='text-gold font-black mt-2 block'>👉 Lettre initiale trouvée : {1}</span>",
-                step_3: "Recherche de la ligne de la <strong>lettre {0}</strong> dans le Tableau 2-A (Apparition à droite).",
+                step_3: "Recherche de la ligne de la <strong>lettre {0}</strong> dans le {1} (Apparition à droite).",
                 step_4: "Croisement avec la colonne du <strong>NQA cible ({0}%)</strong>.",
                 step_arrow: "⚠️ Le plan n'est pas disponible !<br>On suit la flèche de déclassement vers la <strong>lettre {0}</strong>.",
                 step_direct: "Le plan est directement disponible à cette intersection.",
@@ -447,7 +477,7 @@
             en: {
                 back_home: "<span>&larr;</span> Back Home",
                 main_title: "Sampling Inspection",
-                subtitle: "Sampling Plan Calculator & Training Software",
+                subtitle: "According to ISO 2859-1 standard",
                 nqa_aql_desc: "<p class='mb-2 font-semibold'>AQL and NQA designate practically the same concept.</p><ul class='list-disc pl-5 mb-3 space-y-1'><li>In English, we use <strong>AQL</strong>: Acceptable Quality Limit.</li><li>In French, we use <strong>NQA</strong>: Niveau de Qualité Acceptable.</li></ul><p>In both cases, it is an accepted level of defects used as a reference to build a sampling plan.</p>",
                 tab_calc: "Plan Simulator",
                 tab_quiz: "Training Mode",
@@ -461,23 +491,29 @@
                 lib_select: "Select the table you want to view:",
                 lbl_lot: "Lot Size (N)",
                 lbl_level: "Inspection Level",
+                lbl_severity: "Severity",
+                sev_normal: "Normal", sev_tightened: "Tightened", sev_reduced: "Reduced",
                 lbl_aql: "Target AQL %",
                 lvl_1: "General I", lvl_2: "General II (Normal)", lvl_3: "General III",
                 btn_generate: "Generate Sampling Plan",
+                btn_reset: "Reset",
+                btn_reset_quiz: "↺ Reset",
                 res_title: "Sample Specifications",
-                res_letter: "Code Letter", res_sample: "Sample Size (n)", res_ac: "Accept (Ac)", res_re: "Reject (Re)",
+                res_letter_initial: "Initial Letter", res_letter_final: "Final Code Letter", res_sample: "Sample Size (n)", res_ac: "Accept (Ac)", res_re: "Reject (Re)",
                 arrow_note: "<strong class='uppercase text-xs tracking-tighter'>Automatic Adjustment</strong><br>Initial letter unavailable for this AQL. Algorithm followed ISO directional arrows.",
                 btn_visu: "Understand this result step by step",
                 visu_steps_title: "Reasoning Steps",
                 visu_t1_title: "Table 1: Sample size code letters",
-                visu_t2_title: "Table 2-A: Single sampling plans",
+                visu_t2_title_normal: "Table 2-A: Single plans (Normal)",
+                visu_t2_title_tightened: "Table 2-B: Single plans (Tightened)",
+                visu_t2_title_reduced: "Table 2-C: Single plans (Reduced)",
                 btn_prev: "Prev", btn_next: "Next", btn_finish: "Finish",
                 quiz_title: "Training", btn_check: "Check Answer", btn_next_scenario: "Next Scenario",
-                mission: "MISSION: Lot of ", param: "Parameters: ",
+                mission: "MISSION: Lot of ", param: "Parameters: ", control: "Inspection",
                 // Visualizer Steps
                 step_1: "Locating the row matching the <strong>lot size (N = {0})</strong> in Table 1.",
                 step_2: "Intersecting with the <strong>inspection level column ({0})</strong>.<br><span class='text-gold font-black mt-2 block'>👉 Initial letter found: {1}</span>",
-                step_3: "Locating the row for <strong>letter {0}</strong> in Table 2-A (Appears on the right).",
+                step_3: "Locating the row for <strong>letter {0}</strong> in {1} (Appears on the right).",
                 step_4: "Intersecting with the <strong>target AQL column ({0}%)</strong>.",
                 step_arrow: "⚠️ Plan not available at this location!<br>Following the directional arrow to <strong>letter {0}</strong>.",
                 step_direct: "Plan is directly available at this intersection.",
@@ -528,30 +564,69 @@
         ];
 
         const LETTER_ORDER = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R'];
-
-        // Table 2-A: Single Sampling, Normal Inspection
-        const SAMPLING_PLAN = {
-            'A': { n: 2, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':[0,1], '10':'D' } },
-            'B': { n: 3, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':[0,1], '6.5':'D', '10':'D' } },
-            'C': { n: 5, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':[0,1], '4.0':'D', '6.5':'D', '10':[1,2] } },
-            'D': { n: 8, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':[0,1], '2.5':'D', '4.0':'D', '6.5':[1,2], '10':[2,3] } },
-            'E': { n: 13, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':[0,1], '1.5':'D', '2.5':'D', '4.0':[1,2], '6.5':[2,3], '10':[3,4] } },
-            'F': { n: 20, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':[0,1], '1.0':'D', '1.5':'D', '2.5':[1,2], '4.0':[2,3], '6.5':[3,4], '10':[5,6] } },
-            'G': { n: 32, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':[0,1], '0.65':'D', '1.0':'D', '1.5':[1,2], '2.5':[2,3], '4.0':[3,4], '6.5':[5,6], '10':[7,8] } },
-            'H': { n: 50, aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':[0,1], '0.40':'D', '0.65':'D', '1.0':[1,2], '1.5':[2,3], '2.5':[3,4], '4.0':[5,6], '6.5':[7,8], '10':[10,11] } },
-            'J': { n: 80, aql: { '0.065':'D', '0.10':'D', '0.15':[0,1], '0.25':'D', '0.40':'D', '0.65':[1,2], '1.0':[2,3], '1.5':[3,4], '2.5':[5,6], '4.0':[7,8], '6.5':[10,11], '10':[14,15] } },
-            'K': { n: 125, aql: { '0.065':'D', '0.10':[0,1], '0.15':'D', '0.25':'D', '0.40':[1,2], '0.65':[2,3], '1.0':[3,4], '1.5':[5,6], '2.5':[7,8], '4.0':[10,11], '6.5':[14,15], '10':[21,22] } },
-            'L': { n: 200, aql: { '0.065':[0,1], '0.10':'D', '0.15':'D', '0.25':[1,2], '0.40':[2,3], '0.65':[3,4], '1.0':[5,6], '1.5':[7,8], '2.5':[10,11], '4.0':[14,15], '6.5':[21,22], '10':'U' } },
-            'M': { n: 315, aql: { '0.065':'D', '0.10':'D', '0.15':[1,2], '0.25':[2,3], '0.40':[3,4], '0.65':[5,6], '1.0':[7,8], '1.5':[10,11], '2.5':[14,15], '4.0':[21,22], '6.5':'U', '10':'U' } },
-            'N': { n: 500, aql: { '0.065':'D', '0.10':[1,2], '0.15':[2,3], '0.25':[3,4], '0.40':[5,6], '0.65':[7,8], '1.0':[10,11], '1.5':[14,15], '2.5':[21,22], '4.0':'U', '6.5':'U', '10':'U' } },
-            'P': { n: 800, aql: { '0.065':[1,2], '0.10':[2,3], '0.15':[3,4], '0.25':[5,6], '0.40':[7,8], '0.65':[10,11], '1.0':[14,15], '1.5':[21,22], '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
-            'Q': { n: 1250, aql: { '0.065':[2,3], '0.10':[3,4], '0.15':[5,6], '0.25':[7,8], '0.40':[10,11], '0.65':[14,15], '1.0':[21,22], '1.5':'U', '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
-            'R': { n: 2000, aql: { '0.065':[3,4], '0.10':[5,6], '0.15':[7,8], '0.25':[10,11], '0.40':[14,15], '0.65':[21,22], '1.0':'U', '1.5':'U', '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
-        };
-
-        // Complete Sample Sizes mapping for the Library
+        
         const N_SINGLE_NORMAL = {'A':2,'B':3,'C':5,'D':8,'E':13,'F':20,'G':32,'H':50,'J':80,'K':125,'L':200,'M':315,'N':500,'P':800,'Q':1250,'R':2000};
         const N_SINGLE_REDUCED = {'A':2,'B':2,'C':2,'D':3,'E':5,'F':8,'G':13,'H':20,'J':32,'K':50,'L':80,'M':125,'N':200,'P':315,'Q':500,'R':800};
+
+        // Table 2-A: Normal Inspection
+        const PLAN_NORMAL = {
+            'A': { n: N_SINGLE_NORMAL['A'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':[0,1], '10':'D' } },
+            'B': { n: N_SINGLE_NORMAL['B'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':[0,1], '6.5':'D', '10':'D' } },
+            'C': { n: N_SINGLE_NORMAL['C'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':[0,1], '4.0':'D', '6.5':'D', '10':[1,2] } },
+            'D': { n: N_SINGLE_NORMAL['D'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':[0,1], '2.5':'D', '4.0':'D', '6.5':[1,2], '10':[2,3] } },
+            'E': { n: N_SINGLE_NORMAL['E'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':[0,1], '1.5':'D', '2.5':'D', '4.0':[1,2], '6.5':[2,3], '10':[3,4] } },
+            'F': { n: N_SINGLE_NORMAL['F'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':[0,1], '1.0':'D', '1.5':'D', '2.5':[1,2], '4.0':[2,3], '6.5':[3,4], '10':[5,6] } },
+            'G': { n: N_SINGLE_NORMAL['G'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':[0,1], '0.65':'D', '1.0':'D', '1.5':[1,2], '2.5':[2,3], '4.0':[3,4], '6.5':[5,6], '10':[7,8] } },
+            'H': { n: N_SINGLE_NORMAL['H'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':[0,1], '0.40':'D', '0.65':'D', '1.0':[1,2], '1.5':[2,3], '2.5':[3,4], '4.0':[5,6], '6.5':[7,8], '10':[10,11] } },
+            'J': { n: N_SINGLE_NORMAL['J'], aql: { '0.065':'D', '0.10':'D', '0.15':[0,1], '0.25':'D', '0.40':'D', '0.65':[1,2], '1.0':[2,3], '1.5':[3,4], '2.5':[5,6], '4.0':[7,8], '6.5':[10,11], '10':[14,15] } },
+            'K': { n: N_SINGLE_NORMAL['K'], aql: { '0.065':'D', '0.10':[0,1], '0.15':'D', '0.25':'D', '0.40':[1,2], '0.65':[2,3], '1.0':[3,4], '1.5':[5,6], '2.5':[7,8], '4.0':[10,11], '6.5':[14,15], '10':[21,22] } },
+            'L': { n: N_SINGLE_NORMAL['L'], aql: { '0.065':[0,1], '0.10':'D', '0.15':'D', '0.25':[1,2], '0.40':[2,3], '0.65':[3,4], '1.0':[5,6], '1.5':[7,8], '2.5':[10,11], '4.0':[14,15], '6.5':[21,22], '10':'U' } },
+            'M': { n: N_SINGLE_NORMAL['M'], aql: { '0.065':'D', '0.10':'D', '0.15':[1,2], '0.25':[2,3], '0.40':[3,4], '0.65':[5,6], '1.0':[7,8], '1.5':[10,11], '2.5':[14,15], '4.0':[21,22], '6.5':'U', '10':'U' } },
+            'N': { n: N_SINGLE_NORMAL['N'], aql: { '0.065':'D', '0.10':[1,2], '0.15':[2,3], '0.25':[3,4], '0.40':[5,6], '0.65':[7,8], '1.0':[10,11], '1.5':[14,15], '2.5':[21,22], '4.0':'U', '6.5':'U', '10':'U' } },
+            'P': { n: N_SINGLE_NORMAL['P'], aql: { '0.065':[1,2], '0.10':[2,3], '0.15':[3,4], '0.25':[5,6], '0.40':[7,8], '0.65':[10,11], '1.0':[14,15], '1.5':[21,22], '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
+            'Q': { n: N_SINGLE_NORMAL['Q'], aql: { '0.065':[2,3], '0.10':[3,4], '0.15':[5,6], '0.25':[7,8], '0.40':[10,11], '0.65':[14,15], '1.0':[21,22], '1.5':'U', '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
+            'R': { n: N_SINGLE_NORMAL['R'], aql: { '0.065':[3,4], '0.10':[5,6], '0.15':[7,8], '0.25':[10,11], '0.40':[14,15], '0.65':[21,22], '1.0':'U', '1.5':'U', '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
+        };
+        
+        // Table 2-B: Tightened Inspection (Renforcé)
+        const PLAN_TIGHTENED = {
+            'A': { n: N_SINGLE_NORMAL['A'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':'D', '10':'D' } },
+            'B': { n: N_SINGLE_NORMAL['B'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':'D', '10':'D' } },
+            'C': { n: N_SINGLE_NORMAL['C'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':'D', '10':'D' } },
+            'D': { n: N_SINGLE_NORMAL['D'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':'D', '10':[1,2] } },
+            'E': { n: N_SINGLE_NORMAL['E'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':[1,2], '10':[2,3] } },
+            'F': { n: N_SINGLE_NORMAL['F'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':[1,2], '6.5':[2,3], '10':[3,4] } },
+            'G': { n: N_SINGLE_NORMAL['G'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':[1,2], '4.0':[2,3], '6.5':[3,4], '10':[5,6] } },
+            'H': { n: N_SINGLE_NORMAL['H'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':[1,2], '2.5':[2,3], '4.0':[3,4], '6.5':[5,6], '10':[8,9] } },
+            'J': { n: N_SINGLE_NORMAL['J'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':[1,2], '1.5':[2,3], '2.5':[3,4], '4.0':[5,6], '6.5':[8,9], '10':[12,13] } },
+            'K': { n: N_SINGLE_NORMAL['K'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':[1,2], '1.0':[2,3], '1.5':[3,4], '2.5':[5,6], '4.0':[8,9], '6.5':[12,13], '10':[18,19] } },
+            'L': { n: N_SINGLE_NORMAL['L'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':[1,2], '0.65':[2,3], '1.0':[3,4], '1.5':[5,6], '2.5':[8,9], '4.0':[12,13], '6.5':[18,19], '10':[27,28] } },
+            'M': { n: N_SINGLE_NORMAL['M'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':[1,2], '0.40':[2,3], '0.65':[3,4], '1.0':[5,6], '1.5':[8,9], '2.5':[12,13], '4.0':[18,19], '6.5':[27,28], '10':[41,42] } },
+            'N': { n: N_SINGLE_NORMAL['N'], aql: { '0.065':'D', '0.10':'D', '0.15':[1,2], '0.25':[2,3], '0.40':[3,4], '0.65':[5,6], '1.0':[8,9], '1.5':[12,13], '2.5':[18,19], '4.0':[27,28], '6.5':[41,42], '10':'U' } },
+            'P': { n: N_SINGLE_NORMAL['P'], aql: { '0.065':'D', '0.10':[1,2], '0.15':[2,3], '0.25':[3,4], '0.40':[5,6], '0.65':[8,9], '1.0':[12,13], '1.5':[18,19], '2.5':[27,28], '4.0':[41,42], '6.5':'U', '10':'U' } },
+            'Q': { n: N_SINGLE_NORMAL['Q'], aql: { '0.065':[1,2], '0.10':[2,3], '0.15':[3,4], '0.25':[5,6], '0.40':[8,9], '0.65':[12,13], '1.0':[18,19], '1.5':[27,28], '2.5':[41,42], '4.0':'U', '6.5':'U', '10':'U' } },
+            'R': { n: N_SINGLE_NORMAL['R'], aql: { '0.065':[2,3], '0.10':[3,4], '0.15':[5,6], '0.25':[8,9], '0.40':[12,13], '0.65':[18,19], '1.0':[27,28], '1.5':[41,42], '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
+        };
+        
+        // Table 2-C: Reduced Inspection (Réduit)
+        const PLAN_REDUCED = {
+            'A': { n: N_SINGLE_REDUCED['A'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':'D', '10':'D' } },
+            'B': { n: N_SINGLE_REDUCED['B'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':'D', '10':'D' } },
+            'C': { n: N_SINGLE_REDUCED['C'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':'D', '10':[0,2] } },
+            'D': { n: N_SINGLE_REDUCED['D'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':'D', '6.5':[0,2], '10':[1,2] } },
+            'E': { n: N_SINGLE_REDUCED['E'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':'D', '4.0':[0,2], '6.5':[1,3], '10':[1,4] } },
+            'F': { n: N_SINGLE_REDUCED['F'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':'D', '2.5':[0,2], '4.0':[1,3], '6.5':[1,4], '10':[2,5] } },
+            'G': { n: N_SINGLE_REDUCED['G'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':'D', '1.5':[0,2], '2.5':[1,3], '4.0':[1,4], '6.5':[2,5], '10':[3,6] } },
+            'H': { n: N_SINGLE_REDUCED['H'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':'D', '1.0':[0,2], '1.5':[1,3], '2.5':[1,4], '4.0':[2,5], '6.5':[3,6], '10':[5,8] } },
+            'J': { n: N_SINGLE_REDUCED['J'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':'D', '0.65':[0,2], '1.0':[1,3], '1.5':[1,4], '2.5':[2,5], '4.0':[3,6], '6.5':[5,8], '10':[7,10] } },
+            'K': { n: N_SINGLE_REDUCED['K'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':'D', '0.40':[0,2], '0.65':[1,3], '1.0':[1,4], '1.5':[2,5], '2.5':[3,6], '4.0':[5,8], '6.5':[7,10], '10':[10,13] } },
+            'L': { n: N_SINGLE_REDUCED['L'], aql: { '0.065':'D', '0.10':'D', '0.15':'D', '0.25':[0,2], '0.40':[1,3], '0.65':[1,4], '1.0':[2,5], '1.5':[3,6], '2.5':[5,8], '4.0':[7,10], '6.5':[10,13], '10':'U' } },
+            'M': { n: N_SINGLE_REDUCED['M'], aql: { '0.065':'D', '0.10':'D', '0.15':[0,2], '0.25':[1,3], '0.40':[1,4], '0.65':[2,5], '1.0':[3,6], '1.5':[5,8], '2.5':[7,10], '4.0':[10,13], '6.5':[14,19], '10':'U' } },
+            'N': { n: N_SINGLE_REDUCED['N'], aql: { '0.065':'D', '0.10':[0,2], '0.15':[1,3], '0.25':[1,4], '0.40':[2,5], '0.65':[3,6], '1.0':[5,8], '1.5':[7,10], '2.5':[10,13], '4.0':[14,19], '6.5':'U', '10':'U' } },
+            'P': { n: N_SINGLE_REDUCED['P'], aql: { '0.065':[0,2], '0.10':[1,3], '0.15':[1,4], '0.25':[2,5], '0.40':[3,6], '0.65':[5,8], '1.0':[7,10], '1.5':[10,13], '2.5':[14,19], '4.0':[21,26], '6.5':'U', '10':'U' } },
+            'Q': { n: N_SINGLE_REDUCED['Q'], aql: { '0.065':[1,3], '0.10':[1,4], '0.15':[2,5], '0.25':[3,6], '0.40':[5,8], '0.65':[7,10], '1.0':[10,13], '1.5':[14,19], '2.5':[21,26], '4.0':'U', '6.5':'U', '10':'U' } },
+            'R': { n: N_SINGLE_REDUCED['R'], aql: { '0.065':[1,4], '0.10':[2,5], '0.15':[3,6], '0.25':[5,8], '0.40':[7,10], '0.65':[10,13], '1.0':[14,19], '1.5':[21,26], '2.5':'U', '4.0':'U', '6.5':'U', '10':'U' } },
+        };
 
         let lastSim = null;
 
@@ -560,11 +635,12 @@
             return { letter: range.l[level], rangeIdx: LOT_RANGES.indexOf(range) };
         }
 
-        function getFullPlan(initialLetter, aql) {
+        function getFullPlan(initialLetter, aql, severity) {
+            const planMatrix = severity === 'reduced' ? PLAN_REDUCED : (severity === 'tightened' ? PLAN_TIGHTENED : PLAN_NORMAL);
             let current = initialLetter;
             let path = [current];
             while (true) {
-                const data = SAMPLING_PLAN[current].aql[aql];
+                const data = planMatrix[current].aql[aql];
                 if (data === 'D') {
                     current = LETTER_ORDER[LETTER_ORDER.indexOf(current) + 1];
                     path.push(current);
@@ -572,7 +648,7 @@
                     current = LETTER_ORDER[LETTER_ORDER.indexOf(current) - 1];
                     path.push(current);
                 } else if (Array.isArray(data)) {
-                    return { initial: initialLetter, final: current, n: SAMPLING_PLAN[current].n, ac: data[0], re: data[1], path: path };
+                    return { initial: initialLetter, final: current, n: planMatrix[current].n, ac: data[0], re: data[1], path: path };
                 } else return null;
             }
         }
@@ -608,19 +684,22 @@
         function calculateResults() {
             const lot = parseInt(document.getElementById('lot-size').value);
             const level = document.getElementById('insp-level').value;
+            const severity = document.getElementById('insp-severity').value;
             const aql = document.getElementById('aql-value').value;
             if (!lot || lot < 2) return;
 
             const { letter, rangeIdx } = findLetter(lot, level);
-            const plan = getFullPlan(letter, aql);
+            const plan = getFullPlan(letter, aql, severity);
             
-            lastSim = { lot, level, aql, letter, rangeIdx, plan };
+            lastSim = { lot, level, severity, aql, letter, rangeIdx, plan };
 
-            document.getElementById('res-letter').innerText = letter;
+            document.getElementById('res-letter-initial').innerText = plan.initial;
+            document.getElementById('res-letter-final').innerText = plan.final;
             document.getElementById('res-sample').innerText = plan.n;
             document.getElementById('res-ac').innerText = plan.ac;
             document.getElementById('res-re').innerText = plan.re;
             document.getElementById('badge-level').innerText = level;
+            document.getElementById('badge-severity').innerText = document.getElementById('insp-severity').options[document.getElementById('insp-severity').selectedIndex].text;
             document.getElementById('note-arrows').classList.toggle('hidden', plan.path.length === 1);
             
             document.getElementById('result-box').classList.remove('hidden');
@@ -681,10 +760,12 @@
         }
 
         function generateSingleTableHTML(type) {
-            const isReduced = type === '2C';
-            const sizes = isReduced ? N_SINGLE_REDUCED : N_SINGLE_NORMAL;
-            const aqls = ['0.065', '0.10', '0.15', '0.25', '0.40', '0.65', '1.0', '1.5', '2.5', '4.0', '6.5', '10'];
+            let planMatrix, sizes;
+            if (type === '2A') { planMatrix = PLAN_NORMAL; sizes = N_SINGLE_NORMAL; }
+            else if (type === '2B') { planMatrix = PLAN_TIGHTENED; sizes = N_SINGLE_NORMAL; }
+            else if (type === '2C') { planMatrix = PLAN_REDUCED; sizes = N_SINGLE_REDUCED; }
             
+            const aqls = ['0.065', '0.10', '0.15', '0.25', '0.40', '0.65', '1.0', '1.5', '2.5', '4.0', '6.5', '10'];
             const txtLettre = currentLang === 'fr' ? 'Lettre' : 'Letter';
             
             let html = `<table class="lib-table"><tr><th rowspan="2" class="w-16">${txtLettre}</th><th rowspan="2" class="w-16">n</th><th colspan="${aqls.length}">NQA (AQL) %</th></tr><tr>`;
@@ -695,26 +776,19 @@
                 html += `<tr><td class="font-bold bg-slate-50">${l}</td><td class="font-bold text-gold">${sizes[l]}</td>`;
                 aqls.forEach(a => {
                     let content = '-';
-                    if (type === '2A' && SAMPLING_PLAN[l].aql[a]) {
-                        let v = SAMPLING_PLAN[l].aql[a];
+                    if (planMatrix[l].aql[a]) {
+                        let v = planMatrix[l].aql[a];
                         if (v === 'D') content = '⬇️';
                         else if (v === 'U') content = '⬆️';
                         else content = `<span class="text-green-600">${v[0]}</span><span class="text-slate-300 mx-1">|</span><span class="text-red-600">${v[1]}</span>`;
-                    } else if (type !== '2A') {
-                        content = '<span class="opacity-20">•</span>';
                     }
                     html += `<td>${content}</td>`;
                 });
                 html += `</tr>`;
             });
             html += `</table>`;
-            if (type !== '2A') {
-                const note = currentLang === 'fr' ? "Structure normative. Seul le tableau 2-A contient les critères Ac/Re complets interactifs dans ce module." : "Standard framework. Only Table 2-A contains full interactive Ac/Re criteria in this module.";
-                html += `<p class="text-xs text-slate-400 text-center mt-4 italic">${note}</p>`;
-            }
             return html;
         }
-
 
         // --- NEW STEP-BY-STEP VISUALIZER LOGIC ---
         let visuSteps = [];
@@ -740,17 +814,21 @@
         }
 
         function initVisualizer(maintainStep = false) {
-            // Display the section below the calculator instead of switching tab
             const visuSection = document.getElementById('visu-section');
             visuSection.classList.remove('hidden');
             
+            // Met à jour le titre selon la sévérité
+            const dynTitle = document.getElementById('visu-t2-title-dyn');
+            const titleKeys = { 'normal': 'visu_t2_title_normal', 'tightened': 'visu_t2_title_tightened', 'reduced': 'visu_t2_title_reduced' };
+            dynTitle.innerText = t(titleKeys[lastSim.severity]);
+            
             renderTable1_Visu();
-            renderTable2_Visu();
+            renderTable2_Visu(lastSim.severity);
 
             visuSteps = [];
             const targetAqlKey = lastSim.aql.replace('.','');
+            const strTable2Name = dynTitle.innerText.split(':')[0].trim();
 
-            // Helper de factorisation pour créer les étapes visuelles
             const addStep = (desc, table, rowId, options = {}) => {
                 visuSteps.push({
                     desc: desc,
@@ -793,19 +871,11 @@
                 });
             };
 
-            // Étape 0 : Taille du lot (Tableau 1)
             addStep(t('step_1', lastSim.lot), 1, lastSim.rangeIdx);
-
-            // Étape 1 : Niveau d'inspection (Tableau 1)
             addStep(t('step_2', lastSim.level, lastSim.letter), 1, lastSim.rangeIdx, { highlightCol: lastSim.level });
-
-            // Étape 2 : Ligne de la lettre (Tableau 2)
-            addStep(t('step_3', lastSim.letter), 2, lastSim.letter);
-
-            // Étape 3 : Croisement NQA (Tableau 2)
+            addStep(t('step_3', lastSim.letter, strTable2Name), 2, lastSim.letter);
             addStep(t('step_4', lastSim.aql), 2, lastSim.letter, { aqlCol: targetAqlKey, intersectCell: targetAqlKey });
 
-            // Étapes des Flèches (Tableau 2)
             const path = lastSim.plan.path;
             if (path.length > 1) {
                 for (let i = 1; i < path.length; i++) {
@@ -815,14 +885,12 @@
                 addStep(t('step_direct'), 2, lastSim.letter, { aqlCol: targetAqlKey, intersectCell: targetAqlKey });
             }
 
-            // Étape finale : Résultat
             addStep(t('step_final', lastSim.plan.final, lastSim.plan.n, lastSim.plan.ac, lastSim.plan.re), 2, lastSim.plan.final, { aqlCol: targetAqlKey, animCell: targetAqlKey });
 
             if(!maintainStep) currentStepIdx = 0;
             renderSidebarSteps();
             executeCurrentStep();
             
-            // Scroll explicitly to the visualizer container
             setTimeout(() => {
                 visuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
@@ -836,7 +904,6 @@
                 const isActive = idx === currentStepIdx;
                 const isPast = idx < currentStepIdx;
                 
-                // NOUVEAU STYLE BANDEAU DÉDIÉ FONCÉ
                 let bgClass = isActive ? 'bg-white shadow-xl scale-[1.02] z-10' : 'bg-[#153b5c] border border-slate-700 opacity-70';
                 let textClass = isActive ? 'text-[#0E2841] font-bold' : 'text-slate-300';
                 let iconStr = isActive ? '📍' : (isPast ? '✓' : (idx + 1));
@@ -889,16 +956,17 @@
             container.innerHTML = html;
         }
 
-        function renderTable2_Visu() {
+        function renderTable2_Visu(severity) {
+            const planMatrix = severity === 'reduced' ? PLAN_REDUCED : (severity === 'tightened' ? PLAN_TIGHTENED : PLAN_NORMAL);
             const container = document.getElementById('visu-table2-grid');
             const aqls = ['0.065', '0.10', '0.15', '0.25', '0.40', '0.65', '1.0', '1.5', '2.5', '4.0', '6.5', '10'];
             let html = `<table><tr id="t2-header"><th>Lettre</th><th>n</th>${aqls.map(a => `<th id="t2-header-${a.replace('.','')}">${a}%</th>`).join('')}</tr>`;
             LETTER_ORDER.forEach(l => {
                 html += `<tr id="t2-row-${l}">`;
                 html += `<td class="font-bold bg-slate-50" style="z-index:1;">${l}</td>`;
-                html += `<td>${SAMPLING_PLAN[l].n}</td>`;
+                html += `<td>${planMatrix[l].n}</td>`;
                 aqls.forEach(a => {
-                    const cellData = SAMPLING_PLAN[l].aql[a];
+                    const cellData = planMatrix[l].aql[a];
                     let display = Array.isArray(cellData) ? `<span class="text-green-600">${cellData[0]}</span>|<span class="text-red-600">${cellData[1]}</span>` : (cellData === 'D' ? '⬇️' : '⬆️');
                     html += `<td id="t2-cell-${l}-${a.replace('.','')}">${display}</td>`;
                 });
@@ -917,27 +985,56 @@
 
         // --- QUIZ LOGIC ---
         let currentSolution = {};
+        let quizScore = 0;
+        let quizTotal = 0;
+        let currentQuizAnswered = false;
+
+        function resetSimulator() {
+            document.getElementById('lot-size').value = 1500;
+            document.getElementById('insp-level').value = "II";
+            document.getElementById('insp-severity').value = "normal";
+            document.getElementById('aql-value').value = "2.5";
+            document.getElementById('result-box').classList.add('hidden');
+            document.getElementById('visu-section').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            quizScore = 0;
+            quizTotal = 0;
+            document.getElementById('score').innerText = `${quizScore}/${quizTotal}`;
+            generateScenario();
+        }
+
         function generateScenario() {
+            currentQuizAnswered = false;
             const levels = ['I', 'II', 'III', 'S-4'];
+            const severities = ['normal', 'tightened', 'reduced'];
             const aqls = ['0.065', '0.10', '0.15', '0.25', '0.40', '0.65', '1.0', '1.5', '2.5', '4.0', '6.5', '10'];
+            
             const lot = Math.floor(Math.random() * 25000) + 10;
             const level = levels[Math.floor(Math.random() * levels.length)];
+            const severity = severities[Math.floor(Math.random() * severities.length)];
             const aql = aqls[Math.floor(Math.random() * aqls.length)];
-            const letter = findLetter(lot, level).letter;
-            currentSolution = getFullPlan(letter, aql);
             
-            // Ajout de classes de texte explicites (text-white) pour garantir la lisibilité sur fond foncé
+            const letter = findLetter(lot, level).letter;
+            currentSolution = getFullPlan(letter, aql, severity);
+            
+            const sevTranslationKey = 'sev_' + severity;
+            const sevStr = t(sevTranslationKey);
+            
             document.getElementById('scenario-text').innerHTML = `
                 <div class="text-slate-300 uppercase tracking-widest text-sm mb-1">${t('mission')}</div>
                 <div class="text-3xl font-black text-white mb-4"><span class="text-gold">${lot}</span> unités</div>
                 <div class="text-slate-300 uppercase tracking-widest text-sm mb-1">${t('param')}</div>
-                <div class="flex gap-4">
+                <div class="flex flex-wrap gap-4">
                     <div class="bg-white bg-opacity-10 px-4 py-2 rounded-lg text-white font-bold">Niveau <span class="text-gold">${level}</span></div>
+                    <div class="bg-white bg-opacity-10 px-4 py-2 rounded-lg text-white font-bold">${t('control')} <span class="text-gold uppercase">${sevStr}</span></div>
                     <div class="bg-white bg-opacity-10 px-4 py-2 rounded-lg text-white font-bold">NQA <span class="text-gold">${aql}%</span></div>
                 </div>
             `;
             
-            ['quiz-letter', 'quiz-sample', 'quiz-ac', 'quiz-re'].forEach(id => {
+            ['quiz-letter-initial', 'quiz-letter-final', 'quiz-sample', 'quiz-ac', 'quiz-re'].forEach(id => {
                 const el = document.getElementById(id); el.value = "";
                 el.classList.remove('border-red-500', 'border-green-500', 'bg-red-50', 'bg-green-50');
             });
@@ -945,13 +1042,21 @@
         }
 
         function checkQuizAnswer() {
-            const uLetter = document.getElementById('quiz-letter').value.toUpperCase().trim();
+            const uLetterInitial = document.getElementById('quiz-letter-initial').value.toUpperCase().trim();
+            const uLetterFinal = document.getElementById('quiz-letter-final').value.toUpperCase().trim();
             const uSample = parseInt(document.getElementById('quiz-sample').value);
             const uAc = parseInt(document.getElementById('quiz-ac').value);
             const uRe = parseInt(document.getElementById('quiz-re').value);
             
             const s = currentSolution;
-            const checks = { letter: uLetter === s.final, sample: uSample === s.n, ac: uAc === s.ac, re: uRe === s.re };
+            
+            const checks = { 
+                'letter-initial': uLetterInitial === s.initial,
+                'letter-final': uLetterFinal === s.final, 
+                'sample': uSample === s.n, 
+                'ac': uAc === s.ac, 
+                're': uRe === s.re 
+            };
             const isCorrect = Object.values(checks).every(v => v);
             
             Object.keys(checks).forEach(key => {
@@ -967,7 +1072,18 @@
             if (isCorrect) {
                 fb.innerHTML = `<p class="font-black uppercase tracking-widest">✅ Validé</p>`;
             } else {
-                fb.innerHTML = `<p class="font-black uppercase tracking-widest">❌ Erreur</p><p class="text-sm opacity-80">Solution : Lettre ${s.final}, n=${s.n}, Ac=${s.ac}, Re=${s.re}</p>`;
+                const errSol = currentLang === 'fr' ? 
+                    `<p class="text-sm opacity-80">Solution : Initiale ${s.initial}, Finale ${s.final}, n=${s.n}, Ac=${s.ac}, Re=${s.re}</p>` :
+                    `<p class="text-sm opacity-80">Solution: Initial ${s.initial}, Final ${s.final}, n=${s.n}, Ac=${s.ac}, Re=${s.re}</p>`;
+                const errStr = currentLang === 'fr' ? '❌ Erreur' : '❌ Error';
+                fb.innerHTML = `<p class="font-black uppercase tracking-widest">${errStr}</p>${errSol}`;
+            }
+
+            if (!currentQuizAnswered) {
+                quizTotal++;
+                if (isCorrect) quizScore++;
+                document.getElementById('score').innerText = `${quizScore}/${quizTotal}`;
+                currentQuizAnswered = true;
             }
         }
         
