@@ -770,15 +770,11 @@
 
                         <button onclick="switchSubTab('course')" id="btn-subtab-course" class="pb-2 text-sm transition-all subtab-active" data-i18n="subtab_course">Support de Cours</button>
 
-                        <button onclick="switchSubTab('norm')" id="btn-subtab-norm" class="pb-2 text-sm transition-all subtab-inactive hover:text-slate-700" data-i18n="subtab_norm">Extrait Norme ISO 2859-1</button>
-
                     </div>
 
 
 
                     <iframe id="iframe-course" src="cours.pdf" class="w-full flex-1 rounded-xl border border-slate-200" title="Cours PDF"></iframe>
-
-                    <iframe id="iframe-norm" src="ISO_2859-1_1999-extrait.pdf" class="w-full flex-1 rounded-xl border border-slate-200 hidden" title="Norme PDF"></iframe>
 
                 </div>
 
@@ -888,7 +884,6 @@
 
                 subtab_course: "Support de Cours",
 
-                subtab_norm: "Extrait Norme ISO 2859-1",
 
                 btn_open_pdf: "Ouvrir (Nouvel onglet)",
 
@@ -978,7 +973,6 @@
 
                 subtab_course: "Course Material",
 
-                subtab_norm: "ISO 2859-1 Extract",
 
                 btn_open_pdf: "Open (New tab)",
 
@@ -1340,33 +1334,7 @@
 
         
 
-        function switchSubTab(tab) {
-
-            const isCourse = tab === 'course';
-
-            
-
-            document.getElementById('iframe-course').classList.toggle('hidden', !isCourse);
-
-            document.getElementById('iframe-norm').classList.toggle('hidden', isCourse);
-
-            
-
-            const btnCourse = document.getElementById('btn-subtab-course');
-
-            const btnNorm = document.getElementById('btn-subtab-norm');
-
-            
-
-            btnCourse.className = `pb-2 text-sm transition-all ${isCourse ? 'subtab-active' : 'subtab-inactive hover:text-slate-700'}`;
-
-            btnNorm.className = `pb-2 text-sm transition-all ${!isCourse ? 'subtab-active' : 'subtab-inactive hover:text-slate-700'}`;
-
-            
-
-            document.getElementById('btn-open-pdf').href = isCourse ? 'cours.pdf' : 'ISO_2859-1_1999-extrait.pdf';
-
-        }
+        function switchSubTab(tab) {}
 
 
 
