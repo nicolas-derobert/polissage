@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vitesses de coupe &amp; d'avance — Polissage &amp; préparation de surface</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --ink:#172033;
+      --muted:#64748b;
+      --line:#dce4ef;
+      --primary:#1e3a8a;
+      --primary2:#2563eb;
+      --accent:#f97316;
+      --accent2:#ea580c;
+      --green:#15803d;
+      --red:#b91c1c;
+      --gold:#b45309;
+      --softBlue:#eaf1ff;
+      --softOrange:#fff3e8;
+      --softGreen:#eaf8ef;
+      --softRed:#fff0f0;
+      --softGold:#fef3c7;
+      --shadow:0 18px 45px rgba(15,23,42,.10);
+      --shadow-sm:0 6px 18px rgba(15,23,42,.06);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, #eaf1ff 0, transparent 35%),
+        radial-gradient(circle at bottom right, #fff3e8 0, transparent 40%),
+        linear-gradient(180deg,#f8fafc 0%,var(--bg) 100%);
+      color:var(--ink);
+      line-height:1.55;
+      min-height:100vh;
+    }
+    .app{max-width:1200px;margin:0 auto;padding:24px}
+
+    /* ===== HERO ===== */
+    header.hero{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:22px;
+      align-items:center;
+      padding:28px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(135deg,#ffffff 0%,#f8fbff 54%,#fff3e8 100%);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    header.hero::before{
+      content:"";
+      position:absolute;
+      inset:auto -120px -160px auto;
+      width:380px;
+      height:380px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(249,115,22,.28), rgba(249,115,22,0) 70%);
+      pointer-events:none;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 14px;border-radius:999px;
+      background:var(--softOrange);color:#9a3412;
+      font-weight:800;font-size:.88rem;border:1px solid #fed7aa;
+    }
+    h1{font-size:clamp(2rem,5vw,4rem);line-height:.98;margin:14px 0 12px;letter-spacing:-.045em;color:#0f172a}
+    h1 .accent{color:var(--accent2)}
+    .lead{font-size:1.05rem;color:var(--muted);max-width:62ch;margin:0}
+    .heroGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+    .miniStat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow-sm)}
+    .miniStat strong{display:block;font-size:1.3rem;color:var(--primary);line-height:1}
+    .miniStat span{font-size:.82rem;color:var(--muted);display:block;margin-top:6px}
+
+    /* hero machine card */
+    .machineCard{
+      position:relative;min-height:300px;border-radius:28px;padding:22px;
+      background:linear-gradient(180deg,#0f172a,#1e293b);
+      color:white;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1), var(--shadow);
+      overflow:hidden;
+      display:flex;flex-direction:column;justify-content:space-between;gap:14px;
+    }
+    .wheelWrap{height:200px;display:grid;place-items:center;position:relative}
+    .wheel{
+      width:170px;height:170px;border-radius:50%;
+      background:repeating-conic-gradient(from 0deg,#e2e8f0 0 8deg,#94a3b8 8deg 13deg,#334155 13deg 18deg);
+      border:14px solid #cbd5e1;
+      box-shadow:0 0 0 10px rgba(255,255,255,.05),0 25px 50px rgba(0,0,0,.35);
+      animation:spin 2.8s linear infinite;
+      position:relative;
+    }
+    .wheel::before{content:"";position:absolute;inset:33px;border-radius:50%;background:#0f172a;border:10px solid var(--accent)}
+    .spark{position:absolute;width:6px;height:6px;background:#fb923c;border-radius:50%;filter:blur(.4px);animation:spark 1.2s ease-out infinite;opacity:.85}
+    .spark.s1{left:62%;top:39%;animation-delay:.1s}
+    .spark.s2{left:68%;top:48%;animation-delay:.35s}
+    .spark.s3{left:57%;top:56%;animation-delay:.65s}
+    .spark.s4{left:72%;top:35%;animation-delay:.9s}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes spark{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(70px,-25px) scale(.2);opacity:0}}
+    .machineCaption{position:relative;z-index:2;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);border-radius:18px;padding:14px;color:#dbeafe;font-size:.95rem}
+
+    /* ===== TABS ===== */
+    .tabs{
+      display:flex;gap:10px;margin:22px 0 18px;position:sticky;top:0;z-index:20;
+      background:rgba(245,247,251,.86);backdrop-filter:blur(12px);padding:10px 0;
+      flex-wrap:wrap;
+    }
+    .tabBtn{
+      appearance:none;border:none;cursor:pointer;
+      padding:14px 20px;border-radius:18px;background:#fff;color:var(--ink);
+      font-weight:900;border:1px solid var(--line);box-shadow:var(--shadow-sm);
+      transition:.2s transform,.2s background,.2s color;
+      display:inline-flex;align-items:center;gap:8px;font-size:.96rem;
+    }
+    .tabBtn:hover{transform:translateY(-1px)}
+    .tabBtn.active{background:var(--primary);color:white;border-color:var(--primary)}
+    .tabBtn .num{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.06);
+      font-size:.78rem;color:var(--muted);
+    }
+    .tabBtn.active .num{background:rgba(255,255,255,.2);color:#fff}
+    .tab{display:none;animation:fade .25s ease}
+    .tab.active{display:block}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* ===== LAYOUT ===== */
+    .grid{display:grid;gap:18px}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid.side{grid-template-columns:.95fr 1.05fr}
+
+    /* ===== CARDS ===== */
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+      padding:24px;box-shadow:var(--shadow-sm);
+    }
+    .card h2,.card h3{margin:0 0 12px;color:#0f172a;letter-spacing:-.02em}
+    .card h2{font-size:1.55rem}
+    .card h3{font-size:1.18rem;margin-top:18px}
+    .card h3:first-child{margin-top:0}
+    .muted{color:var(--muted)}
+
+    .source{
+      margin-top:14px;padding:10px 12px;border-radius:14px;
+      background:#f8fafc;border:1px solid var(--line);
+      color:#475569;font-size:.85rem;
+    }
+    .source strong{color:#334155}
+    .source.complement{background:#fff7ed;border-color:#fed7aa;color:#7c2d12}
+    .source.complement strong{color:#9a3412}
+
+    /* ===== FORMULAS ===== */
+    .formula{
+      display:grid;gap:12px;margin:14px 0;
+      background:linear-gradient(135deg,#eff6ff,#fff7ed);
+      border:1px solid #bfdbfe;border-radius:20px;padding:18px;
+    }
+    .formulaRow{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}
+    .math{
+      font-family:Cambria, Georgia, serif;font-size:1.2rem;font-weight:800;color:var(--primary);
+      background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;white-space:nowrap;
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;
+      padding:6px 12px;background:#f1f5f9;color:#334155;font-size:.84rem;
+      font-weight:800;border:1px solid var(--line);
+    }
+
+    /* ===== STEPS ===== */
+    .stepList{display:grid;gap:10px;margin:12px 0}
+    .step{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start}
+    .step b{
+      display:grid;place-items:center;width:36px;height:36px;border-radius:12px;
+      background:var(--primary);color:white;font-weight:900;
+    }
+    .step p{margin:5px 0;color:#334155}
+
+    /* ===== NOTES ===== */
+    .note{
+      border-left:5px solid var(--accent);background:var(--softOrange);
+      padding:13px 16px;border-radius:14px;color:#7c2d12;margin:12px 0;
+    }
+    .note.success{border-left-color:var(--green);background:var(--softGreen);color:#14532d}
+    .note.danger{border-left-color:var(--red);background:var(--softRed);color:#7f1d1d}
+    .note.info{border-left-color:var(--primary2);background:var(--softBlue);color:#1e3a8a}
+    .note.warn{border-left-color:var(--gold);background:var(--softGold);color:#78350f}
+    .note strong{font-weight:900}
+
+    /* ===== TABLE ===== */
+    .tableWrap{margin-top:14px;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+    table{width:100%;border-collapse:separate;border-spacing:0;font-size:.93rem;background:#fff}
+    th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+    th{
+      background:#f8fafc;color:#334155;font-size:.78rem;
+      text-transform:uppercase;letter-spacing:.08em;font-weight:900;
+    }
+    tr:last-child td{border-bottom:none}
+    tbody tr:hover{background:#fafbfd}
+    .speedBar{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;min-width:90px}
+    .speedBar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary2),var(--accent));width:var(--w)}
+    .groupTag{
+      display:inline-block;padding:3px 8px;border-radius:8px;font-size:.72rem;
+      font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    }
+    .groupTag.theo{background:#e0e7ff;color:#3730a3}
+    .groupTag.pratique{background:#fef3c7;color:#92400e}
+    .groupTag.matiere{background:#dcfce7;color:#166534}
+    .groupTag.scotch{background:#fce7f3;color:#9d174d}
+
+    /* ===== CALCULATOR / SIMULATION ===== */
+    label{font-weight:850;color:#334155;font-size:.92rem;display:block;margin-bottom:6px}
+    input,select{
+      width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;
+      font-size:1rem;background:#fff;color:var(--ink);outline:none;
+      font-family:inherit;
+    }
+    input:focus,select:focus{border-color:var(--primary2);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+    input[type="range"]{padding:0;height:34px;border:none;background:transparent;accent-color:var(--primary2)}
+    .sliderBlock{padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow-sm);transition:background .25s, border-color .25s, transform .25s}
+    .sliderHeader{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:4px}
+    .sliderValue{font-weight:950;color:var(--primary);white-space:nowrap;font-size:1.05rem}
+    .rangeHints{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;margin-top:-2px}
+
+    /* Flash visuel quand un curseur est mis à jour automatiquement par la formule */
+    .sliderBlock.flashed{
+      animation:flashUpdate .65s ease;
+    }
+    @keyframes flashUpdate{
+      0%   {background:#fff;border-color:var(--line);box-shadow:var(--shadow-sm)}
+      30%  {background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:var(--accent);box-shadow:0 0 0 4px rgba(249,115,22,.15),0 10px 22px rgba(249,115,22,.15)}
+      100% {background:#fff;border-color:var(--line);box-shadow:var(--shadow-sm)}
+    }
+    .sliderBlock.flashed .sliderValue{
+      animation:flashValue .65s ease;
+    }
+    @keyframes flashValue{
+      0%   {color:var(--primary);transform:scale(1)}
+      30%  {color:var(--accent2);transform:scale(1.06)}
+      100% {color:var(--primary);transform:scale(1)}
+    }
+
+    /* Pastilles des matières compatibles dans le diagnostic */
+    .matchList{
+      display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;
+    }
+    .matchPill{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:99px;font-size:.82rem;font-weight:700;
+      background:#fff;border:1px solid currentColor;
+    }
+    .matchPill.theo    {color:#3730a3}
+    .matchPill.pratique{color:#92400e}
+    .matchPill.matiere {color:#166534}
+    .matchPill.scotch  {color:#9d174d}
+    .matchPill strong  {font-weight:900}
+
+    .btn{
+      border:none;border-radius:14px;padding:12px 18px;font-weight:900;cursor:pointer;
+      background:var(--primary);color:#fff;box-shadow:0 10px 20px rgba(30,58,138,.25);
+      transition:.2s transform,.2s filter;font-size:.92rem;
+    }
+    .btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+    .btn:active{transform:translateY(0)}
+    .btn.secondary{background:#fff;color:var(--primary);border:1px solid #bfdbfe;box-shadow:none}
+    .btn.secondary:hover{background:var(--softBlue)}
+    .btn.orange{background:var(--accent)}
+    .btn.orange:hover{background:var(--accent2)}
+    .btn.ghost{background:transparent;color:var(--muted);box-shadow:none}
+    .btn.ghost:hover{color:var(--ink);background:#f1f5f9}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none;filter:none}
+
+    /* ===== RESULT ===== */
+    .resultBox{
+      border-radius:24px;padding:22px;background:linear-gradient(135deg,#172033,#1e3a8a);
+      color:white;box-shadow:var(--shadow);position:relative;overflow:hidden;
+    }
+    .resultBox.amber{background:linear-gradient(135deg,#7c2d12,#b45309)}
+    .resultBox::before{
+      content:"";position:absolute;right:-80px;top:-100px;width:260px;height:260px;
+      border-radius:50%;background:rgba(249,115,22,.22);
+    }
+    .resultBox > *{position:relative;z-index:1}
+    .resultBig{
+      font-size:clamp(2.2rem,6vw,4rem);font-weight:950;line-height:1;margin:10px 0;
+      letter-spacing:-.05em;
+    }
+    .resultUnit{font-size:1rem;color:#dbeafe;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+    .resultMeta{color:#cbd5e1;font-size:.9rem}
+
+    .metricGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+    .metric{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+    .metric strong{display:block;color:var(--primary);font-size:1.2rem;line-height:1.2}
+        .metric span{font-size:.78rem;color:var(--muted);display:block;margin-top:4px}
+    .contactStat{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .contactStat>div{background:linear-gradient(135deg,#eef2ff,#e0e7ff);border:1px solid #c7d2fe;border-radius:16px;padding:12px 14px;text-align:center}
+    .contactStat strong{display:block;font-size:1.5rem;color:var(--primary);line-height:1.1}
+    .contactStat span{font-size:.76rem;color:var(--muted);display:block;margin-top:4px}
+    .freqCalc{display:grid;gap:6px;margin-top:10px}
+
+    .calcDetail{
+      margin-top:14px;background:#f8fafc;border:1px solid var(--line);
+      border-radius:18px;padding:16px;color:#334155;
+    }
+    .calcDetail h3{font-size:.95rem;margin:0 0 10px;color:#0f172a;text-transform:uppercase;letter-spacing:.06em}
+    .calcLine{display:flex;gap:12px;align-items:flex-start;margin:8px 0;flex-wrap:wrap}
+    .calcLine strong{min-width:120px;color:var(--primary);font-size:.88rem}
+    .calcExpression{
+      font-family:Cambria, Georgia, serif;font-weight:900;color:#0f172a;
+      background:#fff;border:1px solid var(--line);border-radius:12px;
+      padding:8px 12px;display:inline-block;
+    }
+
+    /* ===== COMPLÉMENT REPLIABLE ===== */
+    details.more{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+    details.more>summary{cursor:pointer;list-style:none;padding:11px 16px;font-weight:800;color:var(--primary);
+      display:flex;align-items:center;gap:10px;user-select:none;font-size:.9rem}
+    details.more>summary::-webkit-details-marker{display:none}
+    details.more>summary::before{content:"▸";color:var(--accent);font-size:1rem;transition:transform .2s;display:inline-block}
+    details.more[open]>summary::before{transform:rotate(90deg)}
+    details.more>summary:hover{background:#f8fafc}
+    details.more .moreBody{padding:2px 16px 16px}
+
+    /* ===== ANIMATED MACHINE ===== */
+    .simMachine{
+      height:360px;background:linear-gradient(180deg,#f8fafc,#eaf1ff);
+      border:1px solid var(--line);border-radius:24px;
+      position:relative;overflow:hidden;display:grid;place-items:center;
+    }
+    .axis{position:absolute;left:12%;right:12%;top:50%;height:6px;background:#94a3b8;border-radius:99px;box-shadow:0 2px 6px rgba(15,23,42,.15)}
+    .simDisc{
+      width:var(--disc,160px);height:var(--disc,160px);border-radius:50%;
+      background:repeating-conic-gradient(from 0deg,#64748b 0 7deg,#e2e8f0 7deg 12deg,#94a3b8 12deg 17deg);
+      border:12px solid #cbd5e1;
+      animation:spin var(--spin,1.5s) linear infinite;
+      box-shadow:0 20px 40px rgba(15,23,42,.25);
+      position:absolute;left:0;top:0;z-index:2;
+      transition:width .3s, height .3s, left .3s, top .3s;
+    }
+    .simDisc::after{content:"";position:absolute;inset:34%;border-radius:50%;background:#fff;border:8px solid var(--accent)}
+    .simDisc.paused{animation-play-state:paused}
+    .discMark{position:absolute;inset:0;border-radius:50%;pointer-events:none}
+    /* grain abrasif / dent : sur le pourtour, du côté qui touche la pièce (3 h) */
+    .discMark::before{content:"";position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%) translateX(calc(var(--disc,160px) / 2 - 7px));
+      width:18px;height:18px;border-radius:50%;background:#ef4444;border:3px solid #fff;
+      box-shadow:0 2px 8px rgba(0,0,0,.5);z-index:3}
+    /* rayon reliant le moyeu au grain */
+    .discMark::after{content:"";position:absolute;top:50%;left:50%;
+      width:calc(var(--disc,160px) / 2 - 12px);height:4px;border-radius:2px;
+      background:rgba(239,68,68,.5);transform:translateY(-50%)}
+    .discLabel{
+      position:absolute;left:50%;top:calc(50% + var(--labelOffset, 115px));transform:translateX(-50%);
+      background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 12px;
+      font-weight:900;color:#334155;box-shadow:var(--shadow-sm);z-index:5;font-size:.88rem;white-space:nowrap;
+    }
+    .workpiece{
+      position:absolute;left:60%;top:50%;transform:translateY(-50%);
+      width:var(--wpW,116px);height:46px;border-radius:10px;
+      background:linear-gradient(135deg,#fde68a,#ca8a04);
+      border:1px solid #854d0e;box-shadow:0 10px 22px rgba(133,77,14,.30);z-index:3;
+      transition:left .3s, width .3s;display:grid;place-items:center;
+    }
+    .wpLabel{font-size:.72rem;font-weight:900;letter-spacing:.08em;color:#713f12;text-transform:uppercase;opacity:.95;pointer-events:none}
+    .contactLine{
+      position:absolute;left:55%;top:50%;width:var(--contact,45px);height:5px;
+      background:var(--accent);box-shadow:0 0 var(--glow,18px) #fb923c;
+      animation:pulse .8s ease-in-out infinite;border-radius:99px;z-index:4;transform:translateX(-50%);
+      transition:left .3s;
+    }
+    .simSparks{position:absolute;left:55%;top:50%;width:30px;height:30px;z-index:4;pointer-events:none;transition:left .3s}
+    .simSparks span{
+      position:absolute;width:5px;height:5px;background:#fb923c;border-radius:50%;
+      filter:blur(.4px);animation:simSpark 1s ease-out infinite;opacity:0;
+    }
+    .simSparks span:nth-child(1){left:0;top:0;animation-delay:0s}
+    .simSparks span:nth-child(2){left:-5px;top:8px;animation-delay:.2s}
+    .simSparks span:nth-child(3){left:5px;top:15px;animation-delay:.4s}
+    .simSparks span:nth-child(4){left:-3px;top:22px;animation-delay:.6s}
+    @keyframes simSpark{
+      0%{transform:translate(0,0) scale(1);opacity:.9}
+      100%{transform:translate(40px, -15px) scale(.2);opacity:0}
+    }
+    .speedArrow{
+      position:absolute;left:12%;bottom:36px;width:var(--arrow,120px);height:10px;
+      border-radius:999px;background:linear-gradient(90deg,var(--primary2),var(--accent));
+      box-shadow:0 6px 15px rgba(37,99,235,.2);transition:width .35s;
+    }
+    .speedArrow::after{
+      content:"";position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+      border-left:16px solid var(--accent);border-top:11px solid transparent;border-bottom:11px solid transparent;
+    }
+    .speedArrowLabel{
+      position:absolute;left:12%;bottom:54px;color:#334155;font-weight:900;
+      background:#fff;border:1px solid var(--line);padding:6px 12px;border-radius:12px;
+      font-size:.88rem;box-shadow:var(--shadow-sm);
+    }
+    @keyframes pulse{0%,100%{opacity:.4;transform:translateX(-50%) scaleX(.8)}50%{opacity:1;transform:translateX(-50%) scaleX(1.18)}}
+
+    /* ===== FEED ANIMATION (avance) ===== */
+    .feedMachine{
+      height:230px;background:linear-gradient(180deg,#fff7ed,#ffedd5);
+      border:1px solid var(--line);border-radius:24px;
+      position:relative;overflow:hidden;margin-top:16px;
+    }
+    .feedBar{position:absolute;left:6%;right:6%;top:62%;height:26px;border-radius:8px;
+      background:linear-gradient(90deg,#94a3b8,#cbd5e1,#94a3b8);border:1px solid #94a3b8;box-shadow:var(--shadow-sm)}
+    .feedTool{
+      position:absolute;top:24%;left:var(--toolPos,12%);
+      width:18px;height:78px;border-radius:4px 4px 8px 8px;
+      background:linear-gradient(180deg,#334155,#0f172a);
+      box-shadow:0 8px 16px rgba(15,23,42,.3);z-index:3;
+      transition:left .15s linear;
+    }
+    .feedTool::after{content:"";position:absolute;left:-3px;bottom:-7px;width:24px;height:10px;border-radius:0 0 6px 6px;background:var(--accent)}
+    .feedChip{position:absolute;top:58%;left:var(--toolPos,12%);width:8px;height:8px;border-radius:50%;
+      background:#fb923c;filter:blur(.3px);z-index:4;transition:left .15s linear;animation:simSpark 1s ease-out infinite}
+    .feedArrow{
+      position:absolute;left:6%;bottom:22px;height:10px;width:var(--feedArrow,120px);border-radius:999px;
+      background:linear-gradient(90deg,var(--gold),var(--accent));box-shadow:0 6px 15px rgba(180,83,9,.2);transition:width .3s;
+    }
+    .feedArrow::after{content:"";position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+      border-left:16px solid var(--accent);border-top:11px solid transparent;border-bottom:11px solid transparent}
+    .feedArrowLabel{position:absolute;left:6%;bottom:40px;color:#7c2d12;font-weight:900;background:#fff;border:1px solid var(--line);
+      padding:6px 12px;border-radius:12px;font-size:.88rem;box-shadow:var(--shadow-sm)}
+
+    /* ===== FEED SIMULATION (simulation avance) ===== */
+    .simFeed{height:280px;background:linear-gradient(180deg,#fff7ed,#ffedd5);border:1px solid var(--line);border-radius:24px;position:relative;overflow:hidden;margin-top:16px}
+    .sfRaw{position:absolute;left:5%;right:5%;top:56%;height:36px;border-radius:8px;background:linear-gradient(180deg,#cbd5e1,#94a3b8);border:1px solid #94a3b8;box-shadow:var(--shadow-sm)}
+    .sfDone{position:absolute;left:5%;top:56%;height:36px;width:var(--done,0%);border-radius:8px 0 0 8px;z-index:2;
+      background:#3b82f6;
+      background-image:repeating-linear-gradient(90deg, rgba(15,23,42,.30) 0, rgba(15,23,42,.30) 1.5px, rgba(255,255,255,0) 1.5px, rgba(255,255,255,0) var(--groove,6px));
+      border:1px solid #1d4ed8;border-right:none;transition:width .12s linear}
+    .sfTool{position:absolute;top:26%;left:calc(5% + var(--done,0%));width:16px;height:78px;border-radius:4px 4px 8px 8px;
+      background:linear-gradient(180deg,#334155,#0f172a);box-shadow:0 8px 16px rgba(15,23,42,.3);z-index:4;transform:translateX(-50%);transition:left .12s linear}
+    .sfTool::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);width:0;height:0;
+      border-left:8px solid transparent;border-right:8px solid transparent;border-top:11px solid var(--accent)}
+    .sfChip{position:absolute;top:52%;left:calc(5% + var(--done,0%));width:7px;height:7px;border-radius:50%;background:#fb923c;filter:blur(.3px);z-index:5;transform:translateX(-50%);animation:simSpark .9s ease-out infinite}
+    .sfArrow{position:absolute;left:5%;bottom:20px;height:10px;width:var(--vfArrow,120px);border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--accent));box-shadow:0 6px 15px rgba(180,83,9,.2);transition:width .3s}
+    .sfArrow::after{content:"";position:absolute;right:-14px;top:50%;transform:translateY(-50%);border-left:16px solid var(--accent);border-top:11px solid transparent;border-bottom:11px solid transparent}
+    .sfArrowLabel{position:absolute;left:5%;bottom:38px;color:#7c2d12;font-weight:900;background:#fff;border:1px solid var(--line);padding:6px 12px;border-radius:12px;font-size:.88rem;box-shadow:var(--shadow-sm)}
+    .sfTag{position:absolute;right:5%;top:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:.76rem;font-weight:800;color:#334155;z-index:5}
+
+    /* ===== EXERCISES ===== */
+    .exercise{
+      background:#fff;border:1px solid var(--line);border-radius:18px;
+      padding:20px 22px;margin-bottom:14px;
+    }
+    .exerciseHead{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .exerciseHead strong{font-size:1.08rem;color:#0f172a}
+    .levelTag{
+      font-size:.72rem;font-weight:900;letter-spacing:.08em;
+      padding:4px 10px;border-radius:99px;text-transform:uppercase;
+    }
+    .levelTag.easy{background:var(--softGreen);color:var(--green)}
+    .levelTag.medium{background:var(--softGold);color:var(--gold)}
+    .levelTag.hard{background:var(--softRed);color:var(--red)}
+    .exercise p{font-size:.96rem;line-height:1.55;color:#334155;margin:8px 0}
+    .exerciseAnswer{
+      margin-top:14px;padding:14px 16px;background:#0f172a;color:#dbeafe;
+      border-radius:14px;font-size:.92rem;line-height:1.6;display:none;
+    }
+    .exerciseAnswer.show{display:block;animation:fade .3s ease}
+    .exerciseAnswer strong{color:var(--accent)}
+    .exerciseAnswer code{
+      background:rgba(255,255,255,.08);padding:2px 6px;border-radius:6px;
+      font-family:Cambria, Georgia, serif;font-weight:700;
+    }
+
+    .footer{margin:30px 0 10px;text-align:center;color:var(--muted);font-size:.88rem}
+    .footer strong{color:#334155}
+
+    /* responsive */
+    @media (max-width:900px){
+      header.hero,.grid.two,.grid.three,.grid.side,.metricGrid{grid-template-columns:1fr}
+      .heroGrid{grid-template-columns:1fr 1fr}
+      .machineCard{min-height:240px}
+      .app{padding:14px}
+      .card{padding:18px}
+      .resultBig{font-size:2.6rem}
+      .simMachine{height:300px}
+      .simFeed{height:240px}
+    }
+    @media (max-width:560px){
+      .heroGrid{grid-template-columns:1fr}
+      .tabBtn{padding:11px 14px;font-size:.88rem}
+      .tabBtn .num{display:none}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============= HERO ============= -->
+    <header class="hero">
+      <section>
+        <span class="badge">⚙️ Application pédagogique · coupe &amp; avance</span>
+        <h1>Calculer, régler, <span class="accent">comprendre</span>.</h1>
+        <p class="lead">Une application interactive pour relier le diamètre de l’outil, la <strong>vitesse de coupe</strong>, la <strong>fréquence de rotation</strong> et la <strong>vitesse d’avance</strong>, de la préparation des surfaces jusqu’à l’usinage connexe.</p>
+        <div class="heroGrid">
+          <div class="miniStat"><strong>m/s</strong><span>Abrasifs&nbsp;: meulage, émerisage, satinage, polissage.</span></div>
+          <div class="miniStat"><strong>tr/min</strong><span>Réglage concret sur le tour ou la machine.</span></div>
+          <div class="miniStat"><strong>mm/min</strong><span>Vitesse d’avance en usinage (complément).</span></div>
+        </div>
+      </section>
+      <aside class="machineCard" aria-label="Animation d'un disque de polissage">
+        <div class="wheelWrap">
+          <div class="wheel" aria-hidden="true"></div>
+          <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span><span class="spark s4"></span>
+        </div>
+        <div class="machineCaption"><strong>Idée clé&nbsp;:</strong> la <em>coupe</em> décrit l’action de l’arête sur la matière&nbsp;; l’<em>avance</em> décrit la vitesse à laquelle l’outil progresse dans la pièce. Deux réglages distincts.</div>
+      </aside>
+    </header>
+
+    <!-- ============= TABS ============= -->
+    <nav class="tabs" aria-label="Navigation de l'application">
+      <button class="tabBtn active" data-tab="principes"><span class="num">1</span>Les principes</button>
+      <button class="tabBtn" data-tab="theorie"><span class="num">2</span>Vitesse de coupe</button>
+      <button class="tabBtn" data-tab="reglages"><span class="num">3</span>Choisir la vitesse</button>
+      <button class="tabBtn" data-tab="avance"><span class="num">4</span>Vitesse d’avance</button>
+      <button class="tabBtn" data-tab="simulation"><span class="num">5</span>Simulation coupe</button>
+      <button class="tabBtn" data-tab="simavance"><span class="num">6</span>Simulation avance</button>
+      <button class="tabBtn" data-tab="entrainement"><span class="num">7</span>Exercices</button>
+    </nav>
+
+    <main>
+
+      <!-- =========================================================== -->
+      <!-- ============ ONGLET : LES PRINCIPES ======================= -->
+      <!-- =========================================================== -->
+      <section id="principes" class="tab active">
+        <article class="card">
+          <h2>La vitesse, en quelques principes</h2>
+          <p class="lead">Avant de parler de « vitesse de coupe », posons les bases : ce qu’est une vitesse, et pourquoi — sur un outil qui tourne — elle dépend à la fois de sa <strong>taille</strong> et de sa <strong>vitesse de rotation</strong>.</p>
+
+          <h3>Une vitesse, c’est une distance par unité de temps</h3>
+          <p>Repartons du quotidien. Une vitesse mesure <strong>la distance parcourue pendant un temps donné</strong> le long d’un trajet&nbsp;: c’est la <strong>vitesse linéaire</strong>.</p>
+          <div class="grid side" style="align-items:center;margin:14px 0">
+            <div>
+              <svg viewBox="0 0 440 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vitesse linéaire : une voiture sur une route" style="width:100%;height:auto;display:block;max-width:440px;margin:0 auto">
+                <defs>
+                  <linearGradient id="gLcar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient>
+                  <marker id="gLv" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ea580c"/></marker>
+                </defs>
+                <rect x="0" y="128" width="440" height="10" fill="#cbd5e1"/>
+                <line x1="8" y1="133" x2="432" y2="133" stroke="#ffffff" stroke-width="2.5" stroke-dasharray="20 16"/>
+                <rect x="58" y="80" width="156" height="34" rx="11" fill="url(#gLcar)"/>
+                <path d="M 90 80 L 106 56 L 172 56 L 190 80 Z" fill="#3b82f6"/>
+                <path d="M 112 76 L 124 61 L 138 61 L 138 76 Z" fill="#dbeafe"/>
+                <path d="M 146 76 L 146 61 L 166 61 L 180 76 Z" fill="#dbeafe"/>
+                <circle cx="210" cy="99" r="4" fill="#fde68a"/>
+                <circle cx="96" cy="118" r="16" fill="#172033"/><circle cx="96" cy="118" r="6.5" fill="#94a3b8"/>
+                <circle cx="178" cy="118" r="16" fill="#172033"/><circle cx="178" cy="118" r="6.5" fill="#94a3b8"/>
+                <line x1="228" y1="92" x2="404" y2="92" stroke="#ea580c" stroke-width="5" marker-end="url(#gLv)"/>
+                <text x="414" y="98" font-size="18" font-weight="900" fill="#ea580c">v</text>
+                <text x="120" y="160" text-anchor="middle" font-size="12.5" font-weight="700" fill="#475569">trajet en ligne droite</text>
+              </svg>
+            </div>
+            <div>
+              <p style="margin-top:0">🚗 Une <strong>voiture à 90 km/h</strong> parcourt 90 km en une heure.</p>
+              <p>🏃 Un <strong>coureur à 10 m/s</strong> avance de 10 mètres chaque seconde.</p>
+              <div class="formula" style="margin:12px 0 0"><div class="formulaRow"><span class="pill">Vitesse linéaire</span><span class="math">v = distance ÷ temps</span></div></div>
+            </div>
+          </div>
+          <div class="note info"><strong>Question d’unités.</strong> Selon le domaine, on change d’échelle&nbsp;: des <strong>m/s</strong> pour un abrasif, des <strong>m/min</strong> en usinage, des km/h pour un véhicule. C’est toujours une distance ÷ un temps.</div>
+          <h3 style="margin-top:22px">Et sur un outil qui tourne&nbsp;?</h3>
+
+          <div class="grid side" style="margin-top:18px;align-items:center">
+            <div>
+              <svg viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="La vitesse au bord d’un outil en rotation" style="width:100%;height:auto;display:block;max-width:380px;margin:0 auto">
+                <defs>
+                  <radialGradient id="g0disc" cx="38%" cy="32%" r="80%">
+                    <stop offset="0" stop-color="#3b5bdb"/><stop offset="1" stop-color="#1e3a8a"/>
+                  </radialGradient>
+                  <marker id="g0v" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ea580c"/></marker>
+                  <marker id="g0rot" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2563eb"/></marker>
+                  <marker id="g0dl" markerWidth="8" markerHeight="8" refX="1" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 Z" fill="#64748b"/></marker>
+                  <marker id="g0dr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker>
+                </defs>
+                <circle cx="180" cy="175" r="120" fill="url(#g0disc)" stroke="#172033" stroke-width="3"/>
+                <circle cx="180" cy="175" r="40" fill="#ffffff"/>
+                <circle cx="180" cy="175" r="40" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                <text x="180" y="180" text-anchor="middle" font-size="13" font-weight="800" fill="#1e3a8a">axe</text>
+                <path d="M 180 107 A 68 68 0 0 1 248 175" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#g0rot)"/>
+                <line x1="60" y1="175" x2="300" y2="175" stroke="#64748b" stroke-width="2" marker-start="url(#g0dl)" marker-end="url(#g0dr)"/>
+                <rect x="162" y="145" width="36" height="22" rx="6" fill="#ffffff" stroke="#dce4ef"/>
+                <text x="180" y="161" text-anchor="middle" font-size="15" font-weight="900" fill="#172033">d</text>
+                <line x1="180" y1="175" x2="180" y2="55" stroke="#ef4444" stroke-width="2" opacity="0.45"/>
+                <circle cx="180" cy="55" r="11" fill="#ef4444" stroke="#ffffff" stroke-width="3"/>
+                <line x1="194" y1="55" x2="312" y2="55" stroke="#ea580c" stroke-width="5" marker-end="url(#g0v)"/>
+                <text x="300" y="40" text-anchor="middle" font-size="18" font-weight="900" fill="#ea580c">v</text>
+                <text x="252" y="80" font-size="12" font-weight="700" fill="#9a3412">vitesse du bord</text>
+              </svg>
+            </div>
+            <div>
+              <p>Ce qui use ou coupe la matière, c’est le <strong>bord</strong> de l’outil&nbsp;: c’est donc la vitesse de ce bord qui nous intéresse.</p>
+              <p>À chaque tour, un point du bord parcourt tout le contour du disque, c’est-à-dire <strong>la circonférence</strong>&nbsp;:</p>
+              <div class="formula" style="margin:12px 0"><div class="formulaRow"><span class="pill">Un tour =</span><span class="math">π × d</span></div></div>
+              <p>Sa vitesse, c’est ce chemin <strong>multiplié par le nombre de tours</strong>, ramené à la seconde. Le diamètre <em>et</em> la rotation comptent donc autant l’un que l’autre.</p>
+            </div>
+          </div>
+
+          <h3 style="margin-top:22px">Les deux leviers de la vitesse</h3>
+          <div class="grid two">
+            <div class="note info">
+              <svg viewBox="0 0 300 156" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Effet du diamètre" style="width:100%;height:auto;display:block">
+                <defs><marker id="gAv" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#ea580c"/></marker></defs>
+                <circle cx="64" cy="98" r="30" fill="#1e3a8a" stroke="#172033" stroke-width="2"/>
+                <circle cx="64" cy="98" r="10" fill="#ffffff"/>
+                <circle cx="64" cy="68" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                <line x1="76" y1="68" x2="110" y2="68" stroke="#ea580c" stroke-width="4" marker-end="url(#gAv)"/>
+                <text x="64" y="146" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1e3a8a">petit Ø</text>
+                <circle cx="214" cy="78" r="52" fill="#1e3a8a" stroke="#172033" stroke-width="2"/>
+                <circle cx="214" cy="78" r="16" fill="#ffffff"/>
+                <circle cx="214" cy="26" r="6" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                <line x1="226" y1="26" x2="294" y2="26" stroke="#ea580c" stroke-width="4" marker-end="url(#gAv)"/>
+                <text x="214" y="146" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1e3a8a">grand Ø</text>
+              </svg>
+              <p style="margin:10px 0 0"><strong>Le diamètre.</strong> À rotation égale, le bord d’un <strong>grand</strong> disque décrit un plus grand cercle à chaque tour&nbsp;: il va donc <strong>plus vite</strong> qu’un petit.</p>
+            </div>
+            <div class="note">
+              <svg viewBox="0 0 300 156" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Effet de la rotation" style="width:100%;height:auto;display:block">
+                <defs>
+                  <marker id="gBv" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#ea580c"/></marker>
+                  <marker id="gBr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#2563eb"/></marker>
+                </defs>
+                <circle cx="66" cy="86" r="42" fill="#1e3a8a" stroke="#172033" stroke-width="2"/>
+                <circle cx="66" cy="86" r="14" fill="#ffffff"/>
+                <path d="M 66 56 A 30 30 0 0 1 96 86" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#gBr)"/>
+                <circle cx="66" cy="44" r="5.5" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                <line x1="77" y1="44" x2="100" y2="44" stroke="#ea580c" stroke-width="3.5" marker-end="url(#gBv)"/>
+                <text x="66" y="146" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1e3a8a">lent</text>
+                <circle cx="214" cy="86" r="42" fill="#1e3a8a" stroke="#172033" stroke-width="2"/>
+                <circle cx="214" cy="86" r="14" fill="#ffffff"/>
+                <path d="M 214 56 A 30 30 0 1 1 184 86" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" marker-end="url(#gBr)"/>
+                <circle cx="214" cy="44" r="5.5" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                <line x1="225" y1="44" x2="276" y2="44" stroke="#ea580c" stroke-width="3.5" marker-end="url(#gBv)"/>
+                <text x="214" y="146" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1e3a8a">rapide</text>
+              </svg>
+              <p style="margin:10px 0 0"><strong>La rotation.</strong> À diamètre égal, plus la machine tourne vite (<em>n</em> élevé), plus le bord <strong>accélère</strong>.</p>
+            </div>
+          </div>
+
+          <div class="note success" style="margin-top:18px"><strong>En résumé.</strong> Vitesse au bord = taille du cercle × nombre de tours ÷ temps. C’est exactement ce que traduit la formule de la <strong>vitesse de coupe</strong> — l’objet du point suivant.</div>
+        </article>
+      </section>
+
+      <!-- =========================================================== -->
+      <!-- ============ ONGLET : VITESSE DE COUPE =================== -->
+      <!-- =========================================================== -->
+      <section id="theorie" class="tab">
+        <article class="card">
+            <h2>1. Comprendre la vitesse de coupe</h2>
+            <h3>Définition</h3>
+            <p>La <strong>vitesse de coupe</strong> correspond à la distance parcourue par un point situé sur la pièce ou sur l’outil pendant un temps déterminé.</p>
+            <div class="note info"><strong>Cas des abrasifs&nbsp;:</strong> en polissage, émerisage, satinage ou meulage, on raisonne en <strong>m/s</strong>. C’est l’unité retenue pour cet onglet, conformément au chapitre 4 du support de cours.</div>
+            <details class="more"><summary>Pourquoi calculer ? (et source)</summary>
+          <div class="moreBody">
+<h3>Pourquoi calculer&nbsp;?</h3>
+            <p>Dans l’atelier, on ne règle pas directement une vitesse en m/s&nbsp;: on règle une <strong>fréquence de rotation</strong>, en <strong>tr/min</strong>. Le calcul sert donc à transformer une vitesse recommandée en réglage machine.</p>
+            <div class="source"><strong>Source cours&nbsp;:</strong> Chapitre 4, partie A · §21 « La vitesse de coupe », p. 28 du PDF fourni.</div>
+          </div>
+        </details>
+          </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>2. Formule à connaître</h2>
+          <h3>La même relation, trois formes utiles</h3>
+          <div class="formula">
+            <div class="formulaRow">
+              <span class="pill">Pour trouver v</span>
+              <span class="math">v = (π × d × n) ÷ (1000 × 60)</span>
+            </div>
+            <div class="formulaRow">
+              <span class="pill">Pour trouver n</span>
+              <span class="math">n = (v × 1000 × 60) ÷ (π × d)</span>
+            </div>
+            <div class="formulaRow">
+              <span class="pill">Pour trouver d</span>
+              <span class="math">d = (v × 1000 × 60) ÷ (π × n)</span>
+            </div>
+            <p><strong>Une seule relation, trois usages.</strong> La vitesse <strong>v</strong> est la vitesse réelle au bord de l’outil&nbsp;; on réarrange la même formule selon l’inconnue cherchée (rappel&nbsp;: 1000 × 60 = 60 000). En atelier, la forme la plus utile est celle de <strong>n</strong>&nbsp;: elle donne directement le réglage machine à partir de la vitesse conseillée.</p>
+            <div class="stepList">
+              <div class="step"><b>v</b><p><strong>vitesse de coupe</strong>, exprimée en m/s pour les abrasifs.</p></div>
+              <div class="step"><b>d</b><p><strong>diamètre</strong> du disque ou de l’outil, exprimé en mm.</p></div>
+              <div class="step"><b>n</b><p><strong>fréquence de rotation</strong>, exprimée en tr/min sur la machine.</p></div>
+            </div>
+          </div>
+
+          <details class="more"><summary>Exemple détaillé — calculer la fréquence de rotation</summary>
+          <div class="moreBody">
+<h3>Exemple — calculer la fréquence de rotation</h3>
+          <p><strong>Situation&nbsp;:</strong> on souhaite polir une petite pièce avec un disque de <strong>120 mm</strong>. La vitesse de coupe choisie est <strong>11 m/s</strong>.</p>
+          <div class="stepList">
+            <div class="step"><b>1</b><p>Formule utilisée&nbsp;: <strong>n = (v × 1000 × 60) ÷ (π × d)</strong>.</p></div>
+            <div class="step"><b>2</b><p>Remplacer les valeurs&nbsp;: <strong>n = (11 × 1000 × 60) ÷ (π × 120)</strong>.</p></div>
+            <div class="step"><b>3</b><p>Calculer&nbsp;: <strong>n = 660 000 ÷ 376,99</strong>.</p></div>
+            <div class="step"><b>4</b><p>Résultat&nbsp;: <strong>n ≈ 1 751 tr/min</strong>.</p></div>
+          </div>
+          <div class="note success"><strong>Interprétation atelier&nbsp;:</strong> pour obtenir environ 11 m/s avec un disque de 120 mm, il faut régler la machine autour de <strong>1 750 tr/min</strong>.</div>
+          <div class="source"><strong>Source cours&nbsp;:</strong> la valeur pratique d’environ 11 m/s pour le polissage horlogerie-bijouterie est citée au chapitre 4, partie B « Les techniques de préparation des surfaces », p. 30 du PDF fourni.</div>
+          </div>
+        </details>
+        </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>3. Conversions d’unités — comprendre le « ÷ 60 000 »</h2>
+          <p>La formule <span class="math" style="font-size:1rem;padding:4px 10px;display:inline-block">v = π·d·n ÷ 60 000</span> n’a rien d’arbitraire&nbsp;: le facteur <strong>60 000</strong> n’est que l’<strong>enchaînement de deux conversions d’unités</strong>. Décomposons-le.</p>
+
+          <details class="more"><summary>Voir le détail : d’où vient le 60 000 &amp; table des égalités</summary>
+          <div class="moreBody">
+<div class="grid side">
+            <div>
+              <h3>D’où vient le 60 000&nbsp;?</h3>
+              <div class="stepList">
+                <div class="step"><b>1</b><p><strong>π·d·n</strong> donne une distance par minute, mais en <strong>mm/min</strong> (car d est en mm)&nbsp;: c’est la longueur déroulée au bord de l’outil en une minute.</p></div>
+                <div class="step"><b>2</b><p>Passer des <strong>mm aux mètres</strong>&nbsp;: on divise par <strong>1000</strong> (1 m = 1000 mm).</p></div>
+                <div class="step"><b>3</b><p>Passer des <strong>minutes aux secondes</strong>&nbsp;: on divise par <strong>60</strong> (1 min = 60 s).</p></div>
+                <div class="step"><b>=</b><p>Les deux ensemble&nbsp;: ÷ 1000 puis ÷ 60 = <strong>÷ 60 000</strong>. On obtient enfin des <strong>m/s</strong>.</p></div>
+              </div>
+              <div class="note info">Autrement dit&nbsp;: <strong>60 000 = 1000 × 60</strong>. Si l’on voulait le résultat en <strong>m/min</strong> (convention usinage), on ne diviserait que par 1000 — le ÷ 60 disparaît.</div>
+            </div>
+            <div>
+              <h3>Les égalités à retenir</h3>
+              <div class="tableWrap">
+                <table aria-label="Table de conversions d'unités">
+                  <thead><tr><th>Grandeur</th><th>Égalités</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong>Longueur</strong></td><td>1 m = 1000 mm · 1 mm = 0,001 m</td></tr>
+                    <tr><td><strong>Temps</strong></td><td>1 min = 60 s · 1 h = 60 min</td></tr>
+                    <tr><td><strong>Vitesse (le pont clé)</strong></td><td><strong>1 m/s = 60 m/min</strong> · 1 m/min ≈ 0,0167 m/s</td></tr>
+                    <tr><td>Vitesse (intuition)</td><td>1 m/s = 3,6 km/h</td></tr>
+                    <tr><td><strong>Avance (usinage)</strong></td><td>1 m/min = 1000 mm/min</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          </div>
+        </details>
+
+          <div class="note danger" style="margin-top:14px">
+            <strong>⚠ Le piège des deux conventions.</strong> En <strong>abrasion / polissage</strong>, le cours raisonne en <strong>m/s</strong> (p. 28). En <strong>usinage classique</strong> (tournage, fraisage), la vitesse de coupe se donne traditionnellement en <strong>m/min</strong>. Une même valeur numérique n’a donc pas le même sens&nbsp;: <strong>30 m/s ≠ 30 m/min</strong>. Pour comparer, il faut toujours ramener à la même unité (30 m/s = 1 800 m/min).
+          </div>
+
+          <details class="more"><summary>Exemples de conversion résolus</summary>
+          <div class="moreBody">
+<h3>Exemples résolus</h3>
+          <div class="grid three">
+            <div class="miniStat"><strong>11 m/s</strong><span>× 60 = <strong>660 m/min</strong> = 660 000 mm/min</span></div>
+            <div class="miniStat"><strong>35 m/s</strong><span>× 60 = <strong>2 100 m/min</strong></span></div>
+            <div class="miniStat"><strong>150 m/min</strong><span>÷ 60 = <strong>2,5 m/s</strong></span></div>
+          </div>
+          </div>
+        </details>
+
+          <h3 style="margin-top:18px">Convertisseur express</h3>
+          <div class="grid two">
+            <div>
+              <label for="cvVal">Valeur à convertir</label>
+              <input id="cvVal" type="number" step="any" value="11" />
+            </div>
+            <div>
+              <label for="cvUnit">Unité de départ</label>
+              <select id="cvUnit">
+                <option value="ms">m/s</option>
+                <option value="mmin">m/min</option>
+                <option value="mmmin">mm/min</option>
+              </select>
+            </div>
+          </div>
+          <div class="metricGrid" style="margin-top:12px" aria-live="polite">
+            <div class="metric"><strong id="cvMs">—</strong><span>m/s</span></div>
+            <div class="metric"><strong id="cvMmin">—</strong><span>m/min</span></div>
+            <div class="metric"><strong id="cvMmmin">—</strong><span>mm/min</span></div>
+          </div>
+          <p class="muted" style="margin-top:8px">Pratique pour basculer entre la vitesse de coupe (m/s, m/min) et la vitesse d’avance (mm/min) sans erreur de facteur.</p>
+
+          <div class="source"><strong>Repère cours&nbsp;:</strong> la vitesse de coupe en m/s et le principe de conversion sont introduits au chapitre 4, §21, p. 28.</div>
+        </article>
+
+        <article class="card" style="margin-top:18px">
+            <h2>4. Méthode de calcul — pas à pas</h2>
+            <div class="grid three">
+              <div class="miniStat"><strong>1</strong><span>Identifier la matière ou l’opération à réaliser.</span></div>
+              <div class="miniStat"><strong>2</strong><span>Relever le diamètre réel du disque ou de l’outil.</span></div>
+              <div class="miniStat"><strong>3</strong><span>Choisir la vitesse de coupe dans le tableau.</span></div>
+            </div>
+            <div class="grid three" style="margin-top:12px">
+              <div class="miniStat"><strong>4</strong><span>Appliquer la formule de <em>n</em>.</span></div>
+              <div class="miniStat"><strong>5</strong><span>Vérifier que <em>n</em> est réaliste sur la machine.</span></div>
+              <div class="miniStat"><strong>6</strong><span>Ajuster selon la tenue de pièce et l’échauffement.</span></div>
+            </div>
+            <p style="margin-top:14px"><strong>Astuce&nbsp;:</strong> passez à l’onglet <em>Simulation coupe</em> pour expérimenter ces étapes en temps réel, puis à <em>Exercices</em> pour valider vos acquis.</p>
+          </article>
+
+        <article class="card" style="margin-top:18px">
+            <h2>5. Effets d’un mauvais réglage</h2>
+            <div class="note success"><strong>Vitesse adaptée&nbsp;:</strong> enlèvement de matière cohérent, état de surface maîtrisé, échauffement limité.</div>
+            <div class="note"><strong>Vitesse plus élevée&nbsp;:</strong> l’enlèvement de matière augmente et l’état de surface peut devenir plus fin, mais l’outil s’use plus vite <em>(cours p. 28)</em>.</div>
+            <div class="note danger"><strong>Vitesse trop élevée&nbsp;:</strong> échauffement inutile, traces noirâtres possibles (Scotch-Brite), encrassement, tenue de petites pièces plus difficile et risque accru.</div>
+            <div class="source"><strong>Source cours&nbsp;:</strong> Chapitre 4, partie A · §21 et §21.1, p. 28 du PDF fourni.</div>
+          </article>
+
+        <div class="note info" style="margin-top:18px">
+          <strong>Notion complémentaire&nbsp;:</strong> la vitesse de coupe décrit l’<em>action de coupe</em>&nbsp;; la <strong>vitesse d’avance</strong> décrit la <em>progression</em> de l’outil dans la matière (usinage). Cette notion n’est pas formalisée dans le chapitre 4, mais elle complète directement la chaîne usinage → préparation → polissage. → Onglet <strong>« Vitesse d’avance »</strong>.
+        </div>
+      </section>
+
+      <!-- =========================================================== -->
+      <!-- ============ ONGLET : CHOISIR LA VITESSE ================== -->
+      <!-- =========================================================== -->
+      <section id="reglages" class="tab">
+        <article class="card">
+            <h2>1. Choisir les bons paramètres</h2>
+            <h3>Les facteurs qui influencent le réglage</h3>
+            <div class="grid three">
+              <div class="note"><strong>1. Matière</strong><br>Un matériau dur impose souvent une vitesse plus faible.</div>
+              <div class="note"><strong>2. Abrasif</strong><br>Le type de support et de grain modifie le comportement.</div>
+              <div class="note"><strong>3. Opération</strong><br>Émerisage, satinage, polissage ou finition décorative ne demandent pas le même réglage.</div>
+            </div>
+            <details class="more"><summary>Point d’attention atelier</summary>
+          <div class="moreBody">
+<h3>Point d’attention atelier</h3>
+            <p>Le bon réglage ne dépend pas seulement du calcul. Il faut aussi tenir compte de la <strong>tenue de la pièce</strong>, de <strong>l’échauffement</strong>, de l’état de surface attendu et des limites de la machine.</p>
+            <div class="source"><strong>Source cours&nbsp;:</strong> Chapitre 4, partie A · §21 « La vitesse de coupe », p. 28 ; facteurs d’influence p. 28 et p. 4 du PDF fourni.</div>
+          </div>
+        </details>
+          </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>2. Vitesses de coupe recommandées</h2>
+          <p class="muted">Toutes ces valeurs proviennent du chapitre 4 du support de cours, parties §21 (vitesses générales) et §21.1 (produits Scotch-Brite), ainsi que de la partie B (pratique horlogère).</p>
+          <div class="tableWrap">
+            <table id="speedTable" aria-label="Tableau des vitesses de coupe recommandées">
+              <thead>
+                <tr>
+                  <th>Matière / opération</th>
+                  <th>Vitesse recommandée</th>
+                  <th>Échelle</th>
+                  <th>Commentaire</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="note warn" style="margin-top:14px">
+            <strong>Attention&nbsp;:</strong> ces plages sont un cadre. L’expérience du polisseur reste déterminante pour les ajuster en fonction de l’abrasif, du support et de la tenue de la pièce <em>(cours p. 30)</em>.
+          </div>
+        </article>
+      </section>
+
+      <!-- =========================================================== -->
+      <!-- ============ ONGLET 2 : VITESSE D'AVANCE =================== -->
+      <!-- =========================================================== -->
+      <section id="avance" class="tab">
+
+        <article class="card">
+          <h2>1. Vitesse d’avance — un complément à la coupe</h2>
+          <details class="more"><summary>⚠ Complément hors cours — d’où vient cette notion ?</summary>
+          <div class="moreBody">
+<div class="note warn">
+            <strong>À lire d’abord — d’où vient cette notion&nbsp;?</strong> Le chapitre 4 « Les métiers du polissage » traite la <strong>vitesse de coupe</strong> (§21, p. 28) mais <strong>ne formalise pas la vitesse d’avance</strong>. Celle-ci appartient à l’<strong>usinage</strong> — tournage, fraisage, perçage — que le cours présente comme technique <em>connexe</em> au polissage (partie E · §2 « L’usinage », p. 48-50). Cet onglet complète donc le cours avec la théorie de l’usinage, puis la relie à la préparation de surface.
+          </div>
+          </div>
+        </details>
+          <h3>Vitesse de coupe ≠ vitesse d’avance</h3>
+          <p>Deux mouvements coexistent pendant une coupe par enlèvement de copeau&nbsp;:</p>
+          <div class="grid two">
+            <div class="note info"><strong>Vitesse de coupe (v<sub>c</sub>)</strong><br>Vitesse <em>relative</em> entre l’arête de coupe et la matière, au point de coupe. En rotation, c’est la vitesse périphérique. Elle gouverne l’action de coupe et l’échauffement.</div>
+            <div class="note" style="border-left-color:var(--gold);background:var(--softGold);color:#78350f"><strong>Vitesse d’avance (V<sub>f</sub>)</strong><br>Vitesse à laquelle l’outil (ou la pièce) <em>progresse</em> dans la direction de l’avance. Elle gouverne l’épaisseur du copeau, le débit de matière et la rugosité obtenue.</div>
+          </div>
+          <p>Ce sont <strong>deux réglages indépendants</strong>&nbsp;: on peut tourner vite (v<sub>c</sub> élevée) tout en avançant lentement (V<sub>f</sub> faible), ou l’inverse.</p>
+          <div class="source complement"><strong>Complément hors cours&nbsp;:</strong> la distinction v<sub>c</sub> / V<sub>f</sub> relève de la théorie de l’usinage. Le chapitre 4 n’en parle pas&nbsp;; il situe en revanche l’usinage parmi les techniques connexes (partie E · §2, p. 48-50).</div>
+        </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>2. Les données d’entrée</h2>
+          <div class="tableWrap">
+            <table aria-label="Données d'entrée de la vitesse d'avance">
+              <thead>
+                <tr><th>Grandeur</th><th>Symbole · unité</th><th>S’applique à</th><th>Signification</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Avance par tour</strong></td><td>f · mm/tr</td><td>Tournage, perçage</td><td>Distance dont l’outil avance à chaque tour de broche.</td></tr>
+                <tr><td><strong>Avance par dent</strong></td><td>f<sub>z</sub> · mm/dent</td><td>Fraisage</td><td>Distance avancée pour chaque dent qui coupe.</td></tr>
+                <tr><td><strong>Nombre de dents</strong></td><td>z · —</td><td>Fraisage</td><td>Nombre de dents (arêtes) de la fraise.</td></tr>
+                <tr><td><strong>Fréquence de rotation</strong></td><td>n · tr/min</td><td>Toutes</td><td>Régime de la broche (le réglage machine, déjà calculé via v<sub>c</sub>).</td></tr>
+                <tr><td><strong>Rayon de bec</strong></td><td>r · mm</td><td>Tournage</td><td>Rayon de l’arête de l’outil — influence directe sur la rugosité.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>3. Formules à connaître</h2>
+          <div class="formula">
+            <div class="formulaRow">
+              <span class="pill">Tournage · perçage</span>
+              <span class="math">V<sub>f</sub> = f × n</span>
+            </div>
+            <div class="formulaRow">
+              <span class="pill">Fraisage</span>
+              <span class="math">V<sub>f</sub> = f<sub>z</sub> × z × n</span>
+            </div>
+            <p><strong>V<sub>f</sub> en mm/min</strong> · f et f<sub>z</sub> en mm (par tour ou par dent) · n en tr/min. En fraisage, l’avance par tour vaut <strong>f = f<sub>z</sub> × z</strong>, donc on retrouve V<sub>f</sub> = f × n.</p>
+            <div class="formulaRow">
+              <span class="pill">Lien avec la coupe</span>
+              <span class="math">n = (v<sub>c</sub> × 1000) ÷ (π × D)</span>
+            </div>
+            <p class="muted">On choisit d’abord v<sub>c</sub> (selon la matière) → on en déduit n → on choisit l’avance → on obtient V<sub>f</sub>.</p>
+          </div>
+
+          <div class="note danger">
+            <strong>⚠ Deux conventions d’unités.</strong> Abrasion/polissage en <strong>m/s</strong> (cours, p. 28)&nbsp;; usinage classique en <strong>m/min</strong>. <strong>1 m/s = 60 m/min</strong> — un tournage à 150 m/min (≈ 2,5 m/s) n’est pas comparable aux 30-38 m/s d’une bande abrasive. <em>Détail complet : onglet « Vitesse de coupe » › point 4, « Conversions d’unités ».</em>
+          </div>
+        </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>4. Pourquoi l’avance compte — la théorie</h2>
+          <div class="grid two">
+            <div>
+              <h3>Débit de matière &amp; productivité</h3>
+              <p>Plus V<sub>f</sub> augmente, plus la quantité de matière enlevée par unité de temps est grande&nbsp;: la productivité monte, mais l’outil est plus sollicité et la chaleur augmente. C’est le <strong>même compromis</strong> que pour la vitesse de coupe&nbsp;: productivité contre finition et longévité <em>(cours p. 28)</em>.</p>
+
+              <h3>Épaisseur du copeau</h3>
+              <p>L’avance fixe l’épaisseur du copeau enlevé à chaque passage de l’arête. Une avance trop faible fait « frotter » l’outil (usure prématurée)&nbsp;; trop forte, elle surcharge l’arête et dégrade la surface.</p>
+            </div>
+            <div>
+              <h3>Avance → rugosité (le point clé)</h3>
+              <p>En tournage, la rugosité <em>théorique</em> laissée par l’avance se calcule&nbsp;:</p>
+              <div class="formula" style="margin:10px 0">
+                <div class="formulaRow"><span class="math">Ra ≈ f² ÷ (32 × r)</span></div>
+                <div class="formulaRow"><span class="math">Rt ≈ f² ÷ (8 × r)</span></div>
+              </div>
+              <p>Plus l’avance <strong>f</strong> est grande (ou le rayon de bec <strong>r</strong> petit), plus la surface est rugueuse. Les paramètres <strong>Ra</strong> et <strong>Rt</strong> sont exactement ceux définis dans le cours, §5.4 « La rugosité », p. 9.</p>
+            </div>
+          </div>
+          <details class="more"><summary>Sources &amp; ancrages dans le cours</summary>
+          <div class="moreBody">
+<div class="source complement"><strong>Complément hors cours&nbsp;:</strong> formules de V<sub>f</sub> et de rugosité théorique issues de la théorie de l’usinage. <strong>Ancrages réels dans le cours&nbsp;:</strong> définitions Ra/Rt (§5.4, p. 9)&nbsp;; opérations d’usinage (partie E · §2, p. 48-50)&nbsp;; compromis vitesse/finition/longévité (§21, p. 28).</div>
+          </div>
+        </details>
+        </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>5. Le pont vers le polissage</h2>
+          <div class="stepList">
+            <div class="step"><b>1</b><p>L’<strong>avance</strong> de l’opération d’usinage précédente fixe l’<strong>état de surface initial</strong> — ce sont les « rayures laissées par l’opération précédente » <em>(cours p. 29)</em>.</p></div>
+            <div class="step"><b>2</b><p>Le polissage doit ensuite <strong>réduire progressivement</strong> cette rugosité par la <strong>succession des granulométries</strong> <em>(cours p. 29-30)</em>.</p></div>
+            <div class="step"><b>3</b><p>Une <strong>avance de finition plus fine</strong> en usinage abaisse Ra → <strong>moins de matière à enlever</strong> ensuite → séquence de polissage plus courte et plus sûre.</p></div>
+          </div>
+          <details class="more"><summary>À noter — la « vitesse d’usinage » dans le cours</summary>
+          <div class="moreBody">
+<div class="note info">
+            <strong>À noter — la « vitesse d’usinage » dans le cours.</strong> Le seul débit en mm/min que mentionne le chapitre 4 concerne l’<strong>électroérosion</strong>&nbsp;: « vitesses d’usinage entre 0,2 et 10 mm/min » <em>(p. 45)</em>. C’est une <em>vitesse de pénétration</em>, par érosion électrique (sans copeau)&nbsp;: à ne pas confondre avec la vitesse d’avance d’un outil coupant, même si l’unité est la même.
+          </div>
+          </div>
+        </details>
+        </article>
+
+        <!-- ===== Calculateur d'avance ===== -->
+        <div class="grid side" style="margin-top:18px">
+          <article class="card">
+            <h2>6. Calculateur de vitesse d’avance</h2>
+            <p class="muted">Choisissez l’opération, puis renseignez les paramètres. En tournage, la rugosité théorique avant polissage est estimée automatiquement.</p>
+
+            <div style="margin-top:8px">
+              <label for="fOp">Opération d’usinage</label>
+              <select id="fOp">
+                <option value="tournage">Tournage</option>
+                <option value="percage">Perçage</option>
+                <option value="fraisage">Fraisage</option>
+              </select>
+            </div>
+
+            <div style="margin-top:14px">
+              <label for="fN">Fréquence de rotation n (tr/min)</label>
+              <input id="fN" type="number" min="1" step="10" value="1200" />
+            </div>
+
+            <div style="margin-top:14px" id="fFRow">
+              <label for="fF" id="fFLabel">Avance par tour f (mm/tr)</label>
+              <input id="fF" type="number" min="0" step="0.01" value="0.15" />
+            </div>
+
+            <div style="margin-top:14px;display:none" id="fZRow">
+              <label for="fZ">Nombre de dents z</label>
+              <input id="fZ" type="number" min="1" step="1" value="4" />
+            </div>
+
+            <div style="margin-top:14px" id="fRRow">
+              <label for="fR">Rayon de bec de l’outil r (mm)</label>
+              <input id="fR" type="number" min="0.05" step="0.05" value="0.8" />
+            </div>
+
+            <div class="source complement" style="margin-top:16px"><strong>Référence&nbsp;:</strong> formules de V<sub>f</sub> issues de la théorie de l’usinage. La rugosité théorique (Ra, Rt) utilise les paramètres définis dans le cours, §5.4 « La rugosité », p. 9.</div>
+          </article>
+
+          <article class="card">
+            <div class="resultBox amber" role="status" aria-live="polite">
+              <div class="resultUnit">Vitesse d’avance V<sub>f</sub></div>
+              <div class="resultBig" id="fVf">—</div>
+              <div class="resultMeta" id="fMeta">mm/min</div>
+            </div>
+
+            <div class="metricGrid">
+              <div class="metric"><strong id="fFrev">—</strong><span>avance par tour</span></div>
+              <div class="metric"><strong id="fRa">—</strong><span>Ra théorique</span></div>
+              <div class="metric"><strong id="fRt">—</strong><span>Rt théorique</span></div>
+            </div>
+
+            <div class="calcDetail" id="fCalc" aria-live="polite">
+              <h3>Calcul affiché</h3>
+              <div class="calcLine"><strong>Formule</strong><span class="calcExpression">—</span></div>
+              <div class="calcLine"><strong>Application</strong><span>—</span></div>
+              <div class="calcLine"><strong>Résultat</strong><span>—</span></div>
+            </div>
+
+            <div class="feedMachine" aria-label="Animation d'un outil qui avance le long de la pièce">
+              <div class="feedBar"></div>
+              <div class="feedTool" id="feedTool"></div>
+              <div class="feedChip" id="feedChip"></div>
+              <div class="feedArrowLabel" id="feedArrowLabel">V<sub>f</sub> = 180 mm/min</div>
+              <div class="feedArrow" id="feedArrow"></div>
+            </div>
+
+            <div class="note" id="fDiag">Le diagnostic apparaît après le calcul.</div>
+          </article>
+        </div>
+
+        <div class="note info" style="margin-top:18px">
+          <strong>Envie d’expérimenter&nbsp;?</strong> L’onglet <strong>« Simulation avance »</strong> permet de faire varier n, l’avance et le rayon de bec avec des curseurs, et de visualiser en direct les sillons laissés sur la surface.
+        </div>
+      </section>
+
+      <!-- =========================================================== -->
+      <!-- ============ ONGLET 3 : SIMULATION (coupe) ================= -->
+      <!-- =========================================================== -->
+      <section id="simulation" class="tab">
+
+        <div class="grid side">
+          <article class="card">
+            <h2>Simulation dynamique — vitesse de coupe</h2>
+            <p class="muted">Déplacez librement les trois curseurs. Les paramètres sont liés par la formule <strong>v = π·d·n / 60&nbsp;000</strong> (abrasifs, en m/s). Quand vous bougez la vitesse, la fréquence se recalcule&nbsp;; quand vous bougez le diamètre ou la fréquence, la vitesse se recalcule.</p>
+            <div class="note info" style="margin-top:6px">La plage utile des abrasifs s’arrête autour de <strong>45 m/s</strong>. Au-delà, le calcul reste affiché mais le diagnostic le signale en rouge (échauffement, traces, usure). Le curseur de vitesse va volontairement jusqu’à 130 m/s pour visualiser ces cas extrêmes quand on augmente le diamètre ou la fréquence.</div>
+
+            <div class="sliderBlock inputV" style="margin-top:14px">
+              <div class="sliderHeader">
+                <label for="vInput">Vitesse v</label>
+                <span class="sliderValue" id="vReadout">11 m/s</span>
+              </div>
+              <input id="vInput" type="range" min="1" max="130" step="0.1" value="11" />
+              <div class="rangeHints"><span>1</span><span>130 m/s</span></div>
+            </div>
+            <div class="sliderBlock inputD" style="margin-top:14px">
+              <div class="sliderHeader">
+                <label for="dInput">Diamètre d</label>
+                <span class="sliderValue" id="dReadout">120 mm</span>
+              </div>
+              <input id="dInput" type="range" min="20" max="300" step="1" value="120" />
+              <div class="rangeHints"><span>20 mm</span><span>300 mm</span></div>
+            </div>
+            <div class="sliderBlock inputN" style="margin-top:14px">
+              <div class="sliderHeader">
+                <label for="nInput">Fréquence n</label>
+                <span class="sliderValue" id="nReadout">1750 tr/min</span>
+              </div>
+              <input id="nInput" type="range" min="100" max="8000" step="10" value="1750" />
+              <div class="rangeHints"><span>100 tr/min</span><span>8000 tr/min</span></div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+              <button class="btn secondary" id="resetBtn">↺ Réinitialiser l’exemple</button>
+              <button class="btn orange" id="randomBtn">🎲 Paramètres aléatoires</button>
+              <button class="btn ghost" id="pauseBtn">⏸ Pause animation</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="resultBox" role="status" aria-live="polite">
+              <div class="resultUnit" id="resultLabel">Résultat</div>
+              <div class="resultBig" id="resultValue">—</div>
+              <div class="resultMeta" id="resultMeta">Déplacez un curseur pour lancer le calcul.</div>
+            </div>
+
+            <div class="contactStat" aria-live="polite">
+              <div><strong id="cfPerSec">—</strong><span>passages au contact / seconde</span></div>
+              <div><strong id="cfPeriod">—</strong><span>soit 1 passage tous les…</span></div>
+            </div>
+            <div class="freqCalc" id="freqCalc" aria-live="polite"></div>
+            <p class="muted" style="margin-top:8px"><strong>Pourquoi ce calcul ?</strong> En une minute (60 s), la meule fait <em>n</em> tours ; un même point du pourtour vient donc au contact <em>n</em> fois par minute. On en déduit <strong>n ÷ 60</strong> passages par seconde, et un intervalle de <strong>60 ÷ n</strong> seconde entre deux passages (ex. : 160 tr/min → 60 ÷ 160 = 375 ms). L’animation est ralentie pour rester lisible : les valeurs réelles sont celles indiquées ci-dessus.</p>
+
+            <div class="calcDetail" id="calcDetail" aria-live="polite">
+              <h3>Calcul affiché</h3>
+              <div class="calcLine"><strong>Formule</strong><span class="calcExpression">—</span></div>
+              <div class="calcLine"><strong>Application</strong><span>Déplacez un curseur pour afficher le calcul.</span></div>
+            </div>
+
+            <div class="simMachine" style="margin-top:16px" aria-label="Animation d'une meule en rotation contre la pièce">
+              <div class="axis"></div>
+              <div class="simDisc" id="simDisc"><div class="discMark"></div></div>
+              <div class="workpiece" id="workpiece"><span class="wpLabel">Pièce</span></div>
+              <div class="contactLine" id="contactLine"></div>
+              <div class="simSparks"><span></span><span></span><span></span><span></span></div>
+              <div class="speedArrowLabel" id="speedArrowLabel">v = 11 m/s</div>
+              <div class="speedArrow" id="speedArrow"></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- =========================================================== -->
+      <!-- ============ ONGLET 4 : SIMULATION AVANCE ================== -->
+      <!-- =========================================================== -->
+      <section id="simavance" class="tab">
+
+        <div class="grid side">
+          <article class="card">
+            <h2>Simulation dynamique — vitesse d’avance</h2>
+            <p class="muted">Choisissez l’opération et déplacez les curseurs. La <strong>vitesse d’avance V<sub>f</sub></strong> et l’<strong>état de surface</strong> se recalculent en direct. L’animation montre l’outil progresser&nbsp;: plus l’avance est grande, plus les sillons laissés sur la surface sont espacés et marqués.</p>
+
+            <div style="margin-top:10px">
+              <label for="sfOp">Opération d’usinage</label>
+              <select id="sfOp">
+                <option value="tournage">Tournage</option>
+                <option value="percage">Perçage</option>
+                <option value="fraisage">Fraisage</option>
+              </select>
+            </div>
+
+            <div class="sliderBlock" style="margin-top:14px">
+              <div class="sliderHeader"><label for="sfN">Fréquence n</label><span class="sliderValue" id="sfNOut">1 200 tr/min</span></div>
+              <input id="sfN" type="range" min="100" max="6000" step="10" value="1200" />
+              <div class="rangeHints"><span>100</span><span>6000 tr/min</span></div>
+            </div>
+
+            <div class="sliderBlock" id="sfFBlock" style="margin-top:14px">
+              <div class="sliderHeader"><label for="sfF" id="sfFLabel">Avance par tour f</label><span class="sliderValue" id="sfFOut">0,15 mm/tr</span></div>
+              <input id="sfF" type="range" min="0.02" max="0.6" step="0.01" value="0.15" />
+              <div class="rangeHints"><span>0,02</span><span>0,60</span></div>
+            </div>
+
+            <div class="sliderBlock" id="sfZBlock" style="margin-top:14px;display:none">
+              <div class="sliderHeader"><label for="sfZ">Nombre de dents z</label><span class="sliderValue" id="sfZOut">4</span></div>
+              <input id="sfZ" type="range" min="1" max="12" step="1" value="4" />
+              <div class="rangeHints"><span>1</span><span>12</span></div>
+            </div>
+
+            <div class="sliderBlock" id="sfRBlock" style="margin-top:14px">
+              <div class="sliderHeader"><label for="sfR">Rayon de bec r</label><span class="sliderValue" id="sfROut">0,80 mm</span></div>
+              <input id="sfR" type="range" min="0.1" max="2" step="0.05" value="0.8" />
+              <div class="rangeHints"><span>0,10</span><span>2,00 mm</span></div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+              <button class="btn secondary" id="sfReset">↺ Réinitialiser</button>
+              <button class="btn orange" id="sfRandom">🎲 Paramètres aléatoires</button>
+              <button class="btn ghost" id="sfPause">⏸ Pause animation</button>
+            </div>
+
+            <div class="source complement" style="margin-top:14px"><strong>Complément hors cours&nbsp;:</strong> V<sub>f</sub> issue de la théorie de l’usinage&nbsp;; rugosité théorique Ra/Rt selon les paramètres définis au cours, §5.4, p. 9.</div>
+          </article>
+
+          <article class="card">
+            <div class="resultBox amber" role="status" aria-live="polite">
+              <div class="resultUnit">Vitesse d’avance V<sub>f</sub></div>
+              <div class="resultBig" id="sfVf">—</div>
+              <div class="resultMeta" id="sfMeta">mm/min</div>
+            </div>
+
+            <div class="metricGrid">
+              <div class="metric"><strong id="sfFrev">—</strong><span>avance par tour</span></div>
+              <div class="metric"><strong id="sfRa">—</strong><span>Ra théorique</span></div>
+              <div class="metric"><strong id="sfRt">—</strong><span>Rt théorique</span></div>
+            </div>
+
+            <div class="calcDetail" id="sfCalc" aria-live="polite">
+              <h3>Calcul affiché</h3>
+              <div class="calcLine"><strong>Formule</strong><span class="calcExpression">—</span></div>
+              <div class="calcLine"><strong>Application</strong><span>—</span></div>
+            </div>
+
+            <div class="simFeed" aria-label="Animation de l'outil qui avance et des sillons laissés sur la surface">
+              <div class="sfTag" id="sfTag">Sillons ∝ avance</div>
+              <div class="sfRaw"></div>
+              <div class="sfDone"></div>
+              <div class="sfTool"></div>
+              <div class="sfChip"></div>
+              <div class="sfArrowLabel" id="sfArrowLabel">V<sub>f</sub> = 180 mm/min</div>
+              <div class="sfArrow"></div>
+            </div>
+
+            <div class="note" id="sfDiag">Le diagnostic apparaît après le calcul.</div>
+          </article>
+        </div>
+      </section>
+
+      <!-- =========================================================== -->
+      <!-- ============ ONGLET 5 : EXERCICES ========================== -->
+      <!-- =========================================================== -->
+      <section id="entrainement" class="tab">
+
+        <article class="card">
+          <h2>📐 Exercices — vitesse de coupe</h2>
+          <p class="muted">Six situations d’atelier à résoudre. Calculez d’abord à la main (avec calculatrice), puis dévoilez la correction détaillée pour vérifier votre démarche.</p>
+          <div id="exList"></div>
+        </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>🔧 Exercices — vitesse d’avance</h2>
+          <p class="muted">Quatre situations d’usinage (complément hors chapitre 4) reliant avance, débit, rugosité et préparation au polissage.</p>
+          <div id="exListFeed"></div>
+        </article>
+
+        <article class="card" style="margin-top:18px">
+          <h2>📋 Fiche de synthèse</h2>
+          <div class="grid two">
+            <div class="note info">
+              <strong>Vitesse de coupe (abrasifs)</strong><br>
+              <span class="math" style="font-size:1rem;padding:6px 10px;margin-top:6px;display:inline-block">v = π·d·n / 60000</span><br>
+              <span style="font-size:.85rem;opacity:.85">v en m/s · d en mm · n en tr/min</span>
+            </div>
+            <div class="note warn">
+              <strong>Repères pratiques horlogers</strong><br>
+              Polissage ≈ 11 m/s · Lapidage ≈ 6 m/s <em>(cours p. 30)</em>
+            </div>
+            <div class="note" style="border-left-color:var(--gold);background:var(--softGold);color:#78350f">
+              <strong>Vitesse d’avance (usinage)</strong><br>
+              <span class="math" style="font-size:1rem;padding:6px 10px;margin-top:6px;display:inline-block">V<sub>f</sub> = f · n</span>
+              <span class="math" style="font-size:1rem;padding:6px 10px;margin:6px 0 0 6px;display:inline-block">V<sub>f</sub> = f<sub>z</sub> · z · n</span><br>
+              <span style="font-size:.85rem;opacity:.85">V<sub>f</sub> en mm/min · f, f<sub>z</sub> en mm · n en tr/min</span>
+            </div>
+            <div class="note success">
+              <strong>Avance → rugosité (tournage)</strong><br>
+              <span class="math" style="font-size:1rem;padding:6px 10px;margin-top:6px;display:inline-block">Ra ≈ f² / (32·r)</span><br>
+              <span style="font-size:.85rem;opacity:.85">Ra, Rt définis au cours §5.4, p. 9</span>
+            </div>
+          </div>
+          <div class="note danger" style="margin-top:6px">
+            <strong>Rappel d’unités&nbsp;:</strong> abrasion en <strong>m/s</strong> (cours), usinage classique en <strong>m/min</strong>. 1 m/s = 60 m/min — valeurs non comparables.
+          </div>
+        </article>
+      </section>
+
+    </main>
+
+    <p class="footer">Application autonome · HTML, CSS et JavaScript intégrés · Utilisable hors ligne après téléchargement · <strong>Convention patronale — Technologie professionnelle</strong></p>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- ============= SCRIPT ========================================== -->
+  <!-- ============================================================== -->
+  <script>
+    "use strict";
+
+    /* ============= DONNÉES SOURCES ============= */
+    const speedData = [
+      {id:'theo-emerisage',    group:'theo',     groupLabel:'Repère théorique',     label:'Émerisage',                              min:30, max:35, unit:'m/s', comment:'Repère théorique général (cours p. 30).'},
+      {id:'theo-polissage',    group:'theo',     groupLabel:'Repère théorique',     label:'Polissage',                              min:35, max:45, unit:'m/s', comment:'Repère théorique général (cours p. 30).'},
+      {id:'atelier-polissage', group:'pratique', groupLabel:'Pratique horlogère',   label:'Polissage de petites pièces',            min:11, max:11, unit:'m/s', comment:'Valeur pratique pour tenir la pièce à main (cours p. 30).'},
+      {id:'atelier-lapidage',  group:'pratique', groupLabel:'Pratique horlogère',   label:'Lapidage / émerisage petites pièces',    min:6,  max:6,  unit:'m/s', comment:'Valeur pratique basse souvent utilisée (cours p. 30).'},
+      {id:'acier-carbone',     group:'matiere',  groupLabel:'Matière',              label:'Aciers au carbone',                      min:30, max:38, unit:'m/s', comment:'Plage haute parmi les aciers (cours p. 28).'},
+      {id:'acier-inox',        group:'matiere',  groupLabel:'Matière',              label:'Aciers alliés et inoxydables',           min:20, max:30, unit:'m/s', comment:'Vitesse modérée — fréquent en horlogerie (cours p. 28).'},
+      {id:'metaux-durs',       group:'matiere',  groupLabel:'Matière',              label:'Métaux durs et frittés',                 min:8,  max:12, unit:'m/s', comment:'Matériaux durs : vitesse réduite (cours p. 28).'},
+      {id:'titane',            group:'matiere',  groupLabel:'Matière',              label:'Titane',                                 min:7,  max:10, unit:'m/s', comment:'Vitesse réduite — sensible à l’échauffement (cours p. 28).'},
+      {id:'non-ferreux',       group:'matiere',  groupLabel:'Matière',              label:'Métaux non ferreux',                     min:33, max:37, unit:'m/s', comment:'Cours p. 28 : 35 m/s (valeur unique) — bande élargie pour la simulation.'},
+      {id:'precieux',          group:'matiere',  groupLabel:'Matière',              label:'Métaux précieux',                        min:28, max:32, unit:'m/s', comment:'Cours p. 28 : 30 m/s (valeur unique) — bande élargie pour la simulation.'},
+      {id:'sb-nonferreux',     group:'scotch',   groupLabel:'Scotch-Brite',         label:'Finitions décoratives non ferreux',      min:5,  max:14, unit:'m/s', comment:'Vitesse modérée (cours §21.1, p. 28).'},
+      {id:'sb-acier',          group:'scotch',   groupLabel:'Scotch-Brite',         label:'Satinages sur acier',                    min:8,  max:20, unit:'m/s', comment:'Zone de satinage (cours §21.1, p. 28).'},
+      {id:'sb-acier-fin',      group:'scotch',   groupLabel:'Scotch-Brite',         label:'Satinés très fins sur acier',            min:20, max:30, unit:'m/s', comment:'Vitesse plus élevée pour satinage fin (cours §21.1, p. 28).'}
+    ];
+
+    /* ============= HELPERS ============= */
+    const $ = (id) => document.getElementById(id);
+    const fmt = (x, dec=0) => Number.isFinite(x)
+      ? x.toLocaleString('fr-CH', {maximumFractionDigits:dec, minimumFractionDigits:dec})
+      : '—';
+    const meanSpeed = (item) => (item.min + item.max) / 2;
+    const speedText = (item) => item.min === item.max
+      ? `${item.min} ${item.unit}`
+      : `${item.min} à ${item.max} ${item.unit}`;
+
+    /* ============= TABS ============= */
+    document.querySelectorAll('.tabBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        $(btn.dataset.tab).classList.add('active');
+        /* Recalcul des positions d'animation une fois l'onglet visible */
+        if(btn.dataset.tab === 'simulation' && typeof refresh === 'function') refresh();
+        if(btn.dataset.tab === 'simavance' && typeof feedSimRefresh === 'function') feedSimRefresh();
+      });
+    });
+
+    /* ============= TABLEAU DES VITESSES ============= */
+    function fillSpeedTable(){
+      const tbody = document.querySelector('#speedTable tbody');
+      if(!tbody) return;
+      const max = Math.max(...speedData.map(d => d.max));
+      tbody.innerHTML = speedData.map(d => {
+        const w = Math.max(6, Math.round((d.max / max) * 100));
+        return `
+          <tr>
+            <td>
+              <span class="groupTag ${d.group}">${d.groupLabel}</span><br>
+              <strong style="margin-top:4px;display:inline-block">${d.label}</strong>
+            </td>
+            <td><strong>${speedText(d)}</strong></td>
+            <td><div class="speedBar"><span style="--w:${w}%"></span></div></td>
+            <td>${d.comment}</td>
+          </tr>`;
+      }).join('');
+    }
+    fillSpeedTable();
+
+    /* ===================================================== */
+    /* ============== SIMULATION DYNAMIQUE ================== */
+    /* ===================================================== */
+    /*  Les trois curseurs (V, D, N) sont liés par v = π·d·n / 60000 (m/s).
+     *  - Bouger V  →  recalcule N (avec D constant)        [« je vise cette vitesse »]
+     *  - Bouger D  →  recalcule V (avec N constant)        [« j’ai cet outil »]
+     *  - Bouger N  →  recalcule V (avec D constant)        [« je règle la machine »]
+     */
+    const V_MIN = 1,   V_MAX = 130;
+    const D_MIN = 20,  D_MAX = 300;
+    const N_MIN = 100, N_MAX = 8000;
+    const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+
+    function computeV(d, n){ return (Math.PI * d * n) / 60000; }
+    function computeN(v, d){ return (v * 60000) / (Math.PI * d); }
+
+    function readout(){
+      $('vReadout').textContent = `${fmt(parseFloat($('vInput').value), 2)} m/s`;
+      $('dReadout').textContent = `${fmt(parseFloat($('dInput').value), 0)} mm`;
+      $('nReadout').textContent = `${fmt(parseFloat($('nInput').value), 0)} tr/min`;
+    }
+
+    function flash(sliderClass){
+      const el = document.querySelector('.' + sliderClass);
+      if(!el) return;
+      el.classList.remove('flashed');
+      void el.offsetWidth; /* reflow pour relancer l’animation */
+      el.classList.add('flashed');
+    }
+
+    /* Mise à jour de toutes les métriques (résultat, mini-cartes, animation, diagnostic). */
+    function refresh(){
+      const v = parseFloat($('vInput').value);
+      const d = parseFloat($('dInput').value);
+      const n = parseFloat($('nInput').value);
+
+      readout();
+
+      $('resultLabel').textContent = 'Vitesse de coupe v';
+      $('resultValue').textContent = fmt(v, 2);
+      $('resultMeta').textContent = 'm/s · Formule v = π·d·n / 60 000';
+
+      $('calcDetail').innerHTML = `
+        <h3>Calcul affiché</h3>
+        <div class="calcLine"><strong>Formule</strong><span class="calcExpression">v = (π × d × n) ÷ 60 000</span></div>
+        <div class="calcLine"><strong>Application</strong><span class="calcExpression">v = (π × ${fmt(d,0)} × ${fmt(n,0)}) ÷ 60 000</span></div>
+      `;
+
+      animateDisc(n, d, v);
+      updateContactFreq(n);
+    }
+
+    function animateDisc(n, d, v){
+      const sim = document.querySelector('#simulation .simMachine');
+      const W = (sim && sim.clientWidth) ? sim.clientWidth : 520;
+
+      const spin = Math.max(.18, Math.min(3.5, 2500 / Math.max(200, n)));
+
+      /* Largeur de la pièce, proportionnelle au cadre */
+      const wpW = clamp(W * 0.2, 70, 120);
+      const margin = 14;
+
+      /* Diamètre visuel de la meule, plafonné pour que meule + pièce tiennent dans le cadre */
+      const Rmax = Math.max(34, (W - wpW - 2 * margin) / 2);
+      const size = clamp(d * 0.7, 70, 2 * Rmax);
+      const R = size / 2;
+
+      /* On centre l'ensemble meule + pièce, la pièce collée au bord de la meule */
+      const overlap = 3;
+      const groupW = size + wpW - overlap;
+      const groupLeft = Math.max(margin, (W - groupW) / 2);
+      const discCx = groupLeft + R;          // centre de la meule
+      const seam = groupLeft + size;          // bord droit de la meule = point de contact
+      const wpLeft = seam - overlap;          // bord gauche de la pièce, toujours au contact
+
+      /* Meule */
+      $('simDisc').style.setProperty('--disc', `${size}px`);
+      $('simDisc').style.setProperty('--spin', `${spin}s`);
+      $('simDisc').style.left = `${discCx - R}px`;
+      $('simDisc').style.top  = `calc(50% - ${R}px)`;
+
+      /* Pièce — toujours au contact, quelle que soit la taille de la meule */
+      const wp = $('workpiece');
+      wp.style.setProperty('--wpW', `${wpW}px`);
+      wp.style.left = `${wpLeft}px`;
+
+      /* Ligne de contact + étincelles au point de contact */
+      $('contactLine').style.left = `${seam}px`;
+      $('contactLine').style.setProperty('--contact', `${clamp(v * 2.2, 30, 100)}px`);
+      $('contactLine').style.setProperty('--glow', `${clamp(v, 10, 38)}px`);
+      const sparks = sim ? sim.querySelector('.simSparks') : null;
+      if(sparks) sparks.style.left = `${seam}px`;
+
+      /* Flèche de vitesse (indépendante de la position de la meule) */
+      $('speedArrow').style.setProperty('--arrow', `${clamp(v * 7, 55, 320)}px`);
+      $('speedArrowLabel').textContent = `v = ${fmt(v, 1)} m/s`;
+    }
+
+    /* Diagnostic : affiche les matières / opérations compatibles avec la vitesse courante. */
+    function updateContactFreq(n){
+      const perSec = n / 60;                       // un point du pourtour repasse au contact 1 fois par tour
+      const periodSec = n > 0 ? 60 / n : Infinity;
+      $('cfPerSec').textContent = `≈ ${fmt(perSec, perSec < 10 ? 1 : 0)} ×/s`;
+      let pr;
+      if(!isFinite(periodSec))        pr = '—';
+      else if(periodSec >= 1)         pr = `${fmt(periodSec, 2)} s`;
+      else if(periodSec >= 0.001)     pr = `${fmt(periodSec * 1000, periodSec * 1000 < 10 ? 1 : 0)} ms`;
+      else                            pr = `${fmt(periodSec * 1e6, 0)} µs`;
+      $('cfPeriod').textContent = pr;
+
+      $('freqCalc').innerHTML = `
+        <div class="calcLine"><strong>Passages / s</strong><span class="calcExpression">n ÷ 60 = ${fmt(n,0)} ÷ 60 ≈ ${fmt(perSec, perSec<10?1:0)} /s</span></div>
+        <div class="calcLine"><strong>1 passage tous les</strong><span class="calcExpression">60 ÷ n = 60 ÷ ${fmt(n,0)} ≈ ${pr}</span></div>
+      `;
+    }
+
+    function updateDiagnostic(v, n){
+      const box = $('diagnostic');
+      box.className = 'note';
+
+      /* Vérification de la fréquence machine d’abord */
+      if(n >= N_MAX - 1){
+        box.classList.add('warn');
+        box.innerHTML = `<strong>⚠ Fréquence à la limite haute</strong> (${fmt(n,0)} tr/min). Vérifier que la machine supporte ce régime.`;
+        return;
+      }
+      if(n <= N_MIN + 1){
+        box.classList.add('warn');
+        box.innerHTML = `<strong>⚠ Fréquence très faible</strong> (${fmt(n,0)} tr/min). Rotation possiblement insuffisante pour un travail efficace.`;
+        return;
+      }
+
+      /* Listing des matières / opérations compatibles */
+      const matches = speedData.filter(m => v >= m.min && v <= m.max);
+      if(matches.length === 0){
+        if(v < Math.min(...speedData.map(m => m.min))){
+          box.classList.add('info');
+          box.innerHTML = `<strong>↓ Vitesse en dessous des plages courantes</strong> (${fmt(v,2)} m/s). Aucune référence du tableau ne couvre cette vitesse — convient éventuellement à des cas particuliers (pièces très petites, matériaux très sensibles).`;
+        } else {
+          box.classList.add('danger');
+          box.innerHTML = `<strong>↑ Vitesse au-dessus des plages courantes</strong> (${fmt(v,2)} m/s). Risque d’échauffement, traces noirâtres sur Scotch-Brite, longévité d’outil réduite.`;
+        }
+        return;
+      }
+
+      const list = matches.map(m =>
+        `<span class="matchPill ${m.group}"><strong>${m.label}</strong> · ${speedText(m)}</span>`
+      ).join('');
+      box.classList.add('success');
+      box.innerHTML = `<strong>✓ Vitesse compatible</strong> avec ${matches.length} référence${matches.length>1?'s':''} du tableau du cours :<div class="matchList">${list}</div>`;
+    }
+
+    /* ====== Wiring des curseurs : interdépendance via la formule ====== */
+    $('vInput').addEventListener('input', () => {
+      const v = parseFloat($('vInput').value);
+      const d = parseFloat($('dInput').value);
+      let newN = computeN(v, d);
+      const clamped = clamp(newN, N_MIN, N_MAX);
+      $('nInput').value = clamped;
+      /* Si N a été clampé, on recalcule V depuis le N clampé pour rester cohérent */
+      if(Math.abs(clamped - newN) > 0.5){
+        $('vInput').value = clamp(computeV(d, clamped), V_MIN, V_MAX);
+      }
+      flash('inputN');
+      refresh();
+    });
+
+    $('dInput').addEventListener('input', () => {
+      const d = parseFloat($('dInput').value);
+      const n = parseFloat($('nInput').value);
+      $('vInput').value = clamp(computeV(d, n), V_MIN, V_MAX);
+      flash('inputV');
+      refresh();
+    });
+
+    $('nInput').addEventListener('input', () => {
+      const d = parseFloat($('dInput').value);
+      const n = parseFloat($('nInput').value);
+      $('vInput').value = clamp(computeV(d, n), V_MIN, V_MAX);
+      flash('inputV');
+      refresh();
+    });
+
+    /* ====== Boutons utilitaires ====== */
+    $('resetBtn').addEventListener('click', () => {
+      $('vInput').value = 11;
+      $('dInput').value = 120;
+      $('nInput').value = 1750;
+      refresh();
+    });
+
+    $('randomBtn').addEventListener('click', () => {
+      /* Choix d’un repère aléatoire et d’un diamètre courant en atelier */
+      const refs = speedData.filter(m => m.group !== 'theo');
+      const ref = refs[Math.floor(Math.random() * refs.length)];
+      const v = (ref.min + ref.max) / 2;
+      const d = Math.round(40 + Math.random() * 200);
+      const n = clamp(computeN(v, d), N_MIN, N_MAX);
+      $('vInput').value = clamp(v, V_MIN, V_MAX);
+      $('dInput').value = d;
+      $('nInput').value = n;
+      /* Recalcule V depuis N clampé pour cohérence */
+      $('vInput').value = clamp(computeV(d, parseFloat($('nInput').value)), V_MIN, V_MAX);
+      refresh();
+    });
+
+    let animPaused = false;
+    $('pauseBtn').addEventListener('click', () => {
+      animPaused = !animPaused;
+      $('simDisc').classList.toggle('paused', animPaused);
+      const wheel = document.querySelector('.wheel');
+      if(wheel) wheel.style.animationPlayState = animPaused ? 'paused' : 'running';
+      $('pauseBtn').textContent = animPaused ? '▶ Reprendre animation' : '⏸ Pause animation';
+    });
+
+    /* Initialisation */
+    refresh();
+
+    /* Recalcule les positions des animations lors d'un redimensionnement de la fenêtre */
+    let resizeRaf = null;
+    window.addEventListener('resize', () => {
+      if(resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        refresh();
+        if(typeof feedSimRefresh === 'function') feedSimRefresh();
+      });
+    });
+
+
+    /* ===================================================== */
+    /* ============== VITESSE D'AVANCE ===================== */
+    /* ===================================================== */
+    /*  Tournage / perçage : Vf = f × n
+     *  Fraisage           : Vf = fz × z × n   (et f/tour = fz × z)
+     *  Rugosité théorique tournage : Ra ≈ f²/(32 r) ; Rt ≈ f²/(8 r)  [résultat ×1000 → µm]
+     */
+    let feedToolPos = 0;            // position de l'outil animé (en %)
+    let feedTimer = null;
+
+    function feedRefresh(){
+      const op = $('fOp').value;                 // 'tournage' | 'percage' | 'fraisage'
+      const n  = Math.max(0, parseFloat($('fN').value) || 0);
+      const fv = Math.max(0, parseFloat($('fF').value) || 0);
+      const z  = Math.max(0, parseFloat($('fZ').value) || 0);
+      const r  = Math.max(0, parseFloat($('fR').value) || 0);
+
+      /* Affichage conditionnel des champs */
+      if(op === 'fraisage'){
+        $('fZRow').style.display = '';
+        $('fRRow').style.display = 'none';
+        $('fFLabel').innerHTML = 'Avance par dent f<sub>z</sub> (mm/dent)';
+      } else if(op === 'tournage'){
+        $('fZRow').style.display = 'none';
+        $('fRRow').style.display = '';
+        $('fFLabel').innerHTML = 'Avance par tour f (mm/tr)';
+      } else { /* perçage */
+        $('fZRow').style.display = 'none';
+        $('fRRow').style.display = 'none';
+        $('fFLabel').innerHTML = 'Avance par tour f (mm/tr)';
+      }
+
+      /* Calcul de Vf et de l'avance par tour */
+      let Vf, fPerRev, formula, applied;
+      if(op === 'fraisage'){
+        fPerRev = fv * z;
+        Vf = fv * z * n;
+        formula = 'Vf = fz × z × n';
+        applied = `Vf = ${fmt(fv,3)} × ${fmt(z,0)} × ${fmt(n,0)}`;
+      } else {
+        fPerRev = fv;
+        Vf = fv * n;
+        formula = 'Vf = f × n';
+        applied = `Vf = ${fmt(fv,3)} × ${fmt(n,0)}`;
+      }
+
+      $('fVf').textContent = fmt(Vf, 0);
+      $('fMeta').textContent = `mm/min · ${formula}`;
+      $('fFrev').textContent = `${fmt(fPerRev, 3)} mm/tr`;
+
+      /* Rugosité théorique : tournage uniquement */
+      let Ra = null, Rt = null;
+      if(op === 'tournage' && r > 0 && fPerRev > 0){
+        Ra = (fPerRev * fPerRev) / (32 * r) * 1000; // µm
+        Rt = (fPerRev * fPerRev) / (8  * r) * 1000; // µm
+        $('fRa').textContent = `${fmt(Ra, 2)} µm`;
+        $('fRt').textContent = `${fmt(Rt, 2)} µm`;
+      } else {
+        $('fRa').textContent = '—';
+        $('fRt').textContent = '—';
+      }
+
+      /* Détail du calcul */
+      let raLine = '';
+      if(Ra !== null){
+        raLine = `<div class="calcLine"><strong>Rugosité (Ra)</strong><span class="calcExpression">Ra ≈ ${fmt(fPerRev,3)}² ÷ (32 × ${fmt(r,2)}) = ${fmt(Ra,2)} µm</span></div>`;
+      }
+      $('fCalc').innerHTML = `
+        <h3>Calcul affiché</h3>
+        <div class="calcLine"><strong>Formule</strong><span class="calcExpression">${formula}</span></div>
+        <div class="calcLine"><strong>Application</strong><span class="calcExpression">${applied}</span></div>
+        <div class="calcLine"><strong>Résultat</strong><span><strong style="color:var(--accent2);font-size:1.05rem">${fmt(Vf,0)} mm/min</strong></span></div>
+        ${raLine}
+      `;
+
+      /* Animation : longueur de flèche + vitesse de translation de l'outil */
+      const arrowW = clamp(Vf / 6, 50, 420);
+      $('feedArrow').style.setProperty('--feedArrow', `${arrowW}px`);
+      $('feedArrowLabel').innerHTML = `V<sub>f</sub> = ${fmt(Vf,0)} mm/min`;
+
+      const stepPx = clamp(Vf / 250, 0.3, 6); // pas de translation par tick
+      if(feedTimer) clearInterval(feedTimer);
+      feedTimer = setInterval(() => {
+        feedToolPos += stepPx;
+        if(feedToolPos > 80) feedToolPos = 8;
+        $('feedTool').style.setProperty('--toolPos', `${feedToolPos}%`);
+        $('feedChip').style.setProperty('--toolPos', `${feedToolPos}%`);
+      }, 70);
+
+      /* Diagnostic pédagogique */
+      const diag = $('fDiag');
+      diag.className = 'note';
+      if(op === 'tournage' && Ra !== null){
+        if(Ra <= 0.8){
+          diag.classList.add('success');
+          diag.innerHTML = `<strong>✓ État de surface fin</strong> (Ra ≈ ${fmt(Ra,2)} µm). Préparation au polissage réduite : la succession de granulométries (cours p. 29-30) sera courte.`;
+        } else if(Ra <= 3.2){
+          diag.classList.add('warn');
+          diag.innerHTML = `<strong>État de surface moyen</strong> (Ra ≈ ${fmt(Ra,2)} µm). Un adoucissage / émerisage sera nécessaire avant le polissage.`;
+        } else {
+          diag.classList.add('danger');
+          diag.innerHTML = `<strong>↑ Surface rugueuse</strong> (Ra ≈ ${fmt(Ra,2)} µm). Avance élevée : beaucoup de matière à enlever ensuite, séquence de polissage longue. Réduire f ou augmenter le rayon de bec r.`;
+        }
+      } else {
+        diag.classList.add('info');
+        diag.innerHTML = `Vitesse d’avance = <strong>${fmt(Vf,0)} mm/min</strong>. Plus l’avance augmente, plus le débit de matière et la productivité augmentent — mais plus la surface est rugueuse et l’outil sollicité (compromis, cours p. 28).`;
+      }
+    }
+
+    ['fOp','fN','fF','fZ','fR'].forEach(id => {
+      $(id).addEventListener('input', feedRefresh);
+      $(id).addEventListener('change', feedRefresh);
+    });
+    feedRefresh();
+
+
+    /* ===================================================== */
+    /* ================== EXERCICES ======================== */
+    /* ===================================================== */
+    const EXERCISES = [
+      {
+        level:'easy', tag:'Niveau 1',
+        q:"Calculer la vitesse de coupe d’une meule de <strong>Ø 120 mm</strong> tournant à <strong>3 000 tr/min</strong>. Cette vitesse est-elle adaptée à un acier inoxydable ?",
+        a:`<code>v = π × 120 × 3000 ÷ 60 000</code><br>
+           v ≈ <strong>18,85 m/s</strong>.<br><br>
+           La plage acier inox = <strong>20 à 30 m/s</strong>. La vitesse calculée est <strong>légèrement insuffisante</strong> (−5,8%). 
+           Il faudrait augmenter <em>n</em> à environ <strong>3 200 tr/min</strong> pour atteindre 20 m/s.`
+      },
+      {
+        level:'easy', tag:'Niveau 1',
+        q:"Un atelier polit du laiton (métal non ferreux) à <strong>35 m/s</strong> avec une meule de <strong>Ø 200 mm</strong>. Quelle fréquence de rotation faut-il régler ?",
+        a:`<code>n = 35 × 60 000 ÷ (π × 200)</code><br>
+           n = 2 100 000 ÷ 628,32 ≈ <strong>3 343 tr/min</strong>.<br><br>
+           Régler la machine à environ <strong>3 340 tr/min</strong> pour respecter la vitesse cible.`
+      },
+      {
+        level:'medium', tag:'Niveau 2',
+        q:"On dispose d’un tour à polir tournant à <strong>2 800 tr/min</strong> (vitesse non réglable). Quel diamètre maximal de feutre choisir pour ne pas dépasser <strong>15 m/s</strong> lors d’un polissage de titane ?",
+        a:`<code>d max = 15 × 60 000 ÷ (π × 2800)</code><br>
+           d max = 900 000 ÷ 8 796 ≈ <strong>102 mm</strong>.<br><br>
+           Choisir un feutre de <strong>Ø ≤ 100 mm</strong>. 
+           <em>Remarque :</em> le titane se travaille idéalement à 7–10 m/s, donc un feutre plus petit (Ø ≤ 70 mm) serait encore mieux adapté.`
+      },
+      {
+        level:'medium', tag:'Niveau 2',
+        q:"Un satinage Scotch-Brite très fin sur acier (20–30 m/s) est réalisé sur une bande dont la vitesse linéaire est mesurée à <strong>32 m/s</strong>. L’opérateur observe des traces noirâtres. Expliquer la cause et proposer une correction.",
+        a:`La vitesse <strong>dépasse</strong> la borne supérieure (30 m/s) de la plage Scotch-Brite. 
+           La <strong>nappe résineuse fond</strong> sous l’effet de l’échauffement et laisse des traces noires sur la pièce.<br><br>
+           <strong>Correction :</strong> réduire la vitesse d’environ 10–15% (cible 25–28 m/s) en diminuant <em>n</em> ou en utilisant une poulie de contact de diamètre plus petit.`
+      },
+      {
+        level:'hard', tag:'Niveau 3',
+        q:"Calculer la fréquence de rotation requise pour respecter la pratique horlogère du polissage (≈ <strong>11 m/s</strong>) avec un disque toile de <strong>Ø 80 mm</strong>. Comparer avec la vitesse théorique recommandée (35–45 m/s) — combien faudrait-il faire tourner le même disque pour atteindre <strong>40 m/s</strong> ?",
+        a:`<strong>(a)</strong> <code>n = 11 × 60 000 ÷ (π × 80)</code><br>
+           n ≈ <strong>2 626 tr/min</strong>.<br><br>
+           <strong>(b)</strong> <code>n = 40 × 60 000 ÷ (π × 80)</code><br>
+           n ≈ <strong>9 549 tr/min</strong>.<br><br>
+           <strong>Conclusion :</strong> pour respecter la théorie il faudrait quasiment <strong>3,6× plus rapide</strong> — d’où l’impossibilité pratique avec des petites pièces tenues main, et le choix horloger de 11 m/s.`
+      },
+      {
+        level:'hard', tag:'Niveau 3',
+        q:"Un polisseur dispose d’une meule de <strong>Ø 150 mm</strong> sur un moteur 2 pôles 50 Hz (<strong>3 000 tr/min</strong>). Vérifier si cette configuration convient pour : <strong>(a)</strong> aciers au carbone, <strong>(b)</strong> titane, <strong>(c)</strong> métaux non ferreux.",
+        a:`<code>v = π × 150 × 3000 ÷ 60 000</code><br>
+           v ≈ <strong>23,56 m/s</strong>.<br><br>
+           <strong>(a) Aciers au carbone (30–38 m/s) :</strong> ✕ <em>insuffisant</em>, augmenter n ou d.<br>
+           <strong>(b) Titane (7–10 m/s) :</strong> ✕ <em>excessif</em>, risque d’échauffement majeur.<br>
+           <strong>(c) Non ferreux (≈ 35 m/s) :</strong> ✕ <em>insuffisant</em>.<br><br>
+           <strong>Conclusion :</strong> cette configuration n’est <strong>optimale pour aucun</strong> de ces trois cas. 
+           Elle convient en revanche très bien aux <em>aciers alliés et inoxydables</em> (20–30 m/s) ✓.`
+      }
+    ];
+
+    const EXERCISES_FEED = [
+      {
+        level:'easy', tag:'Avance · N1',
+        q:"<strong>Tournage.</strong> La broche tourne à <strong>1 200 tr/min</strong> et l’avance par tour est de <strong>0,15 mm/tr</strong>. Calculer la vitesse d’avance V<sub>f</sub>.",
+        a:`<code>Vf = f × n</code><br>
+           Vf = 0,15 × 1 200 = <strong>180 mm/min</strong>.<br><br>
+           Concrètement, l’outil progresse de 180 mm le long de la pièce chaque minute.`
+      },
+      {
+        level:'easy', tag:'Avance · N1',
+        q:"<strong>Fraisage.</strong> Fraise à <strong>z = 4 dents</strong>, avance par dent <strong>f<sub>z</sub> = 0,05 mm/dent</strong>, vitesse de broche <strong>n = 2 500 tr/min</strong>. Calculer V<sub>f</sub> et l’avance par tour f.",
+        a:`<code>Vf = fz × z × n</code> = 0,05 × 4 × 2 500 = <strong>500 mm/min</strong>.<br>
+           Avance par tour : <code>f = fz × z</code> = 0,05 × 4 = <strong>0,2 mm/tr</strong>.`
+      },
+      {
+        level:'medium', tag:'Avance · N2 — lien rugosité',
+        q:"<strong>Avance ↔ rugosité.</strong> En tournage de finition d’une carrure laiton (rayon de bec <strong>r = 0,8 mm</strong>), on vise une rugosité théorique <strong>Ra ≤ 0,8 µm</strong> avant polissage. Quelle avance par tour maximale choisir ? Pour n = 2 000 tr/min, quelle V<sub>f</sub> en découle ?",
+        a:`Rugosité théorique en tournage : <code>Ra ≈ f² / (32 × r)</code>, donc <code>f ≤ √(Ra × 32 × r)</code>.<br>
+           Avec Ra = 0,8 µm = 0,0008 mm et r = 0,8 mm :<br>
+           f ≤ √(0,0008 × 32 × 0,8) = √0,02048 ≈ <strong>0,143 mm/tr</strong>.<br>
+           <code>Vf = f × n</code> = 0,143 × 2 000 ≈ <strong>286 mm/min</strong>.<br><br>
+           Une avance plus fine abaisse Ra et <strong>réduit le travail de polissage</strong> ensuite (succession de granulométries, cours p. 29-30).`
+      },
+      {
+        level:'hard', tag:'Avance · N3 — chaîne complète',
+        q:"<strong>Chaîne Vc → n → Vf.</strong> Tournage d’un acier doux à <strong>Vc = 150 m/min</strong> (valeur d’usinage — à ne pas confondre avec les vitesses d’abrasion en m/s du tableau), Ø pièce <strong>30 mm</strong>, avance <strong>0,25 mm/tr</strong>. Calculer n puis V<sub>f</sub>.",
+        a:`<code>n = (Vc × 1000) / (π × D)</code> = (150 × 1000) / (π × 30) = 150 000 / 94,25 ≈ <strong>1 592 tr/min</strong>.<br>
+           <code>Vf = f × n</code> = 0,25 × 1 592 ≈ <strong>398 mm/min</strong>.<br><br>
+           <strong>Rappel d’unités :</strong> ici Vc est en m/min (usinage). 1 m/s = 60 m/min ; ces 150 m/min ≈ 2,5 m/s n’ont rien à voir avec les 30-38 m/s d’abrasion du tableau.`
+      }
+    ];
+
+    function renderExercises(list, containerId, idPrefix){
+      $(containerId).innerHTML = list.map((e, i) => `
+        <div class="exercise">
+          <div class="exerciseHead">
+            <strong>Exercice ${i + 1}</strong>
+            <span class="levelTag ${e.level}">${e.tag}</span>
+          </div>
+          <p>${e.q}</p>
+          <button class="btn secondary" data-toggle="${idPrefix}${i}">Afficher la correction</button>
+          <div class="exerciseAnswer" id="${idPrefix}${i}">${e.a}</div>
+        </div>
+      `).join('');
+
+      $(containerId).querySelectorAll('[data-toggle]').forEach(b => {
+        b.addEventListener('click', () => {
+          const ans = $(b.dataset.toggle);
+          ans.classList.toggle('show');
+          b.textContent = ans.classList.contains('show')
+            ? 'Masquer la correction'
+            : 'Afficher la correction';
+        });
+      });
+    }
+
+    renderExercises(EXERCISES, 'exList', 'exA');
+    renderExercises(EXERCISES_FEED, 'exListFeed', 'exF');
+
+    /* ===== CONVERTISSEUR D'UNITÉS ===== */
+    function convRefresh(){
+      const val = parseFloat($('cvVal').value);
+      const u = $('cvUnit').value;
+      if(!Number.isFinite(val)){
+        $('cvMs').textContent = $('cvMmin').textContent = $('cvMmmin').textContent = '—';
+        return;
+      }
+      let ms;                                   // base en m/s
+      if(u === 'mmin')       ms = val / 60;
+      else if(u === 'mmmin') ms = val / 60000;
+      else                   ms = val;          // 'ms'
+      $('cvMs').textContent    = `${fmt(ms, 3)} m/s`;
+      $('cvMmin').textContent  = `${fmt(ms * 60, 1)} m/min`;
+      $('cvMmmin').textContent = `${fmt(ms * 60000, 0)} mm/min`;
+    }
+    ['cvVal','cvUnit'].forEach(id => {
+      $(id).addEventListener('input', convRefresh);
+      $(id).addEventListener('change', convRefresh);
+    });
+    convRefresh();
+
+    /* ===== SIMULATION VITESSE D'AVANCE ===== */
+    let sfPos = 0, sfTimer = null, sfPaused = false;
+
+    function sfReadouts(op){
+      $('sfNOut').textContent = `${fmt(parseFloat($('sfN').value) || 0, 0)} tr/min`;
+      const unit = (op === 'fraisage') ? 'mm/dent' : 'mm/tr';
+      $('sfFOut').textContent = `${fmt(parseFloat($('sfF').value) || 0, 2)} ${unit}`;
+      $('sfZOut').textContent = `${fmt(parseFloat($('sfZ').value) || 0, 0)}`;
+      $('sfROut').textContent = `${fmt(parseFloat($('sfR').value) || 0, 2)} mm`;
+    }
+
+    function feedSimRefresh(){
+      const op = $('sfOp').value;
+      const n  = Math.max(0, parseFloat($('sfN').value) || 0);
+      const fv = Math.max(0, parseFloat($('sfF').value) || 0);
+      const z  = Math.max(0, parseFloat($('sfZ').value) || 0);
+      const r  = Math.max(0, parseFloat($('sfR').value) || 0);
+
+      /* Affichage conditionnel des curseurs */
+      if(op === 'fraisage'){
+        $('sfZBlock').style.display = '';
+        $('sfRBlock').style.display = 'none';
+        $('sfFLabel').innerHTML = 'Avance par dent f<sub>z</sub>';
+      } else if(op === 'tournage'){
+        $('sfZBlock').style.display = 'none';
+        $('sfRBlock').style.display = '';
+        $('sfFLabel').innerHTML = 'Avance par tour f';
+      } else {
+        $('sfZBlock').style.display = 'none';
+        $('sfRBlock').style.display = 'none';
+        $('sfFLabel').innerHTML = 'Avance par tour f';
+      }
+      sfReadouts(op);
+
+      /* Vf + avance par tour */
+      let Vf, fRev, formula, applied;
+      if(op === 'fraisage'){
+        fRev = fv * z; Vf = fv * z * n;
+        formula = 'Vf = fz × z × n';
+        applied = `Vf = ${fmt(fv,3)} × ${fmt(z,0)} × ${fmt(n,0)}`;
+      } else {
+        fRev = fv; Vf = fv * n;
+        formula = 'Vf = f × n';
+        applied = `Vf = ${fmt(fv,3)} × ${fmt(n,0)}`;
+      }
+
+      $('sfVf').textContent = fmt(Vf, 0);
+      $('sfMeta').textContent = `mm/min · ${formula}`;
+      $('sfFrev').textContent = `${fmt(fRev, 3)} mm/tr`;
+
+      /* Rugosité théorique (tournage) */
+      let Ra = null, Rt = null;
+      if(op === 'tournage' && r > 0 && fRev > 0){
+        Ra = (fRev * fRev) / (32 * r) * 1000;
+        Rt = (fRev * fRev) / (8  * r) * 1000;
+        $('sfRa').textContent = `${fmt(Ra, 2)} µm`;
+        $('sfRt').textContent = `${fmt(Rt, 2)} µm`;
+      } else {
+        $('sfRa').textContent = '—';
+        $('sfRt').textContent = '—';
+      }
+
+      let raLine = '';
+      if(Ra !== null){
+        raLine = `<div class="calcLine"><strong>Rugosité (Ra)</strong><span class="calcExpression">Ra ≈ ${fmt(fRev,3)}² ÷ (32 × ${fmt(r,2)}) = ${fmt(Ra,2)} µm</span></div>`;
+      }
+      $('sfCalc').innerHTML = `
+        <h3>Calcul affiché</h3>
+        <div class="calcLine"><strong>Formule</strong><span class="calcExpression">${formula}</span></div>
+        <div class="calcLine"><strong>Application</strong><span class="calcExpression">${applied}</span></div>
+        ${raLine}
+      `;
+
+      /* Animation : pas des sillons ∝ avance/tour, vitesse de défilement ∝ Vf */
+      const cont = document.querySelector('#simavance .simFeed');
+      if(cont){
+        const pitch = clamp(fRev * 45, 3, 26);
+        cont.style.setProperty('--groove', `${pitch}px`);
+      }
+      const arrow = document.querySelector('#simavance .sfArrow');
+      if(arrow) arrow.style.setProperty('--vfArrow', `${clamp(Vf / 6, 50, 420)}px`);
+      $('sfArrowLabel').innerHTML = `V<sub>f</sub> = ${fmt(Vf,0)} mm/min`;
+      $('sfTag').textContent = (op === 'fraisage') ? 'Surface fraisée' : (op === 'percage' ? 'Perçage — avance' : 'Sillons ∝ avance');
+
+      const step = clamp(Vf / 180, 0.25, 4);
+      if(sfTimer) clearInterval(sfTimer);
+      if(!sfPaused && cont){
+        sfTimer = setInterval(() => {
+          sfPos += step;
+          if(sfPos > 84) sfPos = 0;
+          cont.style.setProperty('--done', `${sfPos}%`);
+        }, 60);
+      }
+
+      /* Diagnostic pédagogique */
+      const diag = $('sfDiag');
+      diag.className = 'note';
+      if(op === 'tournage' && Ra !== null){
+        if(Ra <= 0.8){
+          diag.classList.add('success');
+          diag.innerHTML = `<strong>✓ État de surface fin</strong> (Ra ≈ ${fmt(Ra,2)} µm). Sillons fins → préparation au polissage courte (succession de granulométries, cours p. 29-30).`;
+        } else if(Ra <= 3.2){
+          diag.classList.add('warn');
+          diag.innerHTML = `<strong>État de surface moyen</strong> (Ra ≈ ${fmt(Ra,2)} µm). Un adoucissage / émerisage sera nécessaire avant le polissage.`;
+        } else {
+          diag.classList.add('danger');
+          diag.innerHTML = `<strong>↑ Surface rugueuse</strong> (Ra ≈ ${fmt(Ra,2)} µm). Sillons profonds : beaucoup de matière à reprendre ensuite. Réduire f ou augmenter le rayon de bec r.`;
+        }
+      } else {
+        diag.classList.add('info');
+        diag.innerHTML = `V<sub>f</sub> = <strong>${fmt(Vf,0)} mm/min</strong>. Plus l’avance augmente, plus le débit de matière et la productivité montent — au prix d’une surface plus rugueuse et d’un outil plus sollicité (compromis, cours p. 28).`;
+      }
+    }
+
+    ['sfOp','sfN','sfF','sfZ','sfR'].forEach(id => {
+      $(id).addEventListener('input', feedSimRefresh);
+      $(id).addEventListener('change', feedSimRefresh);
+    });
+
+    $('sfReset').addEventListener('click', () => {
+      $('sfOp').value = 'tournage';
+      $('sfN').value = 1200; $('sfF').value = 0.15; $('sfZ').value = 4; $('sfR').value = 0.8;
+      sfPos = 0;
+      feedSimRefresh();
+    });
+    $('sfRandom').addEventListener('click', () => {
+      const ops = ['tournage','percage','fraisage'];
+      $('sfOp').value = ops[Math.floor(Math.random() * ops.length)];
+      $('sfN').value = Math.round(300 + Math.random() * 3700);
+      $('sfF').value = (0.04 + Math.random() * 0.4).toFixed(2);
+      $('sfZ').value = Math.round(2 + Math.random() * 8);
+      $('sfR').value = (0.2 + Math.random() * 1.4).toFixed(2);
+      feedSimRefresh();
+    });
+    $('sfPause').addEventListener('click', () => {
+      sfPaused = !sfPaused;
+      $('sfPause').textContent = sfPaused ? '▶ Reprendre animation' : '⏸ Pause animation';
+      feedSimRefresh();
+    });
+    feedSimRefresh();
+
+  </script>
+</body>
+</html>
